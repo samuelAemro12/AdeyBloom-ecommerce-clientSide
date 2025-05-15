@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('EN');
-  const [cartItemCount, setCartItemCount] = useState(0); // This will be managed by CartContext later
+  
+  const { itemCount } = useCart();
+  const { user, logout, isAuthenticated } = useAuth();
 
   const toggleLanguage = () => {
     setCurrentLanguage(currentLanguage === 'EN' ? 'AM' : 'EN');
@@ -55,12 +59,31 @@ const Navbar = () => {
             </button>
 
             {/* Auth Buttons */}
-            <Link
-              to="/login"
-              className="flex items-center text-[#2F2F2F] hover:text-[#C585D7]"
-            >
-              <FiUser className="h-5 w-5" />
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/profile"
+                  className="flex items-center text-[#2F2F2F] hover:text-[#C585D7]"
+                >
+                  <FiUser className="h-5 w-5" />
+                  <span className="ml-2">{user.name}</span>
+                </Link>
+                <button
+                  onClick={logout}
+                  className="flex items-center text-[#2F2F2F] hover:text-[#C585D7]"
+                >
+                  <FiLogOut className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center text-[#2F2F2F] hover:text-[#C585D7]"
+              >
+                <FiUser className="h-5 w-5" />
+                <span className="ml-2">Login</span>
+              </Link>
+            )}
 
             {/* Cart */}
             <Link
@@ -68,9 +91,9 @@ const Navbar = () => {
               className="flex items-center text-[#2F2F2F] hover:text-[#C585D7] relative"
             >
               <FiShoppingCart className="h-5 w-5" />
-              {cartItemCount > 0 && (
+              {itemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-[#C585D7] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
-                  {cartItemCount}
+                  {itemCount}
                 </span>
               )}
             </Link>
@@ -113,22 +136,43 @@ const Navbar = () => {
                   <IoLanguageOutline className="h-5 w-5" />
                   <span>{currentLanguage}</span>
                 </button>
-                <Link
-                  to="/login"
-                  className="text-[#2F2F2F] hover:text-[#C585D7]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <FiUser className="h-5 w-5" />
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="text-[#2F2F2F] hover:text-[#C585D7]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <FiUser className="h-5 w-5" />
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-[#2F2F2F] hover:text-[#C585D7]"
+                    >
+                      <FiLogOut className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="text-[#2F2F2F] hover:text-[#C585D7]"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <FiUser className="h-5 w-5" />
+                  </Link>
+                )}
                 <Link
                   to="/cart"
                   className="text-[#2F2F2F] hover:text-[#C585D7] relative"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <FiShoppingCart className="h-5 w-5" />
-                  {cartItemCount > 0 && (
+                  {itemCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-[#C585D7] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
-                      {cartItemCount}
+                      {itemCount}
                     </span>
                   )}
                 </Link>
