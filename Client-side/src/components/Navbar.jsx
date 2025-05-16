@@ -10,7 +10,7 @@ const Navbar = () => {
   const [currentLanguage, setCurrentLanguage] = useState('EN');
   
   const { itemCount } = useCart();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout } = useAuth();
 
   const toggleLanguage = () => {
     setCurrentLanguage(currentLanguage === 'EN' ? 'AM' : 'EN');
@@ -59,7 +59,7 @@ const Navbar = () => {
             </button>
 
             {/* Auth Buttons */}
-            {isAuthenticated ? (
+            {user ? (
               <div className="flex items-center space-x-4">
                 <Link
                   to="/profile"
@@ -77,11 +77,11 @@ const Navbar = () => {
               </div>
             ) : (
               <Link
-                to="/login"
+                to="/signin"
                 className="flex items-center text-[#2F2F2F] hover:text-[#C585D7]"
               >
                 <FiUser className="h-5 w-5" />
-                <span className="ml-2">Login</span>
+                <span className="ml-2">Sign In</span>
               </Link>
             )}
 
@@ -136,7 +136,7 @@ const Navbar = () => {
                   <IoLanguageOutline className="h-5 w-5" />
                   <span>{currentLanguage}</span>
                 </button>
-                {isAuthenticated ? (
+                {user ? (
                   <>
                     <Link
                       to="/profile"
@@ -157,7 +157,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <Link
-                    to="/login"
+                    to="/signin"
                     className="text-[#2F2F2F] hover:text-[#C585D7]"
                     onClick={() => setIsMenuOpen(false)}
                   >
