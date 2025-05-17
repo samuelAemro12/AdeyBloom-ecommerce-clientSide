@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FiMail, FiLock, FiArrowRight } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
 
 const SignIn = () => {
-  const { login } = useAuth();
+  const { login, googleSignIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +24,16 @@ const SignIn = () => {
       setError(err.message || 'Failed to sign in');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    try {
+      await googleSignIn();
+      navigate('/');
+    } catch (err) {
+      setError(err.message || 'Failed to sign in with Google');
     }
   };
 
@@ -48,6 +59,24 @@ const SignIn = () => {
               {error}
             </div>
           )}
+
+          {/* Google Sign In Button */}
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full mb-4 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition"
+          >
+            <FcGoogle className="text-xl" />
+            Sign in with Google
+          </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
@@ -76,27 +105,37 @@ const SignIn = () => {
               />
             </div>
 
-            {/* Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group w-full flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <span className="inline-flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                <>
-                  Sign in
-                  <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
-                </>
-              )}
-            </button>
+            {/* Buttons */}
+            <div className="space-y-4 mt-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span className="inline-flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  <>
+                    Sign In
+                    <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
+              </button>
+
+              <Link 
+                to="/signup" 
+                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition"
+              >
+                Create Account
+                <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
           </form>
 
           <p className="mt-6 text-sm text-center text-ash-gray">
