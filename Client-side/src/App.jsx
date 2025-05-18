@@ -7,6 +7,11 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
+import ProductDetails from './pages/ProductDetails';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import UserProfile from './pages/UserProfile';
+import OrderHistory from './pages/OrderHistory';
 
 const App = () => {
   return (
@@ -19,7 +24,11 @@ const App = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
-              {/* Other routes will be added here */}
+              <Route path="/product/:productId" element={<ProductDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/orders" element={<OrderHistory />} />
             </Routes>
           </main>
           <Footer />

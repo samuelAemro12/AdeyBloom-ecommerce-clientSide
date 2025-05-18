@@ -1,148 +1,97 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const CartContext = createContext();
-
-const initialState = {
-  items: [],
-  total: 0,
-};
-
-// Cart reducer to handle all cart-related actions
-const cartReducer = (state, action) => {
-  switch (action.type) {
-    case 'ADD_TO_CART':
-      const existingItemIndex = state.items.findIndex(
-        (item) => item.id === action.payload.id
-      );
-
-      if (existingItemIndex > -1) {
-        const updatedItems = state.items.map((item, index) => {
-          if (index === existingItemIndex) {
-            return {
-              ...item,
-              quantity: item.quantity + action.payload.quantity,
-            };
-          }
-          return item;
-        });
-
-        return {
-          ...state,
-          items: updatedItems,
-          total: calculateTotal(updatedItems),
-        };
-      }
-
-      const newItems = [...state.items, { ...action.payload, quantity: action.payload.quantity || 1 }];
-      return {
-        ...state,
-        items: newItems,
-        total: calculateTotal(newItems),
-      };
-
-    case 'REMOVE_FROM_CART':
-      const filteredItems = state.items.filter((item) => item.id !== action.payload);
-      return {
-        ...state,
-        items: filteredItems,
-        total: calculateTotal(filteredItems),
-      };
-
-    case 'UPDATE_QUANTITY':
-      const updatedItems = state.items.map((item) => {
-        if (item.id === action.payload.id) {
-          return {
-            ...item,
-            quantity: action.payload.quantity,
-          };
-        }
-        return item;
-      });
-
-      return {
-        ...state,
-        items: updatedItems,
-        total: calculateTotal(updatedItems),
-      };
-
-    case 'CLEAR_CART':
-      return initialState;
-
-    default:
-      return state;
+// Mock data for testing
+const mockCartItems = [
+  {
+    id: 1,
+    name: "Natural Face Cream",
+    price: 29.99,
+    quantity: 1,
+    image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400"
+  },
+  {
+    id: 2,
+    name: "Organic Lip Balm",
+    price: 12.99,
+    quantity: 2,
+    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400"
   }
-};
+];
 
-// Helper function to calculate total
-const calculateTotal = (items) => {
-  return items.reduce((total, item) => total + item.price * item.quantity, 0);
-};
+const CartContext = createContext(null);
 
-export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
-
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      const parsedCart = JSON.parse(savedCart);
-      Object.keys(parsedCart).forEach(key => {
-        dispatch({ type: 'LOAD_CART', payload: parsedCart[key] });
-      });
-    }
-  }, []);
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state));
-  }, [state]);
-
-  // Cart actions
-  const addToCart = (product, quantity = 1) => {
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: { ...product, quantity },
-    });
-  };
-
-  const removeFromCart = (productId) => {
-    dispatch({
-      type: 'REMOVE_FROM_CART',
-      payload: productId,
-    });
-  };
-
-  const updateQuantity = (productId, quantity) => {
-    dispatch({
-      type: 'UPDATE_QUANTITY',
-      payload: { id: productId, quantity },
-    });
-  };
-
-  const clearCart = () => {
-    dispatch({ type: 'CLEAR_CART' });
-  };
-
-  const value = {
-    cart: state.items,
-    total: state.total,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    itemCount: state.items.reduce((count, item) => count + item.quantity, 0),
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-};
-
-// Custom hook to use cart context
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
+};
+
+export const CartProvider = ({ children }) => {
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : mockCartItems; // Use mock data as initial state
+  });
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = (product, quantity = 1) => {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find((item) => item.id === product.id);
+
+      if (existingItem) {
+        return currentCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+
+      return [...currentCart, { ...product, quantity }];
+    });
+  };
+
+  const removeFromCart = (productId) => {
+    setCart((currentCart) => currentCart.filter((item) => item.id !== productId));
+  };
+
+  const updateQuantity = (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+
+    setCart((currentCart) =>
+      currentCart.map((item) =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const getCartItemCount = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const value = {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getCartTotal,
+    getCartItemCount,
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export default CartContext; 
