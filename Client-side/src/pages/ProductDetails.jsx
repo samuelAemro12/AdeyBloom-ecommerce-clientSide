@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 // Mock product data for testing
@@ -20,6 +20,7 @@ const mockProduct = {
 
 const ProductDetails = () => {
   const { productId } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -29,9 +30,15 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         // For testing, we'll use mock data
-        setProduct(mockProduct);
+        // Simulate product not found for IDs other than 1
+        if (productId === "1") {
+          setProduct(mockProduct);
+        } else {
+          setProduct(null);
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -49,11 +56,8 @@ const ProductDetails = () => {
   }
 
   if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <p className="text-center text-gray-600">Product not found</p>
-      </div>
-    );
+    navigate('/404', { replace: true });
+    return null;
   }
 
   const handleAddToCart = () => {

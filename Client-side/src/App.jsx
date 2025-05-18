@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile';
 import OrderHistory from './pages/OrderHistory';
+import NotFound from './pages/NotFound';
 
 const App = () => {
   return (
@@ -29,6 +30,8 @@ const App = () => {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/orders" element={<OrderHistory />} />
+              {/* 404 route - must be last */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
           <Footer />

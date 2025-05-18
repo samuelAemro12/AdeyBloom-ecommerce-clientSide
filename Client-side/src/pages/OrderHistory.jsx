@@ -50,14 +50,22 @@ const OrderHistory = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         // For testing, we'll use mock data
+        // Simulate error for testing
+        const shouldError = Math.random() < 0.5; // 50% chance of error
+        if (shouldError) {
+          throw new Error('Failed to fetch orders');
+        }
         setOrders(mockOrders);
+        setError(false);
       } catch (error) {
         console.error('Error fetching orders:', error);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -79,6 +87,11 @@ const OrderHistory = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
       </div>
     );
+  }
+
+  if (error) {
+    navigate('/404', { replace: true });
+    return null;
   }
 
   const getOrderStatus = (status) => {
