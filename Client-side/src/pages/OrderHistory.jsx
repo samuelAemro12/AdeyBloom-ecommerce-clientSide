@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { FiPackage, FiShoppingBag, FiStar } from 'react-icons/fi';
 
 // Mock order data for testing
 const mockOrders = [
@@ -83,8 +85,8 @@ const OrderHistory = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+      <div className="flex justify-center items-center min-h-screen bg-[#FFF9F6]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C585D7]"></div>
       </div>
     );
   }
@@ -95,86 +97,118 @@ const OrderHistory = () => {
   }
 
   const getOrderStatus = (status) => {
-    const statusColors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      processing: 'bg-blue-100 text-blue-800',
-      shipped: 'bg-green-100 text-green-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
+    const statusConfig = {
+      pending: {
+        color: 'bg-yellow-100 text-yellow-800',
+        icon: <FiPackage className="w-4 h-4" />
+      },
+      processing: {
+        color: 'bg-blue-100 text-blue-800',
+        icon: <FiPackage className="w-4 h-4" />
+      },
+      shipped: {
+        color: 'bg-green-100 text-green-800',
+        icon: <FiPackage className="w-4 h-4" />
+      },
+      delivered: {
+        color: 'bg-green-100 text-green-800',
+        icon: <FiPackage className="w-4 h-4" />
+      },
+      cancelled: {
+        color: 'bg-red-100 text-red-800',
+        icon: <FiPackage className="w-4 h-4" />
+      },
     };
 
-    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-      statusColors[status] || 'bg-gray-100 text-gray-800'
-    }`;
+    const config = statusConfig[status] || {
+      color: 'bg-gray-100 text-gray-800',
+      icon: <FiPackage className="w-4 h-4" />
+    };
+
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
+        {config.icon}
+        <span className="ml-2">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+      </span>
+    );
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-16 bg-[#FFF9F6] min-h-[80vh]">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Order History</h1>
+        <h1 className="text-4xl font-bold text-[#2F2F2F] mb-12 text-center">Order History</h1>
 
         {orders.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">You haven't placed any orders yet.</p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <FiShoppingBag className="w-16 h-16 text-[#C585D7] mx-auto mb-6" />
+            <p className="text-[#6A6A6A] text-xl mb-8">You haven't placed any orders yet.</p>
             <button
               onClick={() => navigate('/')}
-              className="bg-pink-600 text-white px-6 py-2 rounded-md hover:bg-pink-700 transition-colors"
+              className="bg-[#C585D7] text-white px-8 py-3 rounded-full hover:bg-[#008080] transition-colors"
             >
               Start Shopping
             </button>
-          </div>
+          </motion.div>
         ) : (
-          <div className="space-y-6">
-            {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+          <div className="space-y-8">
+            {orders.map((order, index) => (
+              <motion.div
+                key={order.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+              >
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h2 className="text-lg font-semibold">
+                      <h2 className="text-2xl font-semibold text-[#2F2F2F]">
                         Order #{order.orderNumber}
                       </h2>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-[#6A6A6A] mt-1">
                         Placed on {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={getOrderStatus(order.status)}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
+                    {getOrderStatus(order.status)}
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center space-x-4 py-4 border-t"
+                        className="flex items-center space-x-6 py-6 border-t border-gray-100"
                       >
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-16 h-16 object-cover rounded"
+                          className="w-24 h-24 object-cover rounded-xl"
                         />
                         <div className="flex-grow">
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-sm text-gray-500">
+                          <h3 className="text-xl font-medium text-[#2F2F2F]">{item.name}</h3>
+                          <p className="text-[#6A6A6A] mt-1">
                             Quantity: {item.quantity}
                           </p>
                         </div>
-                        <p className="font-medium">${item.price.toFixed(2)}</p>
+                        <p className="text-xl font-semibold text-[#C585D7]">${item.price.toFixed(2)}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t mt-4 pt-4">
+                  <div className="border-t border-gray-100 mt-6 pt-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-sm text-gray-500">Total Amount</p>
-                        <p className="text-lg font-semibold">
+                        <p className="text-[#6A6A6A]">Total Amount</p>
+                        <p className="text-2xl font-semibold text-[#2F2F2F]">
                           ${order.totalAmount.toFixed(2)}
                         </p>
                       </div>
                       <button
                         onClick={() => navigate(`/order/${order.id}`)}
-                        className="text-pink-600 hover:text-pink-700"
+                        className="text-[#C585D7] hover:text-[#008080] font-medium transition-colors"
                       >
                         View Details
                       </button>
@@ -183,16 +217,17 @@ const OrderHistory = () => {
                 </div>
 
                 {order.status === 'delivered' && (
-                  <div className="bg-gray-50 px-6 py-4">
+                  <div className="bg-[#FAF3EC] px-8 py-4">
                     <button
                       onClick={() => navigate(`/review/${order.id}`)}
-                      className="text-pink-600 hover:text-pink-700 text-sm font-medium"
+                      className="inline-flex items-center text-[#C585D7] hover:text-[#008080] font-medium transition-colors"
                     >
+                      <FiStar className="w-5 h-5 mr-2" />
                       Write a Review
                     </button>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
