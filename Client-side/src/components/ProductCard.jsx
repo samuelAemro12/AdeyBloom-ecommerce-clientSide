@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiPlus, FiMinus } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import WishlistButton from './WishlistButton';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -38,8 +39,9 @@ const ProductCard = ({ product }) => {
           alt={product.name}
           className="w-full h-64 object-cover"
         />
+        <WishlistButton product={product} />
         {product.discount && (
-          <span className="absolute top-2 right-2 bg-[#C585D7] text-white px-3 py-1 rounded-full text-sm">
+          <span className="absolute top-2 left-2 bg-[#C585D7] text-white px-3 py-1 rounded-full text-sm">
             {product.discount}% OFF
           </span>
         )}

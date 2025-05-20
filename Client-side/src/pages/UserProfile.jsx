@@ -1,252 +1,241 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useUser } from '../context/UserContext';
+import { motion } from 'framer-motion';
+import { FiUser, FiPackage, FiMapPin, FiHeart, FiEdit2 } from 'react-icons/fi';
+import AddressManagement from '../components/AddressManagement';
 
 const UserProfile = () => {
-  const navigate = useNavigate();
-  const { user, updateUserProfile, logout } = useAuth();
+  const { user, orders, updateProfile } = useUser();
+  const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || ''
   });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        state: user.state || '',
-        zipCode: user.zipCode || '',
-      });
-    }
-  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await updateUserProfile(formData);
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    }
+    updateProfile(formData);
+    setIsEditing(false);
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/signin');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+  const renderProfile = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white p-6 rounded-lg shadow-lg"
+    >
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-[#2F2F2F]">Profile Information</h2>
+        <button
+          onClick={() => setIsEditing(!isEditing)}
+          className="flex items-center space-x-2 text-[#C585D7] hover:text-[#008080] transition-colors"
+        >
+          <FiEdit2 className="w-5 h-5" />
+          <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+        </button>
+      </div>
 
-  if (!user) {
-    navigate('/signin');
-    return null;
-  }
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Full Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Phone</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
+              required
+            />
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-[#C585D7] text-white rounded-full hover:bg-[#008080] transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Full Name</label>
+            <p className="text-[#2F2F2F] font-semibold">{user?.name}</p>
+          </div>
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Email</label>
+            <p className="text-[#2F2F2F] font-semibold">{user?.email}</p>
+          </div>
+          <div>
+            <label className="block text-[#6A6A6A] mb-1">Phone</label>
+            <p className="text-[#2F2F2F] font-semibold">{user?.phone}</p>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+
+  const renderOrders = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <h2 className="text-2xl font-semibold text-[#2F2F2F]">Order History</h2>
+      {orders.length === 0 ? (
+        <div className="text-center py-8">
+          <FiPackage className="w-16 h-16 text-[#C585D7] mx-auto mb-4" />
+          <p className="text-[#6A6A6A]">You haven't placed any orders yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <div key={order.id} className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-[#6A6A6A]">Order #{order.id}</p>
+                  <p className="text-[#6A6A6A]">
+                    {new Date(order.date).toLocaleDateString()}
+                  </p>
+                </div>
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                  Delivered
+                </span>
+              </div>
+              <div className="space-y-2">
+                {order.items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div>
+                        <p className="font-semibold text-[#2F2F2F]">{item.name}</p>
+                        <p className="text-[#6A6A6A]">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <p className="font-semibold text-[#C585D7]">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t mt-4 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-[#2F2F2F] font-semibold">Total</span>
+                  <span className="text-[#C585D7] text-xl font-bold">
+                    ${order.total.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-16 bg-[#FFF9F6] min-h-[80vh]">
+      <h1 className="text-4xl font-bold text-[#2F2F2F] mb-12 text-center">My Account</h1>
+      
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">My Profile</h1>
+        <div className="flex justify-center space-x-4 mb-8">
           <button
-            onClick={handleLogout}
-            className="text-pink-600 hover:text-pink-700"
+            onClick={() => setActiveTab('profile')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
+              activeTab === 'profile'
+                ? 'bg-[#C585D7] text-white'
+                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
+            }`}
           >
-            Logout
+            <FiUser className="w-5 h-5" />
+            <span>Profile</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
+              activeTab === 'orders'
+                ? 'bg-[#C585D7] text-white'
+                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
+            }`}
+          >
+            <FiPackage className="w-5 h-5" />
+            <span>Orders</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('addresses')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
+              activeTab === 'addresses'
+                ? 'bg-[#C585D7] text-white'
+                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
+            }`}
+          >
+            <FiMapPin className="w-5 h-5" />
+            <span>Addresses</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('wishlist')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
+              activeTab === 'wishlist'
+                ? 'bg-[#C585D7] text-white'
+                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
+            }`}
+          >
+            <FiHeart className="w-5 h-5" />
+            <span>Wishlist</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Profile Navigation */}
-          <div className="space-y-4">
-            <button
-              className="w-full text-left px-4 py-2 rounded-md bg-pink-50 text-pink-600 font-medium"
+        <div className="mt-8">
+          {activeTab === 'profile' && renderProfile()}
+          {activeTab === 'orders' && renderOrders()}
+          {activeTab === 'addresses' && <AddressManagement />}
+          {activeTab === 'wishlist' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-8"
             >
-              Profile Information
-            </button>
-            <button
-              onClick={() => navigate('/orders')}
-              className="w-full text-left px-4 py-2 rounded-md hover:bg-gray-50"
-            >
-              Order History
-            </button>
-            <button
-              onClick={() => navigate('/wishlist')}
-              className="w-full text-left px-4 py-2 rounded-md hover:bg-gray-50"
-            >
-              Wishlist
-            </button>
-            <button
-              onClick={() => navigate('/addresses')}
-              className="w-full text-left px-4 py-2 rounded-md hover:bg-gray-50"
-            >
-              Saved Addresses
-            </button>
-          </div>
-
-          {/* Profile Information */}
-          <div className="md:col-span-2">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Profile Information</h2>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="text-pink-600 hover:text-pink-700"
-                >
-                  {isEditing ? 'Cancel' : 'Edit'}
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-lg font-medium mb-4">Default Address</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Address
-                      </label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                      />
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          State
-                        </label>
-                        <input
-                          type="text"
-                          name="state"
-                          value={formData.state}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ZIP Code
-                        </label>
-                        <input
-                          type="text"
-                          name="zipCode"
-                          value={formData.zipCode}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="w-full p-2 border rounded-md disabled:bg-gray-50"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {isEditing && (
-                  <div className="mt-6">
-                    <button
-                      type="submit"
-                      className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
-          </div>
+              <FiHeart className="w-16 h-16 text-[#C585D7] mx-auto mb-4" />
+              <p className="text-[#6A6A6A]">Your wishlist is empty.</p>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
