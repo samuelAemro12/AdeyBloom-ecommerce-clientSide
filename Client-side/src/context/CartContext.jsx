@@ -36,7 +36,12 @@ export const CartProvider = ({ children }) => {
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
+    if (!Array.isArray(cart)) {
+      setCart(mockCartItems);
+      localStorage.setItem('cart', JSON.stringify(mockCartItems));
+    } else {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
   }, [cart]);
 
   const addToCart = (product, quantity = 1) => {

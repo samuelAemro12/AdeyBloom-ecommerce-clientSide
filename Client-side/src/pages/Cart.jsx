@@ -8,8 +8,11 @@ const Cart = () => {
   const { cart, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
 
+  // Ensure cart is an array
+  const safeCart = Array.isArray(cart) ? cart : [];
+
   const calculateSubtotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return safeCart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
   const handleQuantityChange = (productId, newQuantity) => {
@@ -21,7 +24,7 @@ const Cart = () => {
     navigate('/checkout');
   };
 
-  if (cart.length === 0) {
+  if (safeCart.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16 bg-[#FFF9F6] min-h-[80vh]">
         <motion.div 
@@ -51,7 +54,7 @@ const Cart = () => {
         {/* Cart Items */}
         <div className="lg:col-span-2">
           <div className="space-y-6">
-            {cart.map((item) => (
+            {safeCart.map((item) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
