@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { motion } from 'framer-motion';
 import { FiUser, FiPackage, FiMapPin, FiHeart, FiEdit2 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import AddressManagement from '../components/AddressManagement';
 
 const UserProfile = () => {
+  const navigate = useNavigate();
   const { user, orders, updateProfile } = useUser();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
@@ -210,12 +212,8 @@ const UserProfile = () => {
             <span>Addresses</span>
           </button>
           <button
-            onClick={() => setActiveTab('wishlist')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
-              activeTab === 'wishlist'
-                ? 'bg-[#C585D7] text-white'
-                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
-            }`}
+            onClick={() => navigate('/wishlist')}
+            className="flex items-center space-x-2 px-6 py-3 rounded-full transition-colors bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]"
           >
             <FiHeart className="w-5 h-5" />
             <span>Wishlist</span>
@@ -226,16 +224,6 @@ const UserProfile = () => {
           {activeTab === 'profile' && renderProfile()}
           {activeTab === 'orders' && renderOrders()}
           {activeTab === 'addresses' && <AddressManagement />}
-          {activeTab === 'wishlist' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-8"
-            >
-              <FiHeart className="w-16 h-16 text-[#C585D7] mx-auto mb-4" />
-              <p className="text-[#6A6A6A]">Your wishlist is empty.</p>
-            </motion.div>
-          )}
         </div>
       </div>
     </div>

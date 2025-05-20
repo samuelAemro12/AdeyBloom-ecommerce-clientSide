@@ -8,6 +8,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile';
 import OrderHistory from './pages/OrderHistory';
+import Wishlist from './pages/Wishlist';
 import NotFound from './pages/NotFound';
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/profile" element={<UserProfile />} />
       <Route path="/orders" element={<OrderHistory />} />
+      <Route path="/wishlist" element={<Wishlist />} />
       {/* 404 route - must be last */}
       <Route path="*" element={<NotFound />} />
     </Routes>
