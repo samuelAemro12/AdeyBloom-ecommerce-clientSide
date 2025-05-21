@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { motion } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiMapPin } from 'react-icons/fi';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { useToast } from '../context/ToastContext';
 
 const AddressManagement = () => {
   const { addresses, addAddress, updateAddress, removeAddress } = useUser();
@@ -16,6 +18,8 @@ const AddressManagement = () => {
     country: '',
     isDefault: false
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -43,6 +47,7 @@ const AddressManagement = () => {
       country: '',
       isDefault: false
     });
+    showSuccess('Address updated successfully!');
   };
 
   const handleEdit = (address) => {
@@ -54,6 +59,7 @@ const AddressManagement = () => {
   const handleDelete = (addressId) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
       removeAddress(addressId);
+      showSuccess('Address deleted successfully!');
     }
   };
 
@@ -178,6 +184,8 @@ const AddressManagement = () => {
           </form>
         </motion.div>
       )}
+
+      {isLoading && <LoadingSpinner />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {addresses.map((address) => (
