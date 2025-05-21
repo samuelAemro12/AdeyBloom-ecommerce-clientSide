@@ -9,6 +9,7 @@ const HomePage = () => {
     <div>
       <HeroSection />
       <FeaturedProducts />
+      {/* this is the importing of the testimonial carousal */}
       <Testimonials />
       <CTASection />
     </div>
