@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import authService from '../services/auth.service';
 
 // Mock user data for testing
 const mockUser = {
@@ -13,7 +15,7 @@ const mockUser = {
   zipCode: "10001",
 };
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -24,56 +26,55 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(mockUser); // Initialize with mock user
-  const [loading, setLoading] = useState(false); // Set to false since we're using mock data
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const checkAuth = async () => {
-      try {
-        // For testing, we'll just use the mock user
-        setUser(mockUser);
-      } catch (error) {
-        console.error('Error checking auth:', error);
-        localStorage.removeItem('token');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
+    checkUser();
   }, []);
 
-  const login = async (email, password) => {
+  const checkUser = async () => {
     try {
-      // For testing, we'll just set the mock user
-      setUser(mockUser);
-      localStorage.setItem('token', 'mock-token');
-      return { success: true };
+      const { user } = await authService.getCurrentUser();
+      setUser(user);
     } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'An error occurred during login' };
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const signup = async (userData) => {
+  const register = async (userData) => {
     try {
-      // For testing, we'll just set the mock user
-      setUser({ ...mockUser, ...userData });
-      localStorage.setItem('token', 'mock-token');
+      const { user } = await authService.register(userData);
+      setUser(user);
+      navigate('/');
       return { success: true };
     } catch (error) {
-      console.error('Signup error:', error);
-      return { success: false, error: 'An error occurred during signup' };
+      return { success: false, message: error.message };
+    }
+  };
+
+  const login = async (credentials) => {
+    try {
+      const { user } = await authService.login(credentials);
+      setUser(user);
+      navigate('/');
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
     }
   };
 
   const logout = async () => {
     try {
-      localStorage.removeItem('token');
+      await authService.logout();
       setUser(null);
+      navigate('/signin');
+      return { success: true };
     } catch (error) {
-      console.error('Logout error:', error);
+      return { success: false, message: error.message };
     }
   };
 
@@ -91,13 +92,17 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    register,
     login,
-    signup,
     logout,
     updateUserProfile,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthContext; 

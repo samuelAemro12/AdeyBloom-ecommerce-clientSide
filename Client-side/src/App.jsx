@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
+import { AuthProvider } from './context/AuthContext';
 import HomePage from './pages/HomePage';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -22,45 +23,47 @@ import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 const App = () => {
   return (
-    <ToastProvider>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar />
-              <main className="flex-grow">
-                <HomePage />
-              </main>
-              <Footer />
-            </>
-          }
-        />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/product/:productId" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/orders" element={<OrderHistory />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+    <AuthProvider>
+      <ToastProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <main className="flex-grow">
+                  <HomePage />
+                </main>
+                <Footer />
+              </>
+            }
+          />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/wishlist" element={<Wishlist />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<ProtectedAdminRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="products" element={<ProductsPanel />} />
-            <Route path="orders" element={<OrdersPanel />} />
-            <Route path="users" element={<UsersPanel />} />
+          {/* Admin Routes */}
+          <Route path="/admin" element={<ProtectedAdminRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="products" element={<ProductsPanel />} />
+              <Route path="orders" element={<OrdersPanel />} />
+              <Route path="users" element={<UsersPanel />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* 404 route - must be last */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </ToastProvider>
+          {/* 404 route - must be last */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ToastProvider>
+    </AuthProvider>
   );
 };
 
