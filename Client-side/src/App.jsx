@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
+import { WishlistProvider } from './context/WishlistContext';
 import HomePage from './pages/HomePage';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -10,7 +11,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile';
 import OrderHistory from './pages/OrderHistory';
-import Wishlist from './pages/Wishlist';
+import WishlistPage from './pages/WishlistPage';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -25,43 +26,45 @@ const App = () => {
   return (
     <AuthProvider>
       <ToastProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              <>
-                <Navbar />
-                <main className="flex-grow">
-                  <HomePage />
-                </main>
-                <Footer />
-              </>
-            }
-          />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/product/:productId" element={<ProductDetails />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/orders" element={<OrderHistory />} />
-          <Route path="/wishlist" element={<Wishlist />} />
+        <WishlistProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route
+              path="/"
+              element={
+                <>
+                  <Navbar />
+                  <main className="flex-grow">
+                    <HomePage />
+                  </main>
+                  <Footer />
+                </>
+              }
+            />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/product/:productId" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<ProtectedAdminRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="products" element={<ProductsPanel />} />
-              <Route path="orders" element={<OrdersPanel />} />
-              <Route path="users" element={<UsersPanel />} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<ProtectedAdminRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="products" element={<ProductsPanel />} />
+                <Route path="orders" element={<OrdersPanel />} />
+                <Route path="users" element={<UsersPanel />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* 404 route - must be last */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* 404 route - must be last */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </WishlistProvider>
       </ToastProvider>
     </AuthProvider>
   );
