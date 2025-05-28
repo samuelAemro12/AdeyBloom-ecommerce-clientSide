@@ -2,27 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import HeroSection1 from '../assets/hero section 1.png';
+import HeroSection2 from '../assets/hero section.png';
+import HeroSection3 from '../assets/hero section (3).png';
+import HeroSection4 from '../assets/hero section (1).png';
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
     {
-      image: '/hero-1.jpg',
+      image: HeroSection1,
       title: 'Natural Beauty Products',
       subtitle: 'Discover our collection of organic skincare',
       cta: 'Shop Now',
     },
     {
-      image: '/hero-2.jpg',
+      image: HeroSection2,
       title: 'Summer Collection',
       subtitle: 'Fresh fragrances for the season',
       cta: 'Explore More',
     },
     {
-      image: '/hero-3.jpg',
+      image: HeroSection3,
       title: 'Luxury Skincare',
       subtitle: 'Premium beauty essentials',
+      cta: 'View Collection',
+    },
+        {
+      image: HeroSection4,
+      title: 'Our special collections',
+      subtitle: 'Luxury beauty products',
       cta: 'View Collection',
     },
   ];
