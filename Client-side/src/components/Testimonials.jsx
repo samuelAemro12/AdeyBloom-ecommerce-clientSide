@@ -6,7 +6,7 @@ const Testimonials = () => {
   const testimonials = [
     {
       id: 1,
-      name: 'Sarah Johnson',
+      name: 'X',
       role: 'Regular Customer',
       image: '/testimonial-1.jpg',
       text: 'The natural ingredients in these products have transformed my skincare routine. My skin has never looked better!',
@@ -14,7 +14,7 @@ const Testimonials = () => {
     },
     {
       id: 2,
-      name: 'Emily Chen',
+      name: 'Y',
       role: 'Beauty Blogger',
       image: '/testimonial-2.jpg',
       text: 'As someone who reviews beauty products professionally, I can confidently say that AdeyBloom offers exceptional quality.',
@@ -22,7 +22,7 @@ const Testimonials = () => {
     },
     {
       id: 3,
-      name: 'Maria Rodriguez',
+      name: 'C',
       role: 'Loyal Customer',
       image: '/testimonial-3.jpg',
       text: 'The customer service is outstanding, and the products are worth every penny. I love how my skin feels after using them.',
