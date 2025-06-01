@@ -21,6 +21,7 @@ import ProductsPanel from './pages/admin/ProductsPanel';
 import OrdersPanel from './pages/admin/OrdersPanel';
 import UsersPanel from './pages/admin/UsersPanel';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 const App = () => {
   return (
@@ -49,6 +50,7 @@ const App = () => {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/orders" element={<OrderHistory />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedAdminRoute />}>
