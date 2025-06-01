@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { orderService } from '../services/orderService';
 import Toast from './Toast';
 
 const OrderStatus = ({ orderId, currentStatus, onStatusUpdate }) => {
@@ -21,9 +21,7 @@ const OrderStatus = ({ orderId, currentStatus, onStatusUpdate }) => {
     setError(null);
 
     try {
-      await axios.patch(`/api/orders/${orderId}/status`, {
-        status: newStatus
-      });
+      await orderService.updateOrderStatus(orderId, newStatus);
       setStatus(newStatus);
       onStatusUpdate(newStatus);
     } catch (err) {
