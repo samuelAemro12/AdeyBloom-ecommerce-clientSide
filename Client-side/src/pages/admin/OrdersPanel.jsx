@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FiEye, FiTruck, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { orderService } from '../../services/orderService';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import Toast from '../../components/Toast';
 
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -13,11 +17,11 @@ const OrdersPanel = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/admin/orders');
-      const data = await response.json();
+      const data = await orderService.getUserOrders();
       setOrders(data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch orders. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -25,21 +29,12 @@ const OrdersPanel = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (response.ok) {
-        setOrders(orders.map(order => 
-          order._id === orderId ? { ...order, status: newStatus } : order
-        ));
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
+      await orderService.updateOrderStatus(orderId, newStatus);
+      setOrders(orders.map(order => 
+        order._id === orderId ? { ...order, status: newStatus } : order
+      ));
+    } catch (err) {
+      setError('Failed to update order status. Please try again.');
     }
   };
 
@@ -61,29 +56,24 @@ const OrdersPanel = () => {
   };
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+    const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
   });
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <Toast message={error} type="error" />;
 
   return (
-    <div className="p-6">
+    <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Order Management</h1>
-        <div className="flex gap-4">
+        <h2 className="text-2xl font-bold">Orders Management</h2>
+        <div className="flex space-x-4">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="border rounded-lg px-4 py-2"
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -97,7 +87,7 @@ const OrdersPanel = () => {
             placeholder="Search orders..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border rounded-lg px-4 py-2 w-64"
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
       </div>
@@ -107,7 +97,7 @@ const OrdersPanel = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order Number
+                Order ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Customer
@@ -129,70 +119,42 @@ const OrdersPanel = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredOrders.map((order) => (
               <tr key={order._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    #{order.orderNumber}
-                  </div>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  #{order._id.slice(-6)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{order.customer.name}</div>
-                  <div className="text-sm text-gray-500">{order.customer.email}</div>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {order.customer.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </div>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    ${order.total.toFixed(2)}
-                  </div>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${order.totalAmount.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                    {order.status}
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex gap-2">
+                  <div className="flex space-x-3">
                     <button
-                      onClick={() => {/* Implement view order details */}}
+                      onClick={() => window.location.href = `/admin/orders/${order._id}`}
                       className="text-indigo-600 hover:text-indigo-900"
                     >
                       <FiEye className="w-5 h-5" />
                     </button>
-                    {order.status === 'pending' && (
-                      <button
-                        onClick={() => updateOrderStatus(order._id, 'processing')}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <FiTruck className="w-5 h-5" />
-                      </button>
-                    )}
-                    {order.status === 'processing' && (
-                      <button
-                        onClick={() => updateOrderStatus(order._id, 'shipped')}
-                        className="text-purple-600 hover:text-purple-900"
-                      >
-                        <FiTruck className="w-5 h-5" />
-                      </button>
-                    )}
-                    {order.status === 'shipped' && (
-                      <button
-                        onClick={() => updateOrderStatus(order._id, 'delivered')}
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        <FiCheckCircle className="w-5 h-5" />
-                      </button>
-                    )}
-                    {order.status !== 'cancelled' && order.status !== 'delivered' && (
-                      <button
-                        onClick={() => updateOrderStatus(order._id, 'cancelled')}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FiXCircle className="w-5 h-5" />
-                      </button>
-                    )}
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                      className="text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </div>
                 </td>
               </tr>
