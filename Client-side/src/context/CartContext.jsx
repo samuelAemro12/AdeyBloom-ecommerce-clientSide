@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { cartService } from '../services/cartService';
+import { useAuth } from './AuthContext';
 
 // Mock data for testing
 const mockCartItems = [
@@ -18,7 +20,7 @@ const mockCartItems = [
   }
 ];
 
-const CartContext = createContext(null);
+const CartContext = createContext();
 
 export const useCart = () => {
   const context = useContext(CartContext);
@@ -29,74 +31,103 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : mockCartItems; // Use mock data as initial state
-  });
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth();
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (!Array.isArray(cart)) {
-      setCart(mockCartItems);
-      localStorage.setItem('cart', JSON.stringify(mockCartItems));
+    if (user) {
+      fetchCart();
     } else {
-      localStorage.setItem('cart', JSON.stringify(cart));
+      setCartItems([]);
+      setLoading(false);
     }
-  }, [cart]);
+  }, [user]);
 
-  const addToCart = (product, quantity = 1) => {
-    setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.id === product.id);
-
-      if (existingItem) {
-        return currentCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-
-      return [...currentCart, { ...product, quantity }];
-    });
+  const fetchCart = async () => {
+    try {
+      setLoading(true);
+      const data = await cartService.getCart();
+      setCartItems(data.items || []);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch cart');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const removeFromCart = (productId) => {
-    setCart((currentCart) => currentCart.filter((item) => item.id !== productId));
+  const addToCart = async (productId, quantity = 1) => {
+    try {
+      const data = await cartService.addToCart(productId, quantity);
+      setCartItems(data.items);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to add item to cart');
+      return false;
+    }
   };
 
-  const updateQuantity = (productId, newQuantity) => {
-    if (newQuantity < 1) return;
-
-    setCart((currentCart) =>
-      currentCart.map((item) =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  const updateCartItem = async (productId, quantity) => {
+    try {
+      const data = await cartService.updateCartItem(productId, quantity);
+      setCartItems(data.items);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update cart item');
+      return false;
+    }
   };
 
-  const clearCart = () => {
-    setCart([]);
+  const removeFromCart = async (productId) => {
+    try {
+      const data = await cartService.removeFromCart(productId);
+      setCartItems(data.items);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to remove item from cart');
+      return false;
+    }
+  };
+
+  const clearCart = async () => {
+    try {
+      await cartService.clearCart();
+      setCartItems([]);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to clear cart');
+      return false;
+    }
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
   const getCartItemCount = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
+    return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
   const value = {
-    cart,
+    cartItems,
+    loading,
+    error,
     addToCart,
+    updateCartItem,
     removeFromCart,
-    updateQuantity,
     clearCart,
     getCartTotal,
     getCartItemCount,
+    refreshCart: fetchCart
   };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+    </CartContext.Provider>
+  );
 };
 
 export default CartContext; 
