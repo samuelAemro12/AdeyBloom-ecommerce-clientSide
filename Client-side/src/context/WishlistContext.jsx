@@ -93,6 +93,7 @@ export const WishlistProvider = ({ children }) => {
 
     const value = {
         wishlistItems,
+        wishlistCount: wishlistItems.length,
         loading,
         error,
         addToWishlist,
