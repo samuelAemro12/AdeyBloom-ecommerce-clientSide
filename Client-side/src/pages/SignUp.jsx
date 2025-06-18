@@ -236,7 +236,7 @@ const SignUp = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-gray-800 font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 {isLoading ? (
                   <span className="inline-flex items-center">
@@ -256,7 +256,7 @@ const SignUp = () => {
 
               <Link 
                 to="/signin" 
-                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition shadow-md"
+                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-gray-800 font-medium py-2.5 rounded-lg transition shadow-md"
               >
                 Already have an account? Sign In
               </Link>
