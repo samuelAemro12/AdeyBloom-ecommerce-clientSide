@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiMail, FiLock, FiArrowRight } from 'react-icons/fi';
-import { FcGoogle } from 'react-icons/fc';
+import { FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const SignIn = () => {
-  const { login, googleSignIn } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
     try {
       await login(email, password);
       navigate('/');
@@ -24,16 +24,6 @@ const SignIn = () => {
       setError(err.message || 'Failed to sign in');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError('');
-    try {
-      await googleSignIn();
-      navigate('/');
-    } catch (err) {
-      setError(err.message || 'Failed to sign in with Google');
     }
   };
 
@@ -45,50 +35,34 @@ const SignIn = () => {
         <div className="absolute bottom-[-6rem] right-[-6rem] w-96 h-96 bg-secondary-accent opacity-10 rounded-full blur-3xl" />
       </div>
 
-      <div className="z-10 w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-cloud-gray">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-accent to-secondary-accent p-6 text-white text-center">
-          <h2 className="text-3xl font-bold">Welcome Back</h2>
-          <p className="text-white/80 mt-1 text-sm">Sign in to continue your journey</p>
+          <h2 className="text-3xl font-bold">Sign In</h2>
+          <p className="text-white/80 mt-1 text-sm">Welcome back! Please sign in to continue.</p>
         </div>
 
         {/* Form */}
-        <div className="p-6">
+        <div className="p-8">
           {error && (
-            <div className="mb-4 bg-error-light border-l-4 border-error text-error-dark text-sm px-4 py-3 rounded">
+            <div className="mb-4 bg-error-light border-l-4 border-error text-error-dark text-sm px-4 py-3 rounded animate-shake">
               {error}
             </div>
           )}
 
-          {/* Google Sign In Button */}
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full mb-4 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition"
-          >
-            <FcGoogle className="text-xl" />
-            Sign in with Google
-          </button>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div className="relative">
               <FiMail className="absolute top-3.5 left-3 text-gray-400" />
               <input
                 type="email"
                 required
+                autoFocus
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
             </div>
 
@@ -96,13 +70,37 @@ const SignIn = () => {
             <div className="relative">
               <FiLock className="absolute top-3.5 left-3 text-gray-400" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
-                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
+                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
+              <button
+                type="button"
+                className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                onClick={() => setShowPassword((prev) => !prev)}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe((prev) => !prev)}
+                  className="accent-primary-accent"
+                />
+                Remember Me
+              </label>
+              <Link to="#" className="text-primary-accent hover:underline">Forgot Password?</Link>
             </div>
 
             {/* Buttons */}
@@ -110,7 +108,7 @@ const SignIn = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 {isLoading ? (
                   <span className="inline-flex items-center">
@@ -130,20 +128,13 @@ const SignIn = () => {
 
               <Link 
                 to="/signup" 
-                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition"
+                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition shadow-md"
               >
                 Create Account
                 <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </form>
-
-          <p className="mt-6 text-sm text-center text-ash-gray">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary-accent hover:text-opacity-80 font-medium transition-colors">
-              Create one now
-            </Link>
-          </p>
         </div>
       </div>
     </div>

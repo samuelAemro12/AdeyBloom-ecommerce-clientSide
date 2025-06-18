@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiMail, FiLock, FiUser, FiArrowRight } from 'react-icons/fi';
-import { FcGoogle } from 'react-icons/fc';
+import { FiMail, FiLock, FiUser, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const SignUp = () => {
-  const { signup, googleSignIn } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
@@ -15,6 +14,8 @@ const SignUp = () => {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     message: ''
@@ -95,16 +96,6 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError('');
-    try {
-      await googleSignIn();
-      navigate('/');
-    } catch (err) {
-      setError(err.message || 'Failed to sign up with Google');
-    }
-  };
-
   const getPasswordStrengthColor = () => {
     switch (passwordStrength.score) {
       case 0:
@@ -130,7 +121,7 @@ const SignUp = () => {
         <div className="absolute bottom-[-6rem] right-[-6rem] w-96 h-96 bg-secondary-accent opacity-10 rounded-full blur-3xl" />
       </div>
 
-      <div className="z-10 w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-cloud-gray">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-accent to-secondary-accent p-6 text-white text-center">
           <h2 className="text-3xl font-bold">Create Account</h2>
@@ -138,32 +129,14 @@ const SignUp = () => {
         </div>
 
         {/* Form */}
-        <div className="p-6">
+        <div className="p-8">
           {error && (
-            <div className="mb-4 bg-error-light border-l-4 border-error text-error-dark text-sm px-4 py-3 rounded">
+            <div className="mb-4 bg-error-light border-l-4 border-error text-error-dark text-sm px-4 py-3 rounded animate-shake">
               {error}
             </div>
           )}
 
-          {/* Google Sign Up Button */}
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full mb-4 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition"
-          >
-            <FcGoogle className="text-xl" />
-            Sign up with Google
-          </button>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
             <div className="relative">
               <FiUser className="absolute top-3.5 left-3 text-gray-400" />
@@ -171,10 +144,12 @@ const SignUp = () => {
                 type="text"
                 name="name"
                 required
+                autoFocus
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder="Full name"
                 value={form.name}
                 onChange={handleChange}
+                autoComplete="name"
               />
             </div>
 
@@ -189,6 +164,7 @@ const SignUp = () => {
                 placeholder="Email address"
                 value={form.email}
                 onChange={handleChange}
+                autoComplete="email"
               />
             </div>
 
@@ -197,14 +173,24 @@ const SignUp = () => {
               <div className="relative">
                 <FiLock className="absolute top-3.5 left-3 text-gray-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   required
-                  className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                   placeholder="Password"
                   value={form.password}
                   onChange={handleChange}
+                  autoComplete="new-password"
                 />
+                <button
+                  type="button"
+                  className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </button>
               </div>
               {form.password && (
                 <div className="space-y-1">
@@ -225,14 +211,24 @@ const SignUp = () => {
             <div className="relative">
               <FiLock className="absolute top-3.5 left-3 text-gray-400" />
               <input
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 required
-                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
+                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder="Confirm password"
                 value={form.confirmPassword}
                 onChange={handleChange}
+                autoComplete="new-password"
               />
+              <button
+                type="button"
+                className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                tabIndex={-1}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
             </div>
 
             {/* Buttons */}
@@ -240,7 +236,7 @@ const SignUp = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full group flex justify-center items-center bg-primary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 {isLoading ? (
                   <span className="inline-flex items-center">
@@ -260,20 +256,12 @@ const SignUp = () => {
 
               <Link 
                 to="/signin" 
-                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition"
+                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-white font-medium py-2.5 rounded-lg transition shadow-md"
               >
-                Already Have an Account
-                <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+                Already have an account? Sign In
               </Link>
             </div>
           </form>
-
-          <p className="mt-6 text-sm text-center text-ash-gray">
-            Already have an account?{' '}
-            <Link to="/signin" className="text-primary-accent hover:text-opacity-80 font-medium transition-colors">
-              Sign in here
-            </Link>
-          </p>
         </div>
       </div>
     </div>
