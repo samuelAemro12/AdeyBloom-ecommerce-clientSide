@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { FiMail, FiLock, FiUser, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const SignUp = () => {
-  const { signup } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
@@ -87,7 +87,7 @@ const SignUp = () => {
     }
 
     try {
-      await signup(form);
+      await register(form);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Failed to create account');

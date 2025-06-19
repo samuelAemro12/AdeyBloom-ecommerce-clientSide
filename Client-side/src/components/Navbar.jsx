@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
@@ -12,6 +12,8 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('EN');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
   
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
@@ -47,6 +49,23 @@ const Navbar = () => {
       delete window.googleTranslateElementInit;
     };
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+    if (isProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileDropdownOpen]);
 
   const toggleLanguage = () => {
     setCurrentLanguage(currentLanguage === 'EN' ? 'AM' : 'EN');
@@ -149,22 +168,35 @@ const Navbar = () => {
 
             {/* Auth Buttons */}
             {user ? (
-              <div className="flex items-center space-x-4">
-                <Link
-                  to="/profile"
-                  className="flex items-center text-primary-text hover:text-primary-accent transition-colors duration-300"
+              <div className="flex items-center space-x-4 relative" ref={profileDropdownRef}>
+                <button
+                  type="button"
+                  className="flex items-center text-primary-text hover:text-primary-accent transition-colors duration-300 focus:outline-none"
+                  onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+                  aria-haspopup="true"
+                  aria-expanded={isProfileDropdownOpen}
                 >
                   <FiUser className="h-5 w-5" />
-                  <span className="ml-2 font-medium">{user.name}</span>
-                </Link>
-                <motion.button
-                  onClick={handleLogout}
-                  className="flex items-center text-primary-text hover:text-coral-rose transition-colors duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FiLogOut className="h-5 w-5" />
-                </motion.button>
+                  <span className="ml-2 font-medium">{user.name.split(' ')[0]}</span>
+                </button>
+                {/* Dropdown */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-fade-in">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-primary-text hover:bg-gray-100 w-full text-left"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => { handleLogout(); setIsProfileDropdownOpen(false); }}
+                      className="block w-full text-left px-4 py-2 text-primary-text hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link
