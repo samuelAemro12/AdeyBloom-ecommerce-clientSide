@@ -10,6 +10,8 @@ export const translations = {
     profile: 'Profile',
     orders: 'Orders',
     welcome: 'Welcome Back',
+    signin: 'Sign In',
+    home: 'Home',
     // add more as needed...
   },
   am: {
@@ -23,5 +25,7 @@ export const translations = {
     profile: 'መገለጫ',
     orders: 'ትዕዛዞች',
     welcome: 'እንኳን ደህና መጣህ',
+    signin: 'ይግቡ',
+    home: 'መነሻ',
   }
 }; 

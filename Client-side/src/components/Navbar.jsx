@@ -47,10 +47,10 @@ const Navbar = () => {
   }, [isProfileDropdownOpen]);
 
   const menuItems = [
+    { name: t('home'), path: '/' },
     { name: t('products'), path: '/products' },
     { name: t('wishlist'), path: '/wishlist' },
     { name: t('cart'), path: '/cart' },
-    { name: t('login'), path: '/login' },
   ];
 
   const handleLogout = async () => {
@@ -139,7 +139,7 @@ const Navbar = () => {
                   aria-expanded={isProfileDropdownOpen}
                 >
                   <FiUser className="h-5 w-5" />
-                  <span className="ml-2 font-medium">{user.name || user.firstName || ''}</span>
+                  <span className="ml-2 font-medium">{user.name ? user.name.split(' ')[0] : (user.firstName || '')}</span>
                 </button>
                 {/* Dropdown */}
                 {isProfileDropdownOpen && (
@@ -162,10 +162,10 @@ const Navbar = () => {
               </div>
             ) : (
               <Link
-                to="/login"
+                to="/signin"
                 className="text-primary-text hover:text-primary-accent transition-colors duration-300 font-medium"
               >
-                {t('login')}
+                {t('signin')}
               </Link>
             )}
           </div>
@@ -257,7 +257,7 @@ const Navbar = () => {
                     </>
                   ) : (
                     <Link
-                      to="/login"
+                      to="/signin"
                       className="text-primary-text hover:text-primary-accent transition-colors duration-300"
                       onClick={() => setIsMenuOpen(false)}
                     >
