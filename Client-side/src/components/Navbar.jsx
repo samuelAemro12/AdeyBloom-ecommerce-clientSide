@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart } from 'react-icons/fi';
+import { Link, useLocation } from 'react-router-dom';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
@@ -14,6 +14,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+  const location = useLocation();
   
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
@@ -160,12 +161,19 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
+            ) : location.pathname === '/signin' ? (
+              <Link
+                to="/signup"
+                className="text-primary-text hover:text-primary-accent transition-colors duration-300 font-medium"
+              >
+                {t('signUpHeader')}
+              </Link>
             ) : (
               <Link
                 to="/signin"
                 className="text-primary-text hover:text-primary-accent transition-colors duration-300 font-medium"
               >
-                {t('signin')}
+                {t('signInHeader')}
               </Link>
             )}
           </div>
@@ -255,6 +263,14 @@ const Navbar = () => {
                         <FiLogOut className="h-5 w-5" />
                       </motion.button>
                     </>
+                  ) : location.pathname === '/signin' ? (
+                    <Link
+                      to="/signup"
+                      className="text-primary-text hover:text-primary-accent transition-colors duration-300"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <FiUserPlus className="h-5 w-5" />
+                    </Link>
                   ) : (
                     <Link
                       to="/signin"
