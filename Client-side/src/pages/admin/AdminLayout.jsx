@@ -3,11 +3,13 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiSettings, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/TranslationContext';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { logout } = useAuth();
   const { showSuccess } = useToast();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -15,11 +17,11 @@ const AdminLayout = () => {
   };
 
   const menuItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: FiHome },
-    { name: 'Products', path: '/admin/products', icon: FiPackage },
-    { name: 'Orders', path: '/admin/orders', icon: FiShoppingBag },
-    { name: 'Users', path: '/admin/users', icon: FiUsers },
-    { name: 'Settings', path: '/admin/settings', icon: FiSettings },
+    { name: t('dashboard'), path: '/admin/dashboard', icon: FiHome },
+    { name: t('products'), path: '/admin/products', icon: FiPackage },
+    { name: t('orders'), path: '/admin/orders', icon: FiShoppingBag },
+    { name: t('users'), path: '/admin/users', icon: FiUsers },
+    { name: t('settings'), path: '/admin/settings', icon: FiSettings },
   ];
 
   return (
@@ -32,7 +34,7 @@ const AdminLayout = () => {
       >
         <div className="p-4">
           <h1 className={`text-2xl font-bold text-[#C585D7] ${!isSidebarOpen && 'hidden'}`}>
-            Admin Panel
+            {t('adminPanel')}
           </h1>
         </div>
         <nav className="mt-8">
@@ -55,7 +57,7 @@ const AdminLayout = () => {
             className="flex items-center px-4 py-3 text-gray-700 hover:bg-red-500 hover:text-white transition-colors w-full"
           >
             <FiLogOut className="w-6 h-6" />
-            {isSidebarOpen && <span className="ml-3">Logout</span>}
+            {isSidebarOpen && <span className="ml-3">{t('logout')}</span>}
           </button>
         </nav>
       </div>
@@ -83,7 +85,7 @@ const AdminLayout = () => {
               </svg>
             </button>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, Admin</span>
+              <span className="text-gray-700">{t('welcomeAdmin')}</span>
             </div>
           </div>
         </header>

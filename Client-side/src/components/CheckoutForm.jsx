@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { FiCreditCard, FiLock, FiTruck, FiCheck } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const CheckoutForm = ({ onSuccess }) => {
   const { cart, getCartTotal } = useCart();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,12 +54,12 @@ const CheckoutForm = ({ onSuccess }) => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <h2 className="text-2xl font-semibold text-[#2F2F2F] mb-6">Shipping Information</h2>
+            <h2 className="text-2xl font-semibold text-[#2F2F2F] mb-6">{t('shippingInformation')}</h2>
             <div className="grid grid-cols-2 gap-4">
               <input
                 type="text"
                 name="firstName"
-                placeholder="First Name"
+                placeholder={t('firstName')}
                 value={formData.firstName}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -66,7 +68,7 @@ const CheckoutForm = ({ onSuccess }) => {
               <input
                 type="text"
                 name="lastName"
-                placeholder="Last Name"
+                placeholder={t('lastName')}
                 value={formData.lastName}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -76,7 +78,7 @@ const CheckoutForm = ({ onSuccess }) => {
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder={t('email')}
               value={formData.email}
               onChange={handleInputChange}
               className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -85,7 +87,7 @@ const CheckoutForm = ({ onSuccess }) => {
             <input
               type="text"
               name="address"
-              placeholder="Address"
+              placeholder={t('address')}
               value={formData.address}
               onChange={handleInputChange}
               className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -95,7 +97,7 @@ const CheckoutForm = ({ onSuccess }) => {
               <input
                 type="text"
                 name="city"
-                placeholder="City"
+                placeholder={t('city')}
                 value={formData.city}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -104,7 +106,7 @@ const CheckoutForm = ({ onSuccess }) => {
               <input
                 type="text"
                 name="country"
-                placeholder="Country"
+                placeholder={t('country')}
                 value={formData.country}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -113,7 +115,7 @@ const CheckoutForm = ({ onSuccess }) => {
               <input
                 type="text"
                 name="zipCode"
-                placeholder="ZIP Code"
+                placeholder={t('zipCode')}
                 value={formData.zipCode}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -124,7 +126,7 @@ const CheckoutForm = ({ onSuccess }) => {
               onClick={() => setStep(2)}
               className="w-full bg-[#C585D7] text-white py-3 rounded-lg hover:bg-[#008080] transition-colors"
             >
-              Continue to Payment
+              {t('continueToPayment')}
             </button>
           </motion.div>
         );
@@ -136,16 +138,16 @@ const CheckoutForm = ({ onSuccess }) => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <h2 className="text-2xl font-semibold text-[#2F2F2F] mb-6">Payment Information</h2>
+            <h2 className="text-2xl font-semibold text-[#2F2F2F] mb-6">{t('paymentInformation')}</h2>
             <div className="bg-white p-6 rounded-lg border-2 border-[#C585D7]">
               <div className="flex items-center space-x-2 mb-4">
                 <FiCreditCard className="w-6 h-6 text-[#C585D7]" />
-                <span className="text-[#2F2F2F] font-semibold">Card Details</span>
+                <span className="text-[#2F2F2F] font-semibold">{t('cardDetails')}</span>
               </div>
               <input
                 type="text"
                 name="cardNumber"
-                placeholder="Card Number"
+                placeholder={t('cardNumber')}
                 value={formData.cardNumber}
                 onChange={handleInputChange}
                 className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080] mb-4"
@@ -155,7 +157,7 @@ const CheckoutForm = ({ onSuccess }) => {
                 <input
                   type="text"
                   name="expiryDate"
-                  placeholder="MM/YY"
+                  placeholder={t('expiryDate')}
                   value={formData.expiryDate}
                   onChange={handleInputChange}
                   className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -164,7 +166,7 @@ const CheckoutForm = ({ onSuccess }) => {
                 <input
                   type="text"
                   name="cvv"
-                  placeholder="CVV"
+                  placeholder={t('cvv')}
                   value={formData.cvv}
                   onChange={handleInputChange}
                   className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -177,7 +179,7 @@ const CheckoutForm = ({ onSuccess }) => {
                 onClick={() => setStep(1)}
                 className="text-[#C585D7] hover:text-[#008080] transition-colors"
               >
-                ← Back to Shipping
+                ← {t('backToShipping')}
               </button>
               <button
                 onClick={handleSubmit}
@@ -189,12 +191,12 @@ const CheckoutForm = ({ onSuccess }) => {
                 {isProcessing ? (
                   <>
                     <FiLock className="w-5 h-5" />
-                    <span>Processing...</span>
+                    <span>{t('processing')}</span>
                   </>
                 ) : (
                   <>
                     <FiCheck className="w-5 h-5" />
-                    <span>Complete Purchase</span>
+                    <span>{t('completePurchase')}</span>
                   </>
                 )}
               </button>
@@ -216,7 +218,7 @@ const CheckoutForm = ({ onSuccess }) => {
           }`}>
             1
           </div>
-          <span className={step >= 1 ? 'text-[#C585D7]' : 'text-gray-500'}>Shipping</span>
+          <span className={step >= 1 ? 'text-[#C585D7]' : 'text-gray-500'}>{t('shipping')}</span>
         </div>
         <div className="flex-1 h-1 bg-gray-200">
           <div className={`h-full bg-[#C585D7] transition-all duration-300 ${
@@ -229,7 +231,7 @@ const CheckoutForm = ({ onSuccess }) => {
           }`}>
             2
           </div>
-          <span className={step >= 2 ? 'text-[#C585D7]' : 'text-gray-500'}>Payment</span>
+          <span className={step >= 2 ? 'text-[#C585D7]' : 'text-gray-500'}>{t('payment')}</span>
         </div>
       </div>
 
@@ -238,7 +240,7 @@ const CheckoutForm = ({ onSuccess }) => {
       </form>
 
       <div className="mt-8 p-6 bg-[#FAF3EC] rounded-lg">
-        <h3 className="text-lg font-semibold text-[#2F2F2F] mb-4">Order Summary</h3>
+        <h3 className="text-lg font-semibold text-[#2F2F2F] mb-4">{t('orderSummary')}</h3>
         <div className="space-y-2">
           {cart.map(item => (
             <div key={item.id} className="flex justify-between">
@@ -248,8 +250,16 @@ const CheckoutForm = ({ onSuccess }) => {
           ))}
           <div className="border-t pt-2 mt-2">
             <div className="flex justify-between">
-              <span className="text-[#2F2F2F] font-semibold">Total</span>
-              <span className="text-[#C585D7] text-xl font-bold">${getCartTotal().toFixed(2)}</span>
+              <span className="text-[#6A6A6A]">{t('subtotal')}</span>
+              <span className="text-[#2F2F2F] font-semibold">${getCartTotal().toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#6A6A6A]">{t('shipping')}</span>
+              <span className="text-[#2F2F2F] font-semibold">{t('free')}</span>
+            </div>
+            <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
+              <span className="text-[#2F2F2F]">{t('total')}</span>
+              <span className="text-[#2F2F2F]">${getCartTotal().toFixed(2)}</span>
             </div>
           </div>
         </div>

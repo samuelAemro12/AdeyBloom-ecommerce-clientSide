@@ -1,31 +1,33 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiStar } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const Testimonials = () => {
+  const { t } = useTranslation();
   const testimonials = [
     {
       id: 1,
       name: 'X',
-      role: 'Regular Customer',
+      role: t('testimonialRole1'),
       image: '/testimonial-1.jpg',
-      text: 'The natural ingredients in these products have transformed my skincare routine. My skin has never looked better!',
+      text: t('testimonialText1'),
       rating: 5,
     },
     {
       id: 2,
       name: 'Y',
-      role: 'Beauty Blogger',
+      role: t('testimonialRole2'),
       image: '/testimonial-2.jpg',
-      text: 'As someone who reviews beauty products professionally, I can confidently say that AdeyBloom offers exceptional quality.',
+      text: t('testimonialText2'),
       rating: 5,
     },
     {
       id: 3,
       name: 'C',
-      role: 'Loyal Customer',
+      role: t('testimonialRole3'),
       image: '/testimonial-3.jpg',
-      text: 'The customer service is outstanding, and the products are worth every penny. I love how my skin feels after using them.',
+      text: t('testimonialText3'),
       rating: 5,
     },
   ];
@@ -33,7 +35,7 @@ const Testimonials = () => {
   return (
     <section className="py-16 bg-[#FAF3EC]">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-[#2F2F2F] text-center mb-12">What Our Customers Say</h2>
+        <h2 className="text-4xl font-bold text-[#2F2F2F] text-center mb-12">{t('testimonialsHeader')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial) => (
             <motion.div

@@ -1,213 +1,267 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
-import { useToast } from '../../context/ToastContext';
+import { getProducts, deleteProduct, createProduct, updateProduct } from '../../../services/productService';
+import { getCategories } from '../../../services/categoryService';
+import Toast from '../../components/Toast';
+import { useTranslation } from '../../context/TranslationContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const ProductsPanel = () => {
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const { showSuccess, showError } = useToast();
+    const { t } = useTranslation();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentProduct, setCurrentProduct] = useState({
+        name: '',
+        description: '',
+        richDescription: '',
+        image: '',
+        brand: '',
+        price: 0,
+        category: '',
+        countInStock: 0,
+        isFeatured: false,
+    });
+    const [categories, setCategories] = useState([]);
+    const [toast, setToast] = useState({ show: false, message: '', type: '' });
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+    useEffect(() => {
+        fetchProducts();
+        fetchCategories();
+    }, []);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/admin/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      showError('Failed to fetch products');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const fetchedProducts = await getProducts();
+            setProducts(fetchedProducts);
+            setError(null);
+        } catch (error) {
+            setError(t('admin.productsPanel.errorLoadingProducts'));
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await fetch(`/api/admin/products/${productId}`, {
-          method: 'DELETE',
+    const fetchCategories = async () => {
+        try {
+            const fetchedCategories = await getCategories();
+            setCategories(fetchedCategories);
+        } catch (error) {
+            // Handle category fetch error if needed
+        }
+    };
+
+    const handleEdit = (product) => {
+        setCurrentProduct({ ...product, category: product.category?._id });
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (productId) => {
+        if (window.confirm(t('admin.productsPanel.deleteConfirmation'))) {
+            try {
+                await deleteProduct(productId);
+                setToast({ show: true, message: t('admin.productsPanel.productDeletedSuccess'), type: 'success' });
+                fetchProducts();
+            } catch (error) {
+                setToast({ show: true, message: t('admin.productsPanel.productDeletedError'), type: 'error' });
+            }
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setCurrentProduct({ ...currentProduct, [name]: value });
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        try {
+            if (currentProduct._id) {
+                await updateProduct(currentProduct._id, currentProduct);
+            } else {
+                await createProduct(currentProduct);
+            }
+            setToast({ show: true, message: t('admin.productsPanel.productSavedSuccess'), type: 'success' });
+            setIsModalOpen(false);
+            fetchProducts();
+        } catch (error) {
+            setToast({ show: true, message: t('admin.productsPanel.productSavedError'), type: 'error' });
+        }
+    };
+
+    const openNewProductModal = () => {
+        setCurrentProduct({
+            name: '',
+            description: '',
+            richDescription: '',
+            image: '',
+            brand: '',
+            price: 0,
+            category: '',
+            countInStock: 0,
+            isFeatured: false,
         });
-        setProducts(products.filter(p => p._id !== productId));
-        showSuccess('Product deleted successfully');
-      } catch (error) {
-        showError('Failed to delete product');
-      }
-    }
-  };
+        setIsModalOpen(true);
+    };
 
-  const handleBulkDelete = async () => {
-    if (selectedProducts.length === 0) return;
-    
-    if (window.confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) {
-      try {
-        await fetch('/api/admin/products/bulk-delete', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productIds: selectedProducts }),
-        });
-        setProducts(products.filter(p => !selectedProducts.includes(p._id)));
-        setSelectedProducts([]);
-        showSuccess('Products deleted successfully');
-      } catch (error) {
-        showError('Failed to delete products');
-      }
-    }
-  };
+    return (
+        <div className="container mx-auto p-4">
+            <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
+            <h1 className="text-2xl font-bold mb-4">{t('admin.productsPanel.title')}</h1>
+            <button
+                onClick={openNewProductModal}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
+            >
+                {t('admin.productsPanel.addNewProduct')}
+            </button>
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+            {loading && <LoadingSpinner />}
+            {error && <p className="text-red-500">{error}</p>}
+            {!loading && !error && products.length === 0 && <p>{t('admin.productsPanel.noProducts')}</p>}
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+            {!loading && !error && products.length > 0 && (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.image')}</th>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.productName')}</th>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.category')}</th>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.price')}</th>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.stock')}</th>
+                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {products.map((product) => (
+                                <tr key={product._id}>
+                                    <td className="py-2 px-4 border-b">
+                                        <img src={product.image} alt={product.name} className="h-16 w-16 object-cover" />
+                                    </td>
+                                    <td className="py-2 px-4 border-b">{product.name}</td>
+                                    <td className="py-2 px-4 border-b">{product.category?.name}</td>
+                                    <td className="py-2 px-4 border-b">${product.price}</td>
+                                    <td className="py-2 px-4 border-b">{product.countInStock}</td>
+                                    <td className="py-2 px-4 border-b">
+                                        <button onClick={() => handleEdit(product)} className="text-blue-500 hover:underline mr-2">{t('admin.productsPanel.edit')}</button>
+                                        <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:underline">{t('admin.productsPanel.delete')}</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Products Management</h1>
-        <button
-          onClick={() => {/* Add your add product logic */}}
-          className="flex items-center space-x-2 bg-[#C585D7] text-white px-4 py-2 rounded-lg hover:bg-[#008080] transition-colors"
-        >
-          <FiPlus className="w-5 h-5" />
-          <span>Add Product</span>
-        </button>
-      </div>
-
-      {/* Search and Bulk Actions */}
-      <div className="flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C585D7]"
-        />
-        {selectedProducts.length > 0 && (
-          <button
-            onClick={handleBulkDelete}
-            className="text-red-500 hover:text-red-600"
-          >
-            Delete Selected ({selectedProducts.length})
-          </button>
-        )}
-      </div>
-
-      {/* Products Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <input
-                  type="checkbox"
-                  checked={selectedProducts.length === filteredProducts.length}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedProducts(filteredProducts.map(p => p._id));
-                    } else {
-                      setSelectedProducts([]);
-                    }
-                  }}
-                  className="rounded border-gray-300 text-[#C585D7] focus:ring-[#C585D7]"
-                />
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stock
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredProducts.map((product) => (
-              <tr key={product._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={selectedProducts.includes(product._id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedProducts([...selectedProducts, product._id]);
-                      } else {
-                        setSelectedProducts(selectedProducts.filter(id => id !== product._id));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-[#C585D7] focus:ring-[#C585D7]"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    {product.images[0] && (
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    )}
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                      <div className="text-sm text-gray-500">{product.brand}</div>
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-lg w-full max-w-lg max-h-screen overflow-y-auto">
+                        <h2 className="text-xl font-bold mb-4">{currentProduct._id ? t('admin.productsPanel.editProduct') : t('admin.productsPanel.addProduct')}</h2>
+                        <form onSubmit={handleSave}>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.name')}</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={currentProduct.name}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.description')}</label>
+                                <textarea
+                                    name="description"
+                                    value={currentProduct.description}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded"
+                                ></textarea>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.richDescription')}</label>
+                                <textarea
+                                    name="richDescription"
+                                    value={currentProduct.richDescription}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded"
+                                ></textarea>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.productImage')}</label>
+                                <input
+                                    type="text"
+                                    name="image"
+                                    value={currentProduct.image}
+                                    onChange={handleInputChange}
+                                    placeholder={t('admin.productsPanel.imageUrlPlaceholder')}
+                                    className="w-full px-3 py-2 border rounded"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.brand')}</label>
+                                <input
+                                    type="text"
+                                    name="brand"
+                                    value={currentProduct.brand}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-gray-700">{t('admin.productsPanel.price')}</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={currentProduct.price}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border rounded"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700">{t('admin.productsPanel.countInStock')}</label>
+                                    <input
+                                        type="number"
+                                        name="countInStock"
+                                        value={currentProduct.countInStock}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border rounded"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">{t('admin.productsPanel.category')}</label>
+                                <select
+                                    name="category"
+                                    value={currentProduct.category}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded"
+                                    required
+                                >
+                                    <option value="">{t('admin.productsPanel.selectCategory')}</option>
+                                    {categories.map(cat => (
+                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">
+                                    {t('cancel')}
+                                </button>
+                                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                    {t('save')}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">${product.price}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{product.stock}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      product.active
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {product.active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => {/* Add your edit logic */}}
-                    className="text-[#C585D7] hover:text-[#008080] mr-4"
-                  >
-                    <FiEdit2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <FiTrash2 className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default ProductsPanel; 

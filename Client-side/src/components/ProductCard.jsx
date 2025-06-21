@@ -4,10 +4,12 @@ import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiPlus, FiMinus, FiStar, FiEye } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import WishlistButton from './WishlistButton';
+import { useTranslation } from '../context/TranslationContext';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -107,7 +109,7 @@ const ProductCard = ({ product }) => {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {discount}% OFF
+            {discount}% {t('off')}
           </motion.span>
         )}
 
@@ -115,7 +117,7 @@ const ProductCard = ({ product }) => {
         {stock === 0 && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="bg-coral-rose text-white px-4 py-2 rounded-full font-semibold">
-              Out of Stock
+              {t('outOfStock')}
             </span>
           </div>
         )}
@@ -145,7 +147,7 @@ const ProductCard = ({ product }) => {
             ))}
           </div>
           <span className="text-sm text-secondary-text ml-2">
-            ({reviewCount} reviews)
+            ({reviewCount} {t('reviews')})
           </span>
         </div>
 
@@ -205,10 +207,10 @@ const ProductCard = ({ product }) => {
           <FiShoppingCart className="w-5 h-5" />
           <span>
             {isAdding 
-              ? 'Added to Cart!' 
+              ? t('addedToCart') 
               : stock === 0 
-                ? 'Out of Stock' 
-                : 'Add to Cart'
+                ? t('outOfStock') 
+                : t('addToCart')
             }
           </span>
         </motion.button>

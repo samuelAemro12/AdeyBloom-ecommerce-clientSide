@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/TranslationContext';
 
 const WishlistButton = ({ productId, className = '' }) => {
     const { addToWishlist, removeFromWishlist, wishlistItems } = useWishlist();
     const { user } = useAuth();
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
 
     const isInWishlist = wishlistItems.some(
@@ -40,7 +42,7 @@ const WishlistButton = ({ productId, className = '' }) => {
                     ? 'text-pink-500 hover:text-pink-600' 
                     : 'text-gray-400 hover:text-pink-500'
             } ${className}`}
-            title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            title={isInWishlist ? t('removeFromWishlist') : t('addToWishlist')}
         >
             {isLoading ? (
                 <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">

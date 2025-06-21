@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { FiPackage, FiShoppingBag, FiStar } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 // Mock order data for testing
 const mockOrders = [
@@ -50,6 +51,7 @@ const mockOrders = [
 const OrderHistory = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -61,7 +63,7 @@ const OrderHistory = () => {
         // Simulate error for testing
         const shouldError = Math.random() < 0.5; // 50% chance of error
         if (shouldError) {
-          throw new Error('Failed to fetch orders');
+          throw new Error(t('fetchOrdersFailed'));
         }
         setOrders(mockOrders);
         setError(false);
@@ -76,7 +78,7 @@ const OrderHistory = () => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, t]);
 
   if (!user) {
     navigate('/signin');
@@ -125,10 +127,18 @@ const OrderHistory = () => {
       icon: <FiPackage className="w-4 h-4" />
     };
 
+    const statusTranslations = {
+      pending: t('pending'),
+      processing: t('processing'),
+      shipped: t('shipped'),
+      delivered: t('delivered'),
+      cancelled: t('cancelled'),
+    };
+
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
         {config.icon}
-        <span className="ml-2">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        <span className="ml-2">{statusTranslations[status] || status.charAt(0).toUpperCase() + status.slice(1)}</span>
       </span>
     );
   };
@@ -136,7 +146,7 @@ const OrderHistory = () => {
   return (
     <div className="container mx-auto px-4 py-16 bg-[#FFF9F6] min-h-[80vh]">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-[#2F2F2F] mb-12 text-center">Order History</h1>
+        <h1 className="text-4xl font-bold text-[#2F2F2F] mb-12 text-center">{t('orderHistory')}</h1>
 
         {orders.length === 0 ? (
           <motion.div 
@@ -145,12 +155,12 @@ const OrderHistory = () => {
             className="text-center py-12"
           >
             <FiShoppingBag className="w-16 h-16 text-[#C585D7] mx-auto mb-6" />
-            <p className="text-[#6A6A6A] text-xl mb-8">You haven't placed any orders yet.</p>
+            <p className="text-[#6A6A6A] text-xl mb-8">{t('noOrders')}</p>
             <button
               onClick={() => navigate('/')}
               className="bg-[#C585D7] text-white px-8 py-3 rounded-full hover:bg-[#008080] transition-colors"
             >
-              Start Shopping
+              {t('startShopping')}
             </button>
           </motion.div>
         ) : (
@@ -167,10 +177,10 @@ const OrderHistory = () => {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h2 className="text-2xl font-semibold text-[#2F2F2F]">
-                        Order #{order.orderNumber}
+                        {t('order')} #{order.orderNumber}
                       </h2>
                       <p className="text-[#6A6A6A] mt-1">
-                        Placed on {new Date(order.createdAt).toLocaleDateString()}
+                        {t('placedOn')} {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     {getOrderStatus(order.status)}
@@ -190,7 +200,7 @@ const OrderHistory = () => {
                         <div className="flex-grow">
                           <h3 className="text-xl font-medium text-[#2F2F2F]">{item.name}</h3>
                           <p className="text-[#6A6A6A] mt-1">
-                            Quantity: {item.quantity}
+                            {t('quantity')}: {item.quantity}
                           </p>
                         </div>
                         <p className="text-xl font-semibold text-[#C585D7]">${item.price.toFixed(2)}</p>
@@ -201,7 +211,7 @@ const OrderHistory = () => {
                   <div className="border-t border-gray-100 mt-6 pt-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-[#6A6A6A]">Total Amount</p>
+                        <p className="text-[#6A6A6A]">{t('totalAmount')}</p>
                         <p className="text-2xl font-semibold text-[#2F2F2F]">
                           ${order.totalAmount.toFixed(2)}
                         </p>
@@ -210,7 +220,7 @@ const OrderHistory = () => {
                         onClick={() => navigate(`/order/${order.id}`)}
                         className="text-[#C585D7] hover:text-[#008080] font-medium transition-colors"
                       >
-                        View Details
+                        {t('viewDetails')}
                       </button>
                     </div>
                   </div>
@@ -223,7 +233,7 @@ const OrderHistory = () => {
                       className="inline-flex items-center text-[#C585D7] hover:text-[#008080] font-medium transition-colors"
                     >
                       <FiStar className="w-5 h-5 mr-2" />
-                      Write a Review
+                      {t('writeReview')}
                     </button>
                   </div>
                 )}

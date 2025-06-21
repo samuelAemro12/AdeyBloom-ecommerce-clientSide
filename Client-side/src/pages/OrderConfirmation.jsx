@@ -4,10 +4,12 @@ import { orderService } from '../services/orderService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 import { FiCheckCircle } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const OrderConfirmation = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,14 +20,14 @@ const OrderConfirmation = () => {
                 const data = await orderService.getOrder(orderId);
                 setOrder(data);
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to fetch order details');
+                setError(err.response?.data?.message || t('fetchOrderDetailsFailed'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchOrder();
-    }, [orderId]);
+    }, [orderId, t]);
 
     if (loading) return <LoadingSpinner />;
     if (error) return <Toast message={error} type="error" />;
@@ -36,34 +38,34 @@ const OrderConfirmation = () => {
             <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-8">
                     <FiCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold mb-2">Order Confirmed!</h1>
+                    <h1 className="text-2xl font-bold mb-2">{t('orderConfirmed')}</h1>
                     <p className="text-gray-600">
-                        Thank you for your purchase. We'll send you an email with your order details.
+                        {t('thankYouMessage')}
                     </p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Order Details</h2>
+                    <h2 className="text-xl font-semibold mb-4">{t('orderDetails')}</h2>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm text-gray-600">Order Number</p>
+                            <p className="text-sm text-gray-600">{t('orderNumber')}</p>
                             <p className="font-medium">{order._id}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Order Date</p>
+                            <p className="text-sm text-gray-600">{t('orderDate')}</p>
                             <p className="font-medium">
                                 {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Status</p>
+                            <p className="text-sm text-gray-600">{t('status')}</p>
                             <p className="font-medium capitalize">{order.status}</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
+                    <h2 className="text-xl font-semibold mb-4">{t('shippingAddress')}</h2>
                     <div className="space-y-2">
                         <p>{order.shippingAddress.street}</p>
                         <p>
@@ -74,7 +76,7 @@ const OrderConfirmation = () => {
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+                    <h2 className="text-xl font-semibold mb-4">{t('orderSummary')}</h2>
                     <div className="space-y-4">
                         {order.items.map((item) => (
                             <div key={item.product._id} className="flex justify-between">
@@ -84,19 +86,19 @@ const OrderConfirmation = () => {
                         ))}
                         <div className="border-t pt-4">
                             <div className="flex justify-between mb-2">
-                                <span>Subtotal</span>
+                                <span>{t('subtotal')}</span>
                                 <span>${order.subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between mb-2">
-                                <span>Shipping</span>
+                                <span>{t('shipping')}</span>
                                 <span>${order.shippingCost.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between mb-2">
-                                <span>Tax</span>
+                                <span>{t('tax')}</span>
                                 <span>${order.tax.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                                <span>Total</span>
+                                <span>{t('total')}</span>
                                 <span>${order.total.toFixed(2)}</span>
                             </div>
                         </div>
@@ -108,7 +110,7 @@ const OrderConfirmation = () => {
                         onClick={() => navigate('/products')}
                         className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                     >
-                        Continue Shopping
+                        {t('continueShopping')}
                     </button>
                 </div>
             </div>

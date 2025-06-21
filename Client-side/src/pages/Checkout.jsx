@@ -4,10 +4,12 @@ import { useCart } from '../context/CartContext';
 import { orderService } from '../services/orderService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
+import { useTranslation } from '../context/TranslationContext';
 
 const Checkout = () => {
     const navigate = useNavigate();
     const { cartItems, getCartTotal, clearCart } = useCart();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
@@ -48,7 +50,7 @@ const Checkout = () => {
             await clearCart();
             navigate(`/order-confirmation/${response.order._id}`);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create order');
+            setError(err.response?.data?.message || t('orderCreationFailed'));
         } finally {
             setLoading(false);
         }
@@ -58,12 +60,12 @@ const Checkout = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
+                    <h1 className="text-2xl font-bold mb-4">{t('yourCartIsEmpty')}</h1>
                     <button
                         onClick={() => navigate('/products')}
                         className="text-indigo-600 hover:text-indigo-800"
                     >
-                        Continue Shopping →
+                        {t('continueShopping')} →
                     </button>
                 </div>
             </div>
@@ -77,17 +79,17 @@ const Checkout = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+            <h1 className="text-2xl font-bold mb-8">{t('checkout')}</h1>
             {error && <Toast message={error} type="error" />}
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Shipping Form */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold mb-6">Shipping Information</h2>
+                    <h2 className="text-xl font-semibold mb-6">{t('shippingInformation')}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Street Address</label>
+                                <label className="block text-sm font-medium text-gray-700">{t('streetAddress')}</label>
                                 <input
                                     type="text"
                                     name="street"
@@ -99,7 +101,7 @@ const Checkout = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">City</label>
+                                    <label className="block text-sm font-medium text-gray-700">{t('city')}</label>
                                     <input
                                         type="text"
                                         name="city"
@@ -110,7 +112,7 @@ const Checkout = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">State</label>
+                                    <label className="block text-sm font-medium text-gray-700">{t('state')}</label>
                                     <input
                                         type="text"
                                         name="state"
@@ -123,7 +125,7 @@ const Checkout = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">ZIP Code</label>
+                                    <label className="block text-sm font-medium text-gray-700">{t('zipCode')}</label>
                                     <input
                                         type="text"
                                         name="zipCode"
@@ -134,7 +136,7 @@ const Checkout = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Country</label>
+                                    <label className="block text-sm font-medium text-gray-700">{t('country')}</label>
                                     <input
                                         type="text"
                                         name="country"
@@ -146,15 +148,15 @@ const Checkout = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+                                <label className="block text-sm font-medium text-gray-700">{t('paymentMethod')}</label>
                                 <select
                                     name="paymentMethod"
                                     value={formData.paymentMethod}
                                     onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 >
-                                    <option value="credit_card">Credit Card</option>
-                                    <option value="paypal">PayPal</option>
+                                    <option value="credit_card">{t('creditCard')}</option>
+                                    <option value="paypal">{t('paypal')}</option>
                                 </select>
                             </div>
                         </div>
@@ -163,7 +165,7 @@ const Checkout = () => {
 
                 {/* Order Summary */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+                    <h2 className="text-xl font-semibold mb-6">{t('orderSummary')}</h2>
                     <div className="space-y-4">
                         {cartItems.map((item) => (
                             <div key={item.product._id} className="flex justify-between">
@@ -173,19 +175,19 @@ const Checkout = () => {
                         ))}
                         <div className="border-t pt-4">
                             <div className="flex justify-between mb-2">
-                                <span>Subtotal</span>
+                                <span>{t('subtotal')}</span>
                                 <span>${subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between mb-2">
-                                <span>Shipping</span>
+                                <span>{t('shipping')}</span>
                                 <span>${shipping.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between mb-2">
-                                <span>Tax</span>
+                                <span>{t('tax')}</span>
                                 <span>${tax.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                                <span>Total</span>
+                                <span>{t('total')}</span>
                                 <span>${total.toFixed(2)}</span>
                             </div>
                         </div>
@@ -194,7 +196,7 @@ const Checkout = () => {
                             disabled={loading}
                             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors disabled:bg-indigo-400"
                         >
-                            {loading ? <LoadingSpinner /> : 'Place Order'}
+                            {loading ? <LoadingSpinner /> : t('placeOrder')}
                         </button>
                     </div>
                 </div>

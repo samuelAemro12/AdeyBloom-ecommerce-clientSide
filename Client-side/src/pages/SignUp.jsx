@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FiMail, FiLock, FiUser, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const SignUp = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -34,19 +36,19 @@ const SignUp = () => {
     switch (score) {
       case 0:
       case 1:
-        message = 'Very weak';
+        message = t('passwordStrengthVeryWeak');
         break;
       case 2:
-        message = 'Weak';
+        message = t('passwordStrengthWeak');
         break;
       case 3:
-        message = 'Medium';
+        message = t('passwordStrengthMedium');
         break;
       case 4:
-        message = 'Strong';
+        message = t('passwordStrengthStrong');
         break;
       case 5:
-        message = 'Very strong';
+        message = t('passwordStrengthVeryStrong');
         break;
       default:
         message = '';
@@ -59,7 +61,7 @@ const SignUp = () => {
     if (form.password) {
       setPasswordStrength(validatePasswordStrength(form.password));
     }
-  }, [form.password]);
+  }, [form.password, t]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,13 +77,13 @@ const SignUp = () => {
     setIsLoading(true);
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('errorPasswordsDoNotMatch'));
       setIsLoading(false);
       return;
     }
 
     if (passwordStrength.score < 3) {
-      setError('Please choose a stronger password');
+      setError(t('errorChooseStrongerPassword'));
       setIsLoading(false);
       return;
     }
@@ -90,7 +92,7 @@ const SignUp = () => {
       await register(form);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Failed to create account');
+      setError(err.message || t('errorFailedToCreateAccount'));
     } finally {
       setIsLoading(false);
     }
@@ -124,8 +126,8 @@ const SignUp = () => {
       <div className="z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-cloud-gray">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-accent to-secondary-accent p-6 text-white text-center">
-          <h2 className="text-3xl font-bold">Create Account</h2>
-          <p className="text-white/80 mt-1 text-sm">Join our beauty community</p>
+          <h2 className="text-3xl font-bold">{t('createAccount')}</h2>
+          <p className="text-white/80 mt-1 text-sm">{t('joinCommunity')}</p>
         </div>
 
         {/* Form */}
@@ -146,7 +148,7 @@ const SignUp = () => {
                 required
                 autoFocus
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                placeholder="Full name"
+                placeholder={t('fullName')}
                 value={form.name}
                 onChange={handleChange}
                 autoComplete="name"
@@ -161,7 +163,7 @@ const SignUp = () => {
                 name="email"
                 required
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                placeholder="Email address"
+                placeholder={t('email')}
                 value={form.email}
                 onChange={handleChange}
                 autoComplete="email"
@@ -177,7 +179,7 @@ const SignUp = () => {
                   name="password"
                   required
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                  placeholder="Password"
+                  placeholder={t('password')}
                   value={form.password}
                   onChange={handleChange}
                   autoComplete="new-password"
@@ -187,7 +189,7 @@ const SignUp = () => {
                   className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
                   onClick={() => setShowPassword((prev) => !prev)}
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
@@ -201,7 +203,7 @@ const SignUp = () => {
                     />
                   </div>
                   <p className="text-xs text-ash-gray">
-                    Password strength: <span className="font-medium">{passwordStrength.message}</span>
+                    {t('passwordStrength')}: <span className="font-medium">{passwordStrength.message}</span>
                   </p>
                 </div>
               )}
@@ -215,7 +217,7 @@ const SignUp = () => {
                 name="confirmPassword"
                 required
                 className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                placeholder="Confirm password"
+                placeholder={t('confirmPassword')}
                 value={form.confirmPassword}
                 onChange={handleChange}
                 autoComplete="new-password"
@@ -225,7 +227,7 @@ const SignUp = () => {
                 className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
                 tabIndex={-1}
-                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
               >
                 {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
               </button>
@@ -244,22 +246,21 @@ const SignUp = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Creating account...
+                    {t('creatingAccount')}
                   </span>
                 ) : (
                   <>
-                    Sign Up
-                    <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+                    {t('createAccount')}
+                    <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
-
-              <Link 
-                to="/signin" 
-                className="w-full flex justify-center items-center bg-secondary-accent hover:bg-opacity-90 text-gray-800 font-medium py-2.5 rounded-lg transition shadow-md"
-              >
-                Already have an account? Sign In
-              </Link>
+              <p className="text-center text-sm text-ash-gray">
+                {t('alreadyHaveAccount')}
+                <Link to="/signin" className="ml-1 font-medium text-primary-accent hover:underline">
+                  {t('signInHeader')}
+                </Link>
+              </p>
             </div>
           </form>
         </div>

@@ -3,6 +3,7 @@ import { FiEye, FiTruck, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { orderService } from '../../services/orderService';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
+import { useTranslation } from '../../context/TranslationContext';
 
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -10,6 +11,7 @@ const OrdersPanel = () => {
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchOrders();
@@ -21,7 +23,7 @@ const OrdersPanel = () => {
       setOrders(data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch orders. Please try again later.');
+      setError(t('fetchOrdersFailed'));
     } finally {
       setLoading(false);
     }
@@ -34,7 +36,7 @@ const OrdersPanel = () => {
         order._id === orderId ? { ...order, status: newStatus } : order
       ));
     } catch (err) {
-      setError('Failed to update order status. Please try again.');
+      setError(t('updateOrderStatusFailed'));
     }
   };
 
@@ -68,23 +70,23 @@ const OrdersPanel = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Orders Management</h2>
+        <h2 className="text-2xl font-bold">{t('ordersManagement')}</h2>
         <div className="flex space-x-4">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t('allStatus')}</option>
+            <option value="pending">{t('pending')}</option>
+            <option value="processing">{t('processing')}</option>
+            <option value="shipped">{t('shipped')}</option>
+            <option value="delivered">{t('delivered')}</option>
+            <option value="cancelled">{t('cancelled')}</option>
           </select>
           <input
             type="text"
-            placeholder="Search orders..."
+            placeholder={t('searchOrders')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -97,22 +99,22 @@ const OrdersPanel = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID
+                {t('orderId')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Customer
+                {t('customer')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
+                {t('date')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
+                {t('total')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('actions')}
               </th>
             </tr>
           </thead>
@@ -133,7 +135,7 @@ const OrdersPanel = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    {t(order.status)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -149,11 +151,11 @@ const OrdersPanel = () => {
                       onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                       className="text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
+                      <option value="pending">{t('pending')}</option>
+                      <option value="processing">{t('processing')}</option>
+                      <option value="shipped">{t('shipped')}</option>
+                      <option value="delivered">{t('delivered')}</option>
+                      <option value="cancelled">{t('cancelled')}</option>
                     </select>
                   </div>
                 </td>

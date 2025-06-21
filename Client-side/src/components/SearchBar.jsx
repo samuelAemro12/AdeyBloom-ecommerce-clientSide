@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
@@ -8,6 +9,7 @@ const SearchBar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -68,7 +70,7 @@ const SearchBar = () => {
           type="text"
           value={query}
           onChange={handleInputChange}
-          placeholder="Search products..."
+          placeholder={t('searchProducts')}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
@@ -94,7 +96,7 @@ const SearchBar = () => {
       {showSuggestions && (query.trim() || isLoading) && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
           {isLoading ? (
-            <div className="p-4 text-center text-gray-500">Loading...</div>
+            <div className="p-4 text-center text-gray-500">{t('loading')}</div>
           ) : suggestions.length > 0 ? (
             <ul className="py-2">
               {suggestions.map((product) => (
@@ -123,7 +125,7 @@ const SearchBar = () => {
             </ul>
           ) : (
             <div className="p-4 text-center text-gray-500">
-              No products found
+              {t('noProductsFound')}
             </div>
           )}
         </div>

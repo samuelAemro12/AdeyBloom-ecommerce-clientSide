@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiMapPin } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../context/ToastContext';
+import { useTranslation } from '../context/TranslationContext';
 
 const AddressManagement = () => {
   const { addresses, addAddress, updateAddress, removeAddress } = useUser();
+  const { t } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ const AddressManagement = () => {
       country: '',
       isDefault: false
     });
-    showSuccess('Address updated successfully!');
+    showSuccess(t('addressUpdatedSuccess'));
   };
 
   const handleEdit = (address) => {
@@ -57,22 +59,22 @@ const AddressManagement = () => {
   };
 
   const handleDelete = (addressId) => {
-    if (window.confirm('Are you sure you want to delete this address?')) {
+    if (window.confirm(t('confirmDeleteAddress'))) {
       removeAddress(addressId);
-      showSuccess('Address deleted successfully!');
+      showSuccess(t('addressDeletedSuccess'));
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-[#2F2F2F]">Shipping Addresses</h2>
+        <h2 className="text-2xl font-semibold text-[#2F2F2F]">{t('shippingAddresses')}</h2>
         <button
           onClick={() => setIsAdding(true)}
           className="flex items-center space-x-2 bg-[#C585D7] text-white px-4 py-2 rounded-full hover:bg-[#008080] transition-colors"
         >
           <FiPlus className="w-5 h-5" />
-          <span>Add New Address</span>
+          <span>{t('addNewAddress')}</span>
         </button>
       </div>
 
@@ -83,13 +85,13 @@ const AddressManagement = () => {
           className="bg-white p-6 rounded-lg shadow-lg"
         >
           <h3 className="text-xl font-semibold text-[#2F2F2F] mb-4">
-            {editingId ? 'Edit Address' : 'Add New Address'}
+            {editingId ? t('editAddress') : t('addNewAddress')}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
               name="name"
-              placeholder="Full Name"
+              placeholder={t('fullName')}
               value={formData.name}
               onChange={handleInputChange}
               className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -98,7 +100,7 @@ const AddressManagement = () => {
             <input
               type="text"
               name="street"
-              placeholder="Street Address"
+              placeholder={t('streetAddress')}
               value={formData.street}
               onChange={handleInputChange}
               className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -108,7 +110,7 @@ const AddressManagement = () => {
               <input
                 type="text"
                 name="city"
-                placeholder="City"
+                placeholder={t('city')}
                 value={formData.city}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -117,7 +119,7 @@ const AddressManagement = () => {
               <input
                 type="text"
                 name="state"
-                placeholder="State/Province"
+                placeholder={t('stateProvince')}
                 value={formData.state}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -128,7 +130,7 @@ const AddressManagement = () => {
               <input
                 type="text"
                 name="zipCode"
-                placeholder="ZIP/Postal Code"
+                placeholder={t('zipPostalCode')}
                 value={formData.zipCode}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -137,7 +139,7 @@ const AddressManagement = () => {
               <input
                 type="text"
                 name="country"
-                placeholder="Country"
+                placeholder={t('country')}
                 value={formData.country}
                 onChange={handleInputChange}
                 className="p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
@@ -152,7 +154,7 @@ const AddressManagement = () => {
                 onChange={handleInputChange}
                 className="w-4 h-4 text-[#C585D7] border-[#C585D7] rounded focus:ring-[#C585D7]"
               />
-              <label className="text-[#6A6A6A]">Set as default address</label>
+              <label className="text-[#6A6A6A]">{t('setAsDefault')}</label>
             </div>
             <div className="flex justify-end space-x-4">
               <button
@@ -172,13 +174,13 @@ const AddressManagement = () => {
                 }}
                 className="px-6 py-2 text-[#C585D7] hover:text-[#008080] transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2 bg-[#C585D7] text-white rounded-full hover:bg-[#008080] transition-colors"
               >
-                {editingId ? 'Update Address' : 'Save Address'}
+                {editingId ? t('updateAddress') : t('saveAddress')}
               </button>
             </div>
           </form>
@@ -197,7 +199,7 @@ const AddressManagement = () => {
           >
             {address.isDefault && (
               <span className="absolute top-4 right-4 bg-[#C585D7] text-white px-3 py-1 rounded-full text-sm">
-                Default
+                {t('default')}
               </span>
             )}
             <div className="flex items-start space-x-4">

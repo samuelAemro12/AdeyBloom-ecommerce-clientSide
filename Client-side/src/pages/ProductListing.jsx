@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiFilter, FiSearch, FiShoppingCart, FiHeart, FiStar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 
 // Dummy product data
 const dummyProducts = [
@@ -192,6 +193,7 @@ const dummyProducts = [
 const ProductListing = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
   const [filters, setFilters] = useState({
     category: 'all',
     subCategory: 'all',
@@ -248,228 +250,256 @@ const ProductListing = () => {
       }
     });
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header with search and filter toggle */}
-      <div className="sticky top-0 z-20 bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 relative">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-accent focus:border-transparent"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <button
-              onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-opacity-90 transition"
-            >
-              <FiFilter />
-              Filters
-            </button>
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      category: 'all',
+      subCategory: 'all',
+      priceRange: 'all',
+      brand: 'all',
+      rating: 'all',
+      availability: 'all'
+    });
+    setSortBy('featured');
+    setSearchQuery('');
+  };
+
+  const renderProductCard = (product) => (
+    <div key={product.id} className="group relative bg-white border rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+      <Link to={`/products/${product.id}`} className="block">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-300"
+        />
+      </Link>
+      <div className="p-5">
+        <h3 className="text-lg font-semibold text-gray-800 truncate group-hover:text-[#C585D7] transition-colors">{product.name}</h3>
+        <p className="text-sm text-gray-500">{product.brand}</p>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-xl font-bold text-[#C585D7]">${product.price}</p>
+          <div className="flex items-center space-x-1 text-yellow-500">
+            <FiStar className="w-5 h-5" />
+            <span>{product.rating}</span>
           </div>
         </div>
+        <div className="mt-4 flex space-x-2">
+          <button className="flex-1 bg-[#C585D7] text-white py-2 px-4 rounded-lg hover:bg-[#008080] transition-colors flex items-center justify-center">
+            <FiShoppingCart className="w-5 h-5 mr-2" />
+            {t('addToCart')}
+          </button>
+          <button className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+            <FiHeart className="w-5 h-5" />
+          </button>
+        </div>
       </div>
+    </div>
+  );
 
+  return (
+    <div className="bg-[#FFF9F6] min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
-          {/* Enhanced Filter sidebar */}
-          <div className={`w-64 space-y-6 ${isFilterMenuOpen ? 'block' : 'hidden'} lg:block`}>
-            {/* Sort */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Sort By</h3>
-              <select
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-extrabold text-[#2F2F2F] tracking-tight">{t('exploreOurProducts')}</h1>
+          <p className="mt-4 text-lg text-[#6A6A6A] max-w-2xl mx-auto">{t('discoverYourBeauty')}</p>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="sticky top-0 bg-[#FFF9F6]/80 backdrop-blur-sm z-10 py-4 mb-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="relative flex-grow w-full">
+              <FiSearch className="absolute top-3.5 left-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder={t('searchProducts')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border-2 border-[#C585D7] rounded-full focus:outline-none focus:border-[#008080] transition"
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <select 
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                onChange={handleSortChange}
+                className="px-4 py-3 border-2 border-[#C585D7] rounded-full focus:outline-none focus:border-[#008080] transition"
               >
-                <option value="featured">Featured</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-                <option value="reviews">Most Reviewed</option>
-                <option value="newest">Newest</option>
+                <option value="featured">{t('featured')}</option>
+                <option value="price-low">{t('priceLowToHigh')}</option>
+                <option value="price-high">{t('priceHighToLow')}</option>
+                <option value="rating">{t('rating')}</option>
+                <option value="reviews">{t('reviews')}</option>
+                <option value="newest">{t('newest')}</option>
               </select>
-            </div>
-
-            {/* Category Filter */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Category</h3>
-              <select
-                value={filters.category}
-                onChange={(e) => setFilters({ ...filters, category: e.target.value, subCategory: 'all' })}
-                className="w-full p-2 border rounded-md"
+              <button 
+                onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                className="md:hidden p-3 bg-white border-2 border-[#C585D7] rounded-full text-[#C585D7] hover:bg-gray-50 transition"
               >
-                <option value="all">All Categories</option>
-                <option value="skincare">Skincare</option>
-                <option value="makeup">Makeup</option>
-                <option value="haircare">Haircare</option>
-                <option value="fragrance">Fragrance</option>
-              </select>
-            </div>
-
-            {/* Sub-Category Filter - Shows relevant options based on main category */}
-            {filters.category !== 'all' && (
-              <div className="bg-white p-4 rounded-lg shadow">
-                <h3 className="font-semibold mb-3">Sub-Category</h3>
-                <select
-                  value={filters.subCategory}
-                  onChange={(e) => setFilters({ ...filters, subCategory: e.target.value })}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="all">All {filters.category} Products</option>
-                  {filters.category === 'skincare' && (
-                    <>
-                      <option value="serums">Serums</option>
-                      <option value="moisturizers">Moisturizers</option>
-                      <option value="masks">Masks</option>
-                      <option value="cleansers">Cleansers</option>
-                    </>
-                  )}
-                  {filters.category === 'makeup' && (
-                    <>
-                      <option value="lips">Lips</option>
-                      <option value="eyes">Eyes</option>
-                      <option value="face">Face</option>
-                    </>
-                  )}
-                  {/* Add more sub-categories for other categories */}
-                </select>
-              </div>
-            )}
-
-            {/* Price Range Filter */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Price Range</h3>
-              <select
-                value={filters.priceRange}
-                onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="all">All Prices</option>
-                <option value="0-25">Under $25</option>
-                <option value="25-50">$25 - $50</option>
-                <option value="50-100">$50 - $100</option>
-                <option value="100-1000">$100+</option>
-              </select>
-            </div>
-
-            {/* Availability Filter */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Availability</h3>
-              <select
-                value={filters.availability}
-                onChange={(e) => setFilters({ ...filters, availability: e.target.value })}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="all">All Items</option>
-                <option value="in-stock">In Stock</option>
-              </select>
-            </div>
-
-            {/* Rating Filter */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Rating</h3>
-              <select
-                value={filters.rating}
-                onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="all">All Ratings</option>
-                <option value="4">4+ Stars</option>
-                <option value="3">3+ Stars</option>
-                <option value="2">2+ Stars</option>
-              </select>
+                <FiFilter className="w-5 h-5" />
+              </button>
             </div>
           </div>
-
-          {/* Enhanced Product Grid */}
-          <div className="flex-1">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-accent"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          <aside className={`md:col-span-1 ${isFilterMenuOpen ? 'block' : 'hidden'} md:block`}>
+            <div className="bg-white p-6 rounded-2xl shadow-lg sticky top-32">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-[#2F2F2F]">{t('filters')}</h2>
+                <button 
+                  onClick={clearFilters}
+                  className="text-sm text-[#C585D7] hover:underline"
+                >
+                  {t('clearAll')}
+                </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                  <div 
-                    key={product.id} 
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              
+              <div className="space-y-6">
+                {/* Category Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('category')}</h3>
+                  <select
+                    name="category"
+                    value={filters.category}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
                   >
-                    {/* Product Image */}
-                    <div className="relative h-48">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <option value="all">{t('all')}</option>
+                    <option value="skincare">{t('skincare')}</option>
+                    <option value="makeup">{t('makeup')}</option>
+                    <option value="haircare">{t('haircare')}</option>
+                    <option value="fragrance">{t('fragrance')}</option>
+                  </select>
+                </div>
 
-                    {/* Product Details */}
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {product.brand}
-                      </p>
-                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
+                {/* Sub-Category Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('subCategory')}</h3>
+                  <select
+                    name="subCategory"
+                    value={filters.subCategory}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="all">{t('all')}</option>
+                    <option value="serums">{t('serums')}</option>
+                    <option value="lips">{t('lips')}</option>
+                    <option value="treatments">{t('treatments')}</option>
+                    <option value="masks">{t('masks')}</option>
+                    <option value="eyes">{t('eyes')}</option>
+                    <option value="shampoo">{t('shampoo')}</option>
+                  </select>
+                </div>
 
-                      {/* Price and Rating */}
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-lg font-bold text-gray-900">
-                          ${product.price}
-                        </span>
-                        <div className="flex items-center">
-                          <FiStar className="text-yellow-400 fill-current" />
-                          <span className="ml-1 text-sm text-gray-600">
-                            {product.rating}
-                          </span>
-                        </div>
-                      </div>
+                {/* Price Range Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('priceRange')}</h3>
+                  <select
+                    name="priceRange"
+                    value={filters.priceRange}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="all">{t('all')}</option>
+                    <option value="0-25">$0 - $25</option>
+                    <option value="25-50">$25 - $50</option>
+                    <option value="50-100">$50 - $100</option>
+                    <option value="100-200">$100+</option>
+                  </select>
+                </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        <button 
-                          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium
-                            ${product.stock > 0 
-                              ? 'bg-primary-accent text-white hover:bg-opacity-90' 
-                              : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
-                          disabled={product.stock === 0}
-                        >
-                          <FiShoppingCart />
-                          {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                        </button>
-                        <button 
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200"
-                          aria-label="Add to Wishlist"
-                        >
-                          <FiHeart />
-                        </button>
-                      </div>
+                {/* Brand Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('brand')}</h3>
+                  <select
+                    name="brand"
+                    value={filters.brand}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="all">{t('all')}</option>
+                    <option value="GlowCo">GlowCo</option>
+                    <option value="BeautyBloom">BeautyBloom</option>
+                    <option value="HairLuxe">HairLuxe</option>
+                    <option value="Essence">Essence</option>
+                  </select>
+                </div>
 
-                      {/* Stock Status */}
-                      {product.stock > 0 && product.stock < 10 && (
-                        <p className="text-xs text-red-500 mt-2">
-                          Only {product.stock} left in stock
-                        </p>
-                      )}
+                {/* Rating Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('rating')}</h3>
+                  <select
+                    name="rating"
+                    value={filters.rating}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="all">{t('all')}</option>
+                    <option value="4">{t('4starsAndUp')}</option>
+                    <option value="3">{t('3starsAndUp')}</option>
+                    <option value="2">{t('2starsAndUp')}</option>
+                    <option value="1">{t('1starAndUp')}</option>
+                  </select>
+                </div>
+
+                {/* Availability Filter */}
+                <div>
+                  <h3 className="font-semibold mb-2">{t('availability')}</h3>
+                  <select
+                    name="availability"
+                    value={filters.availability}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="all">{t('all')}</option>
+                    <option value="in-stock">{t('inStock')}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Products Grid */}
+          <main className="md:col-span-3">
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <div key={index} className="bg-white p-5 rounded-xl shadow-lg animate-pulse">
+                    <div className="w-full h-56 bg-gray-200 rounded-lg"></div>
+                    <div className="mt-3 h-6 w-3/4 bg-gray-200 rounded"></div>
+                    <div className="mt-2 h-4 w-1/2 bg-gray-200 rounded"></div>
+                    <div className="mt-4 flex justify-between items-center">
+                      <div className="h-8 w-1/4 bg-gray-200 rounded"></div>
+                      <div className="h-6 w-1/4 bg-gray-200 rounded"></div>
                     </div>
                   </div>
                 ))}
               </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProducts.map(renderProductCard)}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <h3 className="text-2xl font-semibold text-[#2F2F2F]">{t('noProductsFound')}</h3>
+                <p className="text-[#6A6A6A] mt-2">{t('tryAdjustingFilters')}</p>
+              </div>
             )}
-          </div>
+          </main>
         </div>
       </div>
     </div>
   );
 };
 
-export default ProductListing; 
+export default ProductListing;

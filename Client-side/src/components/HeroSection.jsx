@@ -6,37 +6,39 @@ import HeroSection1 from '../assets/hero section 1.png';
 import HeroSection2 from '../assets/hero section.png';
 import HeroSection3 from '../assets/hero section (3).png';
 import HeroSection4 from '../assets/hero section (1).png';
+import { useTranslation } from '../context/TranslationContext';
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { t } = useTranslation();
 
   const slides = [
     {
       image: HeroSection1,
-      title: 'Natural Beauty Products',
-      subtitle: 'Discover our collection of organic skincare and beauty essentials',
-      cta: 'Shop Now',
+      title: t('heroTitle1'),
+      subtitle: t('heroSubtitle1'),
+      cta: t('heroCTA1'),
       accent: 'primary-accent',
     },
     {
       image: HeroSection2,
-      title: 'Summer Collection',
-      subtitle: 'Fresh fragrances and lightweight formulas for the season',
-      cta: 'Explore More',
+      title: t('heroTitle2'),
+      subtitle: t('heroSubtitle2'),
+      cta: t('heroCTA2'),
       accent: 'secondary-accent',
     },
     {
       image: HeroSection3,
-      title: 'Luxury Skincare',
-      subtitle: 'Premium beauty essentials for your daily routine',
-      cta: 'View Collection',
+      title: t('heroTitle3'),
+      subtitle: t('heroSubtitle3'),
+      cta: t('heroCTA3'),
       accent: 'brand-highlight',
     },
     {
       image: HeroSection4,
-      title: 'Special Collections',
-      subtitle: 'Exclusive luxury beauty products for the discerning',
-      cta: 'View Collection',
+      title: t('heroTitle4'),
+      subtitle: t('heroSubtitle4'),
+      cta: t('heroCTA4'),
       accent: 'primary-accent',
     },
   ];
@@ -47,7 +49,7 @@ const HeroSection = () => {
     }, 6000); // Increased to 6 seconds for better UX
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);

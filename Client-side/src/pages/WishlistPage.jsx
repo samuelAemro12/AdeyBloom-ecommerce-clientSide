@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 
 const WishlistPage = () => {
     const { 
@@ -12,6 +13,7 @@ const WishlistPage = () => {
         updateNotificationPreferences 
     } = useWishlist();
     const [notificationStates, setNotificationStates] = useState({});
+    const { t } = useTranslation();
 
     const handleMoveToCart = async (productId) => {
         const success = await moveToCart(productId);
@@ -60,16 +62,16 @@ const WishlistPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">My Wishlist</h1>
+            <h1 className="text-3xl font-bold mb-8">{t('myWishlist')}</h1>
             
             {wishlistItems.length === 0 ? (
                 <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">Your wishlist is empty</p>
+                    <p className="text-gray-500 mb-4">{t('wishlistEmpty')}</p>
                     <Link 
                         to="/products" 
                         className="inline-block bg-pink-500 text-white px-6 py-2 rounded-md hover:bg-pink-600 transition-colors"
                     >
-                        Browse Products
+                        {t('browseProducts')}
                     </Link>
                 </div>
             ) : (
@@ -96,7 +98,7 @@ const WishlistPage = () => {
                                         )}
                                         className="form-checkbox text-pink-500"
                                     />
-                                    <span className="text-sm">Notify on sale</span>
+                                    <span className="text-sm">{t('notifyOnSale')}</span>
                                 </label>
                                 
                                 <label className="flex items-center space-x-2">
@@ -110,7 +112,7 @@ const WishlistPage = () => {
                                         )}
                                         className="form-checkbox text-pink-500"
                                     />
-                                    <span className="text-sm">Notify when in stock</span>
+                                    <span className="text-sm">{t('notifyInStock')}</span>
                                 </label>
                             </div>
 
@@ -119,13 +121,13 @@ const WishlistPage = () => {
                                     onClick={() => handleMoveToCart(item.product._id)}
                                     className="flex-1 bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 transition-colors"
                                 >
-                                    Move to Cart
+                                    {t('moveToCart')}
                                 </button>
                                 <button
                                     onClick={() => handleRemove(item.product._id)}
                                     className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
                                 >
-                                    Remove
+                                    {t('remove')}
                                 </button>
                             </div>
                         </div>

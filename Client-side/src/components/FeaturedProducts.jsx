@@ -4,11 +4,13 @@ import { FiStar, FiArrowRight } from 'react-icons/fi';
 import ProductCard from './ProductCard';
 import ProductSkeleton from './ProductSkeleton';
 import { productService } from '../services/productService';
+import { useTranslation } from '../context/TranslationContext';
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -61,10 +63,10 @@ const FeaturedProducts = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-primary-text mb-4">
-              Featured Products
+              {t('featuredProducts')}
             </h2>
             <p className="text-lg text-secondary-text max-w-2xl mx-auto">
-              Discover our carefully curated collection of premium beauty products
+              {t('featuredProductsDesc')}
             </p>
           </motion.div>
           
@@ -89,10 +91,10 @@ const FeaturedProducts = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-primary-text mb-4">
-              Featured Products
+              {t('featuredProducts')}
             </h2>
             <p className="text-lg text-secondary-text max-w-2xl mx-auto">
-              Discover our carefully curated collection of premium beauty products
+              {t('featuredProductsDesc')}
             </p>
           </motion.div>
           
@@ -107,7 +109,7 @@ const FeaturedProducts = () => {
                 onClick={() => window.location.reload()}
                 className="mt-4 px-6 py-2 bg-primary-accent text-white rounded-full hover:bg-brand-highlight transition-colors duration-300"
               >
-                Try Again
+                {t('tryAgain')}
               </button>
             </div>
           </motion.div>
@@ -128,12 +130,12 @@ const FeaturedProducts = () => {
           <div className="flex items-center justify-center mb-4">
             <FiStar className="text-primary-accent w-8 h-8 mr-3" />
             <h2 className="text-4xl md:text-5xl font-bold text-primary-text">
-              Featured Products
+              {t('featuredProducts')}
             </h2>
             <FiStar className="text-primary-accent w-8 h-8 ml-3" />
           </div>
           <p className="text-lg text-secondary-text max-w-2xl mx-auto">
-            Discover our carefully curated collection of premium beauty products
+            {t('featuredProductsDesc')}
           </p>
         </motion.div>
         
@@ -162,7 +164,7 @@ const FeaturedProducts = () => {
             className="text-center py-12"
           >
             <div className="bg-card-bg border border-cloud-gray rounded-lg p-8 max-w-md mx-auto">
-              <p className="text-secondary-text">No products found</p>
+              <p className="text-secondary-text">{t('noProductsFound')}</p>
             </div>
           </motion.div>
         )}
@@ -179,7 +181,7 @@ const FeaturedProducts = () => {
             whileTap={{ scale: 0.95 }}
             className="inline-flex items-center px-8 py-3 bg-primary-accent hover:bg-brand-highlight text-white rounded-full transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
           >
-            View All Products
+            {t('viewAllProducts')}
             <FiArrowRight className="ml-2 w-5 h-5" />
           </motion.button>
         </motion.div>

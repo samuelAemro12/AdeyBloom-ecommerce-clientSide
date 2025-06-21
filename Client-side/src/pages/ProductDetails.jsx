@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useTranslation } from '../context/TranslationContext';
 
 // Mock product data for testing
 const mockProduct = {
@@ -22,6 +23,7 @@ const ProductDetails = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { t } = useTranslation();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ const ProductDetails = () => {
 
           {/* Quantity Selector */}
           <div className="flex items-center space-x-4">
-            <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
+            <label htmlFor="quantity" className="text-gray-700">{t('quantity')}:</label>
             <select
               id="quantity"
               value={quantity}
@@ -106,16 +108,16 @@ const ProductDetails = () => {
             onClick={handleAddToCart}
             className="w-full bg-pink-600 text-white py-3 px-6 rounded-md hover:bg-pink-700 transition-colors"
           >
-            Add to Cart
+            {t('addToCart')}
           </button>
 
           {/* Additional Product Details */}
           <div className="border-t pt-6 mt-6">
-            <h2 className="text-xl font-semibold mb-4">Product Details</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('productDetails')}</h2>
             <ul className="space-y-2">
               {product.details && Object.entries(product.details).map(([key, value]) => (
                 <li key={key} className="flex">
-                  <span className="font-medium w-32 text-gray-600">{key}:</span>
+                  <span className="font-medium w-32 text-gray-600">{t(key.toLowerCase().replace(/ /g, ''))}:</span>
                   <span className="text-gray-800">{value}</span>
                 </li>
               ))}

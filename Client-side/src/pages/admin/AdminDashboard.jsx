@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiShoppingBag, FiUsers, FiDollarSign, FiPackage } from 'react-icons/fi';
 import { useToast } from '../../context/ToastContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useTranslation } from '../../context/TranslationContext';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div className="bg-white rounded-lg shadow p-6">
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { showError } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -30,14 +32,14 @@ const AdminDashboard = () => {
         const data = await response.json();
         setStats(data);
       } catch (error) {
-        showError('Failed to fetch dashboard statistics');
+        showError(t('fetchDashboardStatsFailed'));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStats();
-  }, [showError]);
+  }, [showError, t]);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -45,30 +47,30 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+      <h1 className="text-2xl font-bold text-gray-800">{t('dashboardOverview')}</h1>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Orders"
+          title={t('totalOrders')}
           value={stats?.totalOrders || 0}
           icon={FiShoppingBag}
           color="bg-blue-500"
         />
         <StatCard
-          title="Total Revenue"
+          title={t('totalRevenue')}
           value={`$${stats?.totalRevenue?.toFixed(2) || 0}`}
           icon={FiDollarSign}
           color="bg-green-500"
         />
         <StatCard
-          title="Total Users"
+          title={t('totalUsers')}
           value={stats?.totalUsers || 0}
           icon={FiUsers}
           color="bg-purple-500"
         />
         <StatCard
-          title="Total Products"
+          title={t('totalProducts')}
           value={stats?.totalProducts || 0}
           icon={FiPackage}
           color="bg-orange-500"
@@ -77,7 +79,7 @@ const AdminDashboard = () => {
 
       {/* Recent Activity */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('recentActivity')}</h2>
         <div className="space-y-4">
           {stats?.recentActivity?.map((activity, index) => (
             <div key={index} className="flex items-center space-x-4">
@@ -93,15 +95,15 @@ const AdminDashboard = () => {
 
       {/* Low Stock Alert */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Low Stock Alert</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('lowStockAlert')}</h2>
         <div className="space-y-4">
           {stats?.lowStockItems?.map((item, index) => (
             <div key={index} className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-800">{item.name}</p>
-                <p className="text-xs text-gray-500">Current Stock: {item.stock}</p>
+                <p className="text-xs text-gray-500">{t('currentStock')}: {item.stock}</p>
               </div>
-              <span className="text-red-500 text-sm">Low Stock</span>
+              <span className="text-red-500 text-sm">{t('lowStock')}</span>
             </div>
           ))}
         </div>
