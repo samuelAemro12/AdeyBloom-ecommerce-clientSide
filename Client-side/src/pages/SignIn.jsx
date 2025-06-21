@@ -22,8 +22,10 @@ const SignIn = () => {
     setError('');
 
     try {
-      await login(email, password, rememberMe);
-      navigate('/');
+      const result = await login({ email, password, rememberMe });
+      if (!result.success) {
+        setError(result.message || t('errorFailedToSignIn'));
+      }
     } catch (err) {
       setError(t('errorFailedToSignIn'));
     } finally {
