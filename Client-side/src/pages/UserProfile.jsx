@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
-import { useUser } from '../context/UserContext';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { FiUser, FiPackage, FiMapPin, FiHeart, FiEdit2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import AddressManagement from '../components/AddressManagement';
 import { useTranslation } from '../context/TranslationContext';
+import { orderService } from '../services/orderService';
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { user, orders, updateProfile } = useUser();
+  const { user, updateUserProfile } = useAuth();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.firstName ? `${user.firstName} ${user.lastName}` : user?.name || '',
     email: user?.email || '',
     phone: user?.phone || ''
   });
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,11 +30,26 @@ const UserProfile = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateProfile(formData);
+    await updateUserProfile(formData);
     setIsEditing(false);
   };
+
+  useEffect(() => {
+    if (activeTab === 'orders') {
+      setOrdersLoading(true);
+      orderService.getUserOrders()
+        .then(data => {
+          setOrders(data.orders || data); // adapt to your API response
+          setOrdersError(null);
+        })
+        .catch(err => {
+          setOrdersError('Failed to fetch orders.');
+        })
+        .finally(() => setOrdersLoading(false));
+    }
+  }, [activeTab]);
 
   const renderProfile = () => (
     <motion.div
@@ -81,7 +100,6 @@ const UserProfile = () => {
               value={formData.phone}
               onChange={handleInputChange}
               className="w-full p-3 border-2 border-[#C585D7] rounded-lg focus:outline-none focus:border-[#008080]"
-              required
             />
           </div>
           <div className="flex justify-end">
@@ -119,7 +137,11 @@ const UserProfile = () => {
       className="space-y-6"
     >
       <h2 className="text-2xl font-semibold text-[#2F2F2F]">{t('orderHistory')}</h2>
-      {orders.length === 0 ? (
+      {ordersLoading ? (
+        <div className="text-center py-8">Loading...</div>
+      ) : ordersError ? (
+        <div className="text-center py-8 text-red-500">{ordersError}</div>
+      ) : orders.length === 0 ? (
         <div className="text-center py-8">
           <FiPackage className="w-16 h-16 text-[#C585D7] mx-auto mb-4" />
           <p className="text-[#6A6A6A]">{t('noOrders')}</p>
@@ -127,12 +149,12 @@ const UserProfile = () => {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white p-6 rounded-lg shadow-lg">
+            <div key={order.id || order._id} className="bg-white p-6 rounded-lg shadow-lg">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-[#6A6A6A]">{t('order')} #{order.id}</p>
+                  <p className="text-[#6A6A6A]">{t('order')} #{order.id || order._id}</p>
                   <p className="text-[#6A6A6A]">
-                    {new Date(order.date).toLocaleDateString()}
+                    {order.date ? new Date(order.date).toLocaleDateString() : ''}
                   </p>
                 </div>
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
@@ -140,8 +162,8 @@ const UserProfile = () => {
                 </span>
               </div>
               <div className="space-y-2">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center">
+                {order.items && order.items.map((item) => (
+                  <div key={item.id || item._id} className="flex justify-between items-center">
                     <div className="flex items-center space-x-4">
                       <img
                         src={item.image}
@@ -163,7 +185,7 @@ const UserProfile = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-[#2F2F2F] font-semibold">{t('total')}</span>
                   <span className="text-[#C585D7] text-xl font-bold">
-                    ${order.total.toFixed(2)}
+                    ${order.total ? order.total.toFixed(2) : ''}
                   </span>
                 </div>
               </div>
@@ -203,17 +225,6 @@ const UserProfile = () => {
             <span>{t('orders')}</span>
           </button>
           <button
-            onClick={() => setActiveTab('addresses')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-colors ${
-              activeTab === 'addresses'
-                ? 'bg-[#C585D7] text-white'
-                : 'bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]'
-            }`}
-          >
-            <FiMapPin className="w-5 h-5" />
-            <span>{t('addresses')}</span>
-          </button>
-          <button
             onClick={() => navigate('/wishlist')}
             className="flex items-center space-x-2 px-6 py-3 rounded-full transition-colors bg-white text-[#6A6A6A] hover:bg-[#FAF3EC]"
           >
@@ -225,7 +236,6 @@ const UserProfile = () => {
         <div className="mt-8">
           {activeTab === 'profile' && renderProfile()}
           {activeTab === 'orders' && renderOrders()}
-          {activeTab === 'addresses' && <AddressManagement />}
         </div>
       </div>
     </div>
