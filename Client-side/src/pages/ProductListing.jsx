@@ -2,197 +2,12 @@ import { useState, useEffect } from 'react';
 import { FiFilter, FiSearch, FiShoppingCart, FiHeart, FiStar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
-
-// Dummy product data
-const dummyProducts = [
-  {
-    id: 1,
-    name: "Hydrating Face Serum",
-    brand: "GlowCo",
-    price: 29.99,
-    originalPrice: 34.99,
-    rating: 4.5,
-    category: "skincare",
-    subCategory: "serums",
-    description: "A deeply hydrating serum with hyaluronic acid and vitamin B5 for plump, moisturized skin.",
-    image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 15,
-    tags: ["hydrating", "moisturizing", "sensitive-skin"],
-    reviews: 128,
-    isNew: true,
-    ingredients: "Water, Hyaluronic Acid, Panthenol, Glycerin"
-  },
-  {
-    id: 2,
-    name: "Matte Lipstick - Ruby Red",
-    brand: "BeautyBloom",
-    price: 19.99,
-    originalPrice: 24.99,
-    rating: 4.8,
-    category: "makeup",
-    subCategory: "lips",
-    description: "Long-lasting matte lipstick in a classic ruby red shade. Enriched with vitamin E.",
-    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 23,
-    tags: ["matte", "long-lasting", "classic"],
-    reviews: 245,
-    isNew: false,
-    ingredients: "Isododecane, Silica, Vitamin E"
-  },
-  {
-    id: 3,
-    name: "Repairing Hair Mask",
-    brand: "HairLuxe",
-    price: 34.99,
-    originalPrice: 39.99,
-    rating: 4.3,
-    category: "haircare",
-    subCategory: "treatments",
-    description: "Intensive repair mask for damaged hair with keratin and argan oil.",
-    image: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 8,
-    tags: ["repair", "damaged-hair", "moisturizing"],
-    reviews: 89,
-    isNew: false,
-    ingredients: "Water, Keratin, Argan Oil, Glycerin"
-  },
-  {
-    id: 4,
-    name: "Rose & Vanilla Perfume",
-    brand: "Essence",
-    price: 89.99,
-    rating: 4.9,
-    category: "fragrance",
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 5,
-    name: "Vitamin C Brightening Cream",
-    brand: "GlowCo",
-    price: 45.99,
-    rating: 4.6,
-    category: "skincare",
-    image: "https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 6,
-    name: "Waterproof Mascara",
-    brand: "BeautyBloom",
-    price: 24.99,
-    rating: 4.4,
-    category: "makeup",
-    image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 7,
-    name: "Silk Smooth Shampoo",
-    brand: "HairLuxe",
-    price: 27.99,
-    rating: 4.2,
-    category: "haircare",
-    image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 8,
-    name: "Ocean Breeze Perfume",
-    brand: "Essence",
-    price: 79.99,
-    rating: 4.7,
-    category: "fragrance",
-    image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 9,
-    name: "Night Repair Serum",
-    brand: "GlowCo",
-    price: 59.99,
-    rating: 4.8,
-    category: "skincare",
-    image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 10,
-    name: "Eyeshadow Palette - Sunset",
-    brand: "BeautyBloom",
-    price: 49.99,
-    rating: 4.5,
-    category: "makeup",
-    image: "https://images.unsplash.com/photo-1583241475880-083f84372725?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 11,
-    name: "Leave-in Conditioner",
-    brand: "HairLuxe",
-    price: 22.99,
-    rating: 4.3,
-    category: "haircare",
-    image: "https://images.unsplash.com/photo-1626618012641-bfbca5a31239?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 12,
-    name: "Midnight Jasmine Perfume",
-    brand: "Essence",
-    price: 94.99,
-    rating: 4.9,
-    category: "fragrance",
-    image: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-  },
-  {
-    id: 13,
-    name: "Brightening Face Mask",
-    brand: "GlowCo",
-    price: 39.99,
-    originalPrice: 45.99,
-    rating: 4.7,
-    category: "skincare",
-    subCategory: "masks",
-    description: "Illuminating face mask with vitamin C and niacinamide for brighter, even-toned skin.",
-    image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 20,
-    tags: ["brightening", "evening", "radiance"],
-    reviews: 156,
-    isNew: true,
-    ingredients: "Kaolin Clay, Vitamin C, Niacinamide"
-  },
-  {
-    id: 14,
-    name: "Volumizing Mascara",
-    brand: "BeautyBloom",
-    price: 22.99,
-    originalPrice: 27.99,
-    rating: 4.6,
-    category: "makeup",
-    subCategory: "eyes",
-    description: "Dramatic volume mascara with buildable formula for bold, defined lashes.",
-    image: "https://images.unsplash.com/photo-1631730359585-38a4935cbcae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 45,
-    tags: ["volumizing", "long-lasting", "buildable"],
-    reviews: 312,
-    isNew: true,
-    ingredients: "Beeswax, Carnauba Wax, Vitamin E"
-  },
-  {
-    id: 15,
-    name: "Clarifying Shampoo",
-    brand: "HairLuxe",
-    price: 24.99,
-    originalPrice: 29.99,
-    rating: 4.4,
-    category: "haircare",
-    subCategory: "shampoo",
-    description: "Deep cleansing shampoo that removes buildup while maintaining moisture balance.",
-    image: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    stock: 30,
-    tags: ["clarifying", "deep-cleanse", "balanced"],
-    reviews: 178,
-    isNew: false,
-    ingredients: "Water, Sodium Laureth Sulfate, Cocamidopropyl Betaine"
-  }
-];
+import { productService } from '../services/productService';
 
 const ProductListing = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { t } = useTranslation();
   const [filters, setFilters] = useState({
     category: 'all',
@@ -206,13 +21,25 @@ const ProductListing = () => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Use dummy data with randomized loading time
+  // Fetch real products from API
   useEffect(() => {
-    const loadingTime = Math.random() * 1000 + 500; // Random time between 500ms and 1500ms
-    setTimeout(() => {
-      setProducts(dummyProducts);
-      setLoading(false);
-    }, loadingTime);
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await productService.getAllProducts();
+        // The API returns { products: [...], totalPages, currentPage, totalProducts }
+        const productsData = response.products || response;
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Filter and sort products
@@ -272,11 +99,19 @@ const ProductListing = () => {
     setSearchQuery('');
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(price);
+  };
+
   const renderProductCard = (product) => (
-    <div key={product.id} className="group relative bg-white border rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-      <Link to={`/products/${product.id}`} className="block">
+    <div key={product._id} className="group relative bg-white border rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+      <Link to={`/product/${product._id}`} className="block">
         <img
-          src={product.image}
+          src={product.images && product.images[0] ? product.images[0] : '/placeholder-image.jpg'}
           alt={product.name}
           className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-300"
         />
@@ -285,10 +120,10 @@ const ProductListing = () => {
         <h3 className="text-lg font-semibold text-gray-800 truncate group-hover:text-[#C585D7] transition-colors">{product.name}</h3>
         <p className="text-sm text-gray-500">{product.brand}</p>
         <div className="flex items-center justify-between mt-3">
-          <p className="text-xl font-bold text-[#C585D7]">${product.price}</p>
+          <p className="text-xl font-bold text-[#C585D7]">{formatPrice(product.price)}</p>
           <div className="flex items-center space-x-1 text-yellow-500">
             <FiStar className="w-5 h-5" />
-            <span>{product.rating}</span>
+            <span>{product.rating || 4.5}</span>
           </div>
         </div>
         <div className="mt-4 flex space-x-2">

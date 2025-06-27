@@ -2,22 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from '../context/TranslationContext';
-
-// Mock product data for testing
-const mockProduct = {
-  id: 1,
-  name: "Natural Face Cream",
-  price: 29.99,
-  description: "A luxurious natural face cream that nourishes and hydrates your skin. Made with organic ingredients and essential oils.",
-  image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400",
-  details: {
-    "Brand": "Natural Beauty",
-    "Size": "50ml",
-    "Skin Type": "All skin types",
-    "Key Ingredients": "Aloe Vera, Jojoba Oil, Vitamin E",
-    "Benefits": "Hydrating, Nourishing, Anti-aging"
-  }
-};
+import { productService } from '../services/productService';
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -27,26 +12,38 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // For testing, we'll use mock data
-        // Simulate product not found for IDs other than 1
-        if (productId === "1") {
-          setProduct(mockProduct);
-        } else {
-          setProduct(null);
-        }
+        setLoading(true);
+        setError(null);
+        console.log('🔍 Fetching product details for ID:', productId);
+        console.log('🌐 API URL:', import.meta.env.VITE_API_URL);
+        
+        const productData = await productService.getProduct(productId);
+        console.log('📦 Product data received:', productData);
+        
+        setProduct(productData);
       } catch (error) {
-        console.error('Error fetching product:', error);
+        console.error('❌ Error fetching product:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: error.config
+        });
+        setError(`Product not found: ${error.message}`);
         setProduct(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    if (productId) {
+      fetchProduct();
+    }
   }, [productId]);
 
   if (loading) {
@@ -57,7 +54,7 @@ const ProductDetails = () => {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     navigate('/404', { replace: true });
     return null;
   }
@@ -66,13 +63,21 @@ const ProductDetails = () => {
     addToCart(product, quantity);
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(price);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="rounded-lg overflow-hidden">
           <img
-            src={product.image}
+            src={product.images && product.images[0] ? product.images[0] : '/placeholder-image.jpg'}
             alt={product.name}
             className="w-full h-auto object-cover"
           />
@@ -81,10 +86,27 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-          <p className="text-2xl font-semibold text-pink-600">${product.price}</p>
+          <p className="text-2xl font-semibold text-pink-600">{formatPrice(product.price)}</p>
           <div className="prose max-w-none">
             <p className="text-gray-600">{product.description}</p>
           </div>
+
+          {/* Brand */}
+          {product.brand && (
+            <p className="text-gray-500"><strong>Brand:</strong> {product.brand}</p>
+          )}
+
+          {/* Category */}
+          {product.category && (
+            <p className="text-gray-500">
+              <strong>Category:</strong> {typeof product.category === 'object' ? product.category.name : product.category}
+            </p>
+          )}
+
+          {/* Stock Status */}
+          <p className="text-gray-500">
+            <strong>Stock:</strong> {product.stock > 0 ? `${product.stock} available` : 'Out of stock'}
+          </p>
 
           {/* Quantity Selector */}
           <div className="flex items-center space-x-4">
@@ -94,8 +116,9 @@ const ProductDetails = () => {
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
               className="border border-gray-300 rounded-md p-2"
+              disabled={product.stock === 0}
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              {Array.from({ length: Math.min(10, product.stock) }, (_, i) => i + 1).map((num) => (
                 <option key={num} value={num}>
                   {num}
                 </option>
@@ -106,23 +129,23 @@ const ProductDetails = () => {
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            className="w-full bg-pink-600 text-white py-3 px-6 rounded-md hover:bg-pink-700 transition-colors"
+            disabled={product.stock === 0}
+            className={`w-full py-3 px-6 rounded-md transition-colors ${
+              product.stock === 0 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-pink-600 hover:bg-pink-700'
+            } text-white`}
           >
-            {t('addToCart')}
+            {product.stock === 0 ? t('outOfStock') : t('addToCart')}
           </button>
 
           {/* Additional Product Details */}
-          <div className="border-t pt-6 mt-6">
-            <h2 className="text-xl font-semibold mb-4">{t('productDetails')}</h2>
-            <ul className="space-y-2">
-              {product.details && Object.entries(product.details).map(([key, value]) => (
-                <li key={key} className="flex">
-                  <span className="font-medium w-32 text-gray-600">{t(key.toLowerCase().replace(/ /g, ''))}:</span>
-                  <span className="text-gray-800">{value}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {product.ingredients && (
+            <div className="border-t pt-6 mt-6">
+              <h2 className="text-xl font-semibold mb-4">{t('ingredients')}</h2>
+              <p className="text-gray-600">{product.ingredients}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

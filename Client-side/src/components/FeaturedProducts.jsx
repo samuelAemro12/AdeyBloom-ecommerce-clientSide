@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiStar, FiArrowRight } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import ProductSkeleton from './ProductSkeleton';
 import { productService } from '../services/productService';
@@ -16,15 +17,29 @@ const FeaturedProducts = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null);
+        console.log('🔍 Fetching products from API...');
+        console.log('🌐 API URL:', import.meta.env.VITE_API_URL);
+        
         const response = await productService.getAllProducts();
+        console.log('📦 API Response:', response);
+        
         // The API returns { products: [...], totalPages, currentPage, totalProducts }
         const products = response.products || response;
+        console.log('🎯 Products extracted:', products);
+        
         // Take only first 8 products for featured section
         setProducts(products.slice(0, 8));
         setError(null);
       } catch (err) {
-        console.error('Error fetching products:', err);
-        setError('Failed to load products. Please try again later.');
+        console.error('❌ Error fetching products:', err);
+        console.error('❌ Error details:', {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+          config: err.config
+        });
+        setError(`Failed to load products: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -178,14 +193,16 @@ const FeaturedProducts = () => {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="text-center"
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center px-8 py-3 bg-primary-accent hover:bg-brand-highlight text-white rounded-full transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
-          >
-            {t('viewAllProducts')}
-            <FiArrowRight className="ml-2 w-5 h-5" />
-          </motion.button>
+          <Link to="/products">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center px-8 py-3 bg-primary-accent hover:bg-brand-highlight text-white rounded-full transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
+            >
+              {t('viewAllProducts')}
+              <FiArrowRight className="ml-2 w-5 h-5" />
+            </motion.button>
+          </Link>
         </motion.div>
       </div>
     </section>
