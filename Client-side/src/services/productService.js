@@ -11,6 +11,17 @@ export const productService = {
         }
     },
 
+    // Get all products (alias for getAllProducts - used by admin panel)
+    getProducts: async () => {
+        try {
+            const response = await api.get('/products');
+            // The API returns { products: [...], totalPages, currentPage, totalProducts }
+            return response.data.products || response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     // Get single product
     getProduct: async (id) => {
         try {

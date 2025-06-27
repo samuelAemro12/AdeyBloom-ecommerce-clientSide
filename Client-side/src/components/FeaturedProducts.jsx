@@ -16,9 +16,11 @@ const FeaturedProducts = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await productService.getAllProducts();
+        const response = await productService.getAllProducts();
+        // The API returns { products: [...], totalPages, currentPage, totalProducts }
+        const products = response.products || response;
         // Take only first 8 products for featured section
-        setProducts(data.slice(0, 8));
+        setProducts(products.slice(0, 8));
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
