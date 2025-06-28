@@ -299,6 +299,9 @@ export const translations = {
     testimonialText1: 'The natural ingredients in these products have transformed my skincare routine. My skin has never looked better!',
     testimonialText2: 'As someone who reviews beauty products professionally, I can confidently say that AdeyBloom offers exceptional quality.',
     testimonialText3: 'The customer service is outstanding, and the products are worth every penny. I love how my skin feels after using them.',
+    testimonialName1: 'Abigail Teshome',
+    testimonialName2: 'Absalat Mekonen',
+    testimonialName3: 'Meshgnashwerk Tigabu',
 
     // Featured Products
     featuredProducts: 'Featured Products',
@@ -621,6 +624,9 @@ export const translations = {
     testimonialText1: 'በእነዚህ ምርቶች ያሉት የተፈጥሮ ንጥረ ነገሮች የቆዳዬን እንክብካቤ ቀይረዋል። ቆዳዬ በፊት በዚህ ያህል አልታየችም!',
     testimonialText2: 'እኔ የውበት ምርቶችን በሙያ ስለማገምግም አዲል አዴይብሉም የተሻለ ጥራት እንዳለው በእርግጥ እማረጋገጣለሁ።',
     testimonialText3: 'የደንበኛ አገልግሎቱ አስደናቂ ነው፣ ምርቶቹም የሚያስቀምጡ ናቸው። ከመጠቀም በኋላ ቆዳዬ እንዴት እንደሚሰማኝ እወዳለሁ።',
+    testimonialName1: 'አቢጊል ተሾመ',
+    testimonialName2: 'አብሳላት መኮነን',
+    testimonialName3: 'መሽናሽወርቅ ጥጋቡ',
 
     // Featured Products
     featuredProducts: 'ተለይተው የቀረቡ ምርቶች',
