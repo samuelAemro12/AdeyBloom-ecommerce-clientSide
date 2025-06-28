@@ -63,12 +63,29 @@ const ProductDetails = () => {
     addToCart(product, quantity);
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(price);
+  const formatPrice = (price, currencyCode = 'ETB') => {
+    if (!price || isNaN(price)) return `${currencyCode} 0.00`;
+    
+    // Define currency symbols and formatting options
+    const currencyConfig = {
+      'ETB': { symbol: 'ETB', locale: 'en-ET' },
+      'USD': { symbol: '$', locale: 'en-US' },
+      'EUR': { symbol: '€', locale: 'de-DE' },
+      'GBP': { symbol: '£', locale: 'en-GB' }
+    };
+    
+    const config = currencyConfig[currencyCode] || currencyConfig['ETB'];
+    
+    try {
+      return new Intl.NumberFormat(config.locale, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2
+      }).format(price);
+    } catch (error) {
+      // Fallback formatting
+      return `${config.symbol}${price.toFixed(2)}`;
+    }
   };
 
   return (
@@ -86,7 +103,7 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-          <p className="text-2xl font-semibold text-pink-600">{formatPrice(product.price)}</p>
+          <p className="text-2xl font-semibold text-pink-600">{formatPrice(product.price, product.currency)}</p>
           <div className="prose max-w-none">
             <p className="text-gray-600">{product.description}</p>
           </div>

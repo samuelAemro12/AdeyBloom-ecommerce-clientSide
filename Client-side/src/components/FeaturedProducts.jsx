@@ -18,18 +18,18 @@ const FeaturedProducts = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('🔍 Fetching products from API...');
+        console.log('🔍 Fetching featured products from API...');
         console.log('🌐 API URL:', import.meta.env.VITE_API_URL);
         
-        const response = await productService.getAllProducts();
+        // Use the new getFeaturedProducts method to get only 8 products
+        const response = await productService.getFeaturedProducts(8);
         console.log('📦 API Response:', response);
         
         // The API returns { products: [...], totalPages, currentPage, totalProducts }
         const products = response.products || response;
         console.log('🎯 Products extracted:', products);
         
-        // Take only first 8 products for featured section
-        setProducts(products.slice(0, 8));
+        setProducts(products);
         setError(null);
       } catch (err) {
         console.error('❌ Error fetching products:', err);
@@ -197,9 +197,9 @@ const FeaturedProducts = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center px-8 py-3 bg-primary-accent hover:bg-brand-highlight text-white rounded-full transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
+              className="inline-flex items-center px-8 py-3 bg-[#C585D7] hover:bg-[#008080] text-white rounded-full transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
             >
-              {t('viewAllProducts')}
+              {t('viewAllProducts')} 
               <FiArrowRight className="ml-2 w-5 h-5" />
             </motion.button>
           </Link>

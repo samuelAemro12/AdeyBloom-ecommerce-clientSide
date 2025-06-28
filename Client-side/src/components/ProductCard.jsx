@@ -18,18 +18,26 @@ const ProductCard = ({ product }) => {
     return null;
   }
 
+  // Use actual data from backend, with fallbacks for missing data
   const {
     _id,
-    name = 'Product Name',
-    brand = 'Brand',
-    price = 0,
+    name,
+    brand,
+    price,
     originalPrice,
     discount,
+    currency = 'ETB',
     images = [],
     stock = 0,
-    rating = 4.5,
+    rating = 0,
     reviewCount = 0
   } = product;
+
+  // Handle missing essential data
+  if (!name || !_id) {
+    console.warn('Product missing essential data:', product);
+    return null;
+  }
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -50,13 +58,34 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${_id}`);
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(price);
+  const formatPrice = (price, currencyCode = 'ETB') => {
+    if (!price || isNaN(price)) return `${currencyCode} 0.00`;
+    
+    // Define currency symbols and formatting options
+    const currencyConfig = {
+      'ETB': { symbol: 'ETB', locale: 'en-ET' },
+      'USD': { symbol: '$', locale: 'en-US' },
+      'EUR': { symbol: '€', locale: 'de-DE' },
+      'GBP': { symbol: '£', locale: 'en-GB' }
+    };
+    
+    const config = currencyConfig[currencyCode] || currencyConfig['ETB'];
+    
+    try {
+      return new Intl.NumberFormat(config.locale, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2
+      }).format(price);
+    } catch (error) {
+      // Fallback formatting
+      return `${config.symbol}${price.toFixed(2)}`;
+    }
   };
+
+  // Calculate display rating (ensure it's between 0 and 5)
+  const displayRating = Math.max(0, Math.min(5, rating || 0));
+  const displayReviewCount = Math.max(0, reviewCount || 0);
 
   return (
     <motion.div
@@ -74,7 +103,7 @@ const ProductCard = ({ product }) => {
         onClick={handleCardClick}
       >
         <motion.img
-          src={images[0] || '/placeholder-image.jpg'}
+          src={images && images[0] ? images[0] : '/placeholder-image.jpg'}
           alt={name}
           className="w-full h-64 object-cover transition-transform duration-500"
           animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -102,14 +131,14 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Discount Badge */}
-        {discount && (
+        {discount && discount > 0 && (
           <motion.span 
             className="absolute top-4 left-4 bg-primary-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {discount}% {t('off')}
+            {Math.round(discount)}% {t('off')}
           </motion.span>
         )}
 
@@ -126,7 +155,9 @@ const ProductCard = ({ product }) => {
       {/* Content */}
       <div className="p-6">
         {/* Brand */}
-        <p className="text-sm text-secondary-text mb-1 font-medium">{brand}</p>
+        {brand && (
+          <p className="text-sm text-secondary-text mb-1 font-medium">{brand}</p>
+        )}
         
         {/* Title */}
         <h3 
@@ -142,12 +173,12 @@ const ProductCard = ({ product }) => {
             {[...Array(5)].map((_, i) => (
               <FiStar 
                 key={i} 
-                className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-cloud-gray'}`} 
+                className={`w-4 h-4 ${i < Math.floor(displayRating) ? 'text-yellow-400 fill-current' : 'text-cloud-gray'}`} 
               />
             ))}
           </div>
           <span className="text-sm text-secondary-text ml-2">
-            ({reviewCount} {t('reviews')})
+            ({displayReviewCount} {t('reviews')})
           </span>
         </div>
 
@@ -155,11 +186,11 @@ const ProductCard = ({ product }) => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <span className="text-xl font-bold text-primary-accent">
-              {formatPrice(price)}
+              {formatPrice(price, currency)}
             </span>
-            {originalPrice && (
+            {originalPrice && originalPrice > price && (
               <span className="text-secondary-text line-through text-sm">
-                {formatPrice(originalPrice)}
+                {formatPrice(originalPrice, currency)}
               </span>
             )}
           </div>
