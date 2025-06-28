@@ -262,33 +262,41 @@ const ProductCard = ({ product }) => {
         </div>
         
         {/* Add to Cart Button */}
-        <motion.button
-          onClick={handleAddToCart}
-          disabled={isAdding || stock === 0}
-          className={`w-full flex items-center justify-center space-x-2 py-3 px-6 rounded-full transition-all duration-300 font-semibold text-lg shadow-lg ${
-            isAdding 
-              ? 'bg-green-600 text-white shadow-green-200' 
-              : stock === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-                : !user
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200'
-                  : 'bg-purple-600 text-white hover:bg-purple-700 hover:shadow-purple-200 transform hover:-translate-y-1'
-          }`}
-          whileHover={!isAdding && stock > 0 ? { scale: 1.02 } : {}}
-          whileTap={!isAdding && stock > 0 ? { scale: 0.98 } : {}}
-        >
-          <FiShoppingCart className="w-5 h-5" />
-          <span className="font-bold">
-            {isAdding 
-              ? t('addedToCart') 
-              : stock === 0 
-                ? t('outOfStock') 
-                : !user
-                  ? t('signInToAddToCart')
-                  : t('addToCart')
-            }
-          </span>
-        </motion.button>
+        <div className="flex space-x-2">
+          <motion.button
+            onClick={handleAddToCart}
+            disabled={isAdding || stock === 0}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-6 rounded-full transition-all duration-300 font-semibold text-lg shadow-lg ${
+              isAdding 
+                ? 'bg-green-600 text-white shadow-green-200' 
+                : stock === 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                  : !user
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200'
+                    : 'bg-purple-600 text-white hover:bg-purple-700 hover:shadow-purple-200 transform hover:-translate-y-1'
+            }`}
+            whileHover={!isAdding && stock > 0 ? { scale: 1.02 } : {}}
+            whileTap={!isAdding && stock > 0 ? { scale: 0.98 } : {}}
+          >
+            <FiShoppingCart className="w-5 h-5" />
+            <span className="font-bold">
+              {isAdding 
+                ? t('addedToCart') 
+                : stock === 0 
+                  ? t('outOfStock') 
+                  : !user
+                    ? t('signInToAddToCart')
+                    : t('addToCart')
+              }
+            </span>
+          </motion.button>
+          
+          {/* Wishlist Button - More Prominent */}
+          <WishlistButton 
+            productId={_id} 
+            className="p-3 bg-white border-2 border-pink-300 hover:border-pink-400 hover:bg-pink-50 transition-colors duration-300 rounded-full shadow-lg"
+          />
+        </div>
       </div>
     </motion.div>
   );

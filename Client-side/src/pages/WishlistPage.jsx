@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const WishlistPage = () => {
     const { 
@@ -12,13 +15,26 @@ const WishlistPage = () => {
         moveToCart,
         updateNotificationPreferences 
     } = useWishlist();
-    const [notificationStates, setNotificationStates] = useState({});
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const { t } = useTranslation();
+
+    // Redirect if not authenticated
+    useEffect(() => {
+        if (!user) {
+            navigate('/signin', { state: { from: '/wishlist' } });
+        }
+    }, [user, navigate]);
+
+    if (!user) {
+        return null;
+    }
 
     const handleMoveToCart = async (productId) => {
         const success = await moveToCart(productId);
         if (success) {
             // Show success message or notification
+            console.log('Product moved to cart successfully');
         }
     };
 
@@ -26,28 +42,27 @@ const WishlistPage = () => {
         const success = await removeFromWishlist(productId);
         if (success) {
             // Show success message or notification
+            console.log('Product removed from wishlist successfully');
         }
     };
 
     const handleNotificationChange = async (productId, type, value) => {
-        const success = await updateNotificationPreferences(productId, {
-            [type]: value
-        });
-        if (success) {
-            setNotificationStates(prev => ({
-                ...prev,
-                [productId]: {
-                    ...prev[productId],
-                    [type]: value
-                }
-            }));
+        try {
+            const success = await updateNotificationPreferences(productId, {
+                [type]: value
+            });
+            if (success) {
+                console.log('Notification preferences updated successfully');
+            }
+        } catch (error) {
+            console.error('Error updating notification preferences:', error);
         }
     };
 
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+                <LoadingSpinner />
             </div>
         );
     }
@@ -55,7 +70,13 @@ const WishlistPage = () => {
     if (error) {
         return (
             <div className="text-center py-8">
-                <p className="text-red-500">{error}</p>
+                <p className="text-red-500 mb-4">{error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="bg-[#C585D7] text-white px-6 py-2 rounded-full hover:bg-[#008080] transition-colors"
+                >
+                    {t('tryAgain')}
+                </button>
             </div>
         );
     }
@@ -69,7 +90,7 @@ const WishlistPage = () => {
                     <p className="text-gray-500 mb-4">{t('wishlistEmpty')}</p>
                     <Link 
                         to="/products" 
-                        className="inline-block bg-pink-500 text-white px-6 py-2 rounded-md hover:bg-pink-600 transition-colors"
+                        className="inline-block bg-[#C585D7] text-white px-6 py-2 rounded-md hover:bg-[#008080] transition-colors"
                     >
                         {t('browseProducts')}
                     </Link>
@@ -79,18 +100,18 @@ const WishlistPage = () => {
                     {wishlistItems.map((item) => (
                         <div key={item.product._id} className="border rounded-lg p-4 shadow-sm">
                             <img 
-                                src={item.product.images[0]} 
+                                src={item.product.images && item.product.images[0] ? item.product.images[0] : '/placeholder-image.jpg'} 
                                 alt={item.product.name}
                                 className="w-full h-48 object-cover rounded-md mb-4"
                             />
                             <h3 className="font-semibold text-lg mb-2">{item.product.name}</h3>
-                            <p className="text-gray-600 mb-2">${item.product.price}</p>
+                            <p className="text-gray-600 mb-2">ETB {item.product.price}</p>
                             
                             <div className="space-y-2 mb-4">
                                 <label className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
-                                        checked={item.notifyOnSale}
+                                        checked={item.notifyOnSale || false}
                                         onChange={(e) => handleNotificationChange(
                                             item.product._id,
                                             'notifyOnSale',
@@ -104,7 +125,7 @@ const WishlistPage = () => {
                                 <label className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
-                                        checked={item.notifyOnStock}
+                                        checked={item.notifyOnStock || false}
                                         onChange={(e) => handleNotificationChange(
                                             item.product._id,
                                             'notifyOnStock',
@@ -119,7 +140,7 @@ const WishlistPage = () => {
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => handleMoveToCart(item.product._id)}
-                                    className="flex-1 bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 transition-colors"
+                                    className="flex-1 bg-[#C585D7] text-white px-4 py-2 rounded-md hover:bg-[#008080] transition-colors"
                                 >
                                     {t('moveToCart')}
                                 </button>

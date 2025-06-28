@@ -8,6 +8,8 @@ export const translations = {
     wishlist: 'Wishlist',
     signin: 'Sign In',
     signup: 'Sign Up',
+    signInHeader: 'Sign In',
+    signUpHeader: 'Sign Up',
     logout: 'Logout',
     profile: 'Profile',
     orders: 'Orders',
@@ -21,6 +23,7 @@ export const translations = {
 
     // Product Listing & Details
     searchProducts: 'Search products...',
+    viewAllResults: 'View all results',
     addToCart: 'Add to Cart',
     signInToAddToCart: 'Sign in to Add to Cart',
     outOfStock: 'Out of Stock',
@@ -396,6 +399,8 @@ export const translations = {
     wishlist: 'የተወደዱ',
     signin: 'ይግቡ',
     signup: 'ይመዝገቡ',
+    signInHeader: 'ይግቡ',
+    signUpHeader: 'ይመዝገቡ',
     logout: 'ውጣ',
     profile: 'መገለጫ',
     orders: 'ትዕዛዞች',
@@ -407,6 +412,7 @@ export const translations = {
     learnMore: 'ተጨማሪ ይማሩ',
 
     searchProducts: 'ምርቶችን ፈልግ...',
+    viewAllResults: 'ምርቶችን ያስሱ',
     addToCart: 'ወደ ጋሪ አክል',
     signInToAddToCart: 'ይግቡ ወደ ጋሪ አክል',
     outOfStock: 'አልቋል',
@@ -459,6 +465,8 @@ export const translations = {
     remove: 'አስወግድ',
     addToWishlist: 'ወደ ምኞት ዝርዝር አክል',
     removeFromWishlist: 'ከምኞት ዝርዝር አስወግድ',
+    startShopping: 'ግዢ ጀምር',
+    tryAgain: 'እንደገና ይሞክሩ',
 
     // Admin
     dashboardOverview: 'የዳሽቦርድ አጠቃላይ እይታ',
@@ -602,6 +610,11 @@ export const translations = {
     needHelp: 'ይህን መመለስ?',
     shippingHelpText: 'መላኪያ መመለስ በመስመር ተመለስ በመስመር',
     deliveryTime: 'የመላኪያ ጊዜ',
-    cost: 'ዋጋ'
+    cost: 'ዋጋ',
+    startShopping: 'ግዢ ጀምር',
+    tryAgain: 'እንደገና ይሞክሩ',
+    noProductsFound: 'ምንም ምርቶች አልተገኙም',
+    errorLoadingProducts: 'ምርቶችን በመጫን ላይ ስህተት ተፈጥሯል',
+    clearAllFilters: 'ሁሉንም ማጣሪያዎች አጽዳ'
   }
 }; 

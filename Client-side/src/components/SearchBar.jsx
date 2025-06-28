@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
+import { productService } from '../services/productService';
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
@@ -30,10 +31,12 @@ const SearchBar = () => {
 
     setIsLoading(true);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`/api/products/search?q=${searchQuery}`);
-      const data = await response.json();
-      setSuggestions(data);
+      // Use the existing productService to search products
+      const response = await productService.getAllProducts({ 
+        search: searchQuery, 
+        limit: 5 // Limit suggestions to 5 products
+      });
+      setSuggestions(response.products || []);
     } catch (error) {
       console.error('Search error:', error);
       setSuggestions([]);
@@ -45,8 +48,13 @@ const SearchBar = () => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-    handleSearch(value);
-    setShowSuggestions(true);
+    
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      handleSearch(value);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   };
 
   const handleSuggestionClick = (product) => {
@@ -58,8 +66,31 @@ const SearchBar = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
+      navigate(`/products?search=${encodeURIComponent(query)}`);
       setShowSuggestions(false);
+    }
+  };
+
+  const formatPrice = (price, currencyCode = 'ETB') => {
+    if (!price || isNaN(price)) return `${currencyCode} 0.00`;
+    
+    const currencyConfig = {
+      'ETB': { symbol: 'ETB', locale: 'en-ET' },
+      'USD': { symbol: '$', locale: 'en-US' },
+      'EUR': { symbol: '€', locale: 'de-DE' },
+      'GBP': { symbol: '£', locale: 'en-GB' }
+    };
+    
+    const config = currencyConfig[currencyCode] || currencyConfig['ETB'];
+    
+    try {
+      return new Intl.NumberFormat(config.locale, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2
+      }).format(price);
+    } catch (error) {
+      return `${config.symbol}${price.toFixed(2)}`;
     }
   };
 
@@ -70,12 +101,13 @@ const SearchBar = () => {
           type="text"
           value={query}
           onChange={handleInputChange}
+          onFocus={() => setShowSuggestions(true)}
           placeholder={t('searchProducts')}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent"
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary-accent"
         >
           <svg
             className="w-5 h-5"
@@ -94,7 +126,7 @@ const SearchBar = () => {
       </form>
 
       {showSuggestions && (query.trim() || isLoading) && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 text-center text-gray-500">{t('loading')}</div>
           ) : suggestions.length > 0 ? (
@@ -103,31 +135,37 @@ const SearchBar = () => {
                 <li
                   key={product._id}
                   onClick={() => handleSuggestionClick(product)}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                 >
                   <div className="flex items-center space-x-3">
-                    {product.images[0] && (
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-10 h-10 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <p className="font-medium">{product.name}</p>
+                    <img
+                      src={product.images && product.images[0] ? product.images[0] : '/placeholder-image.jpg'}
+                      alt={product.name}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{product.name}</p>
                       <p className="text-sm text-gray-500">
-                        {product.price} {product.currency}
+                        {formatPrice(product.price, product.currency)}
                       </p>
                     </div>
                   </div>
                 </li>
               ))}
+              <li className="px-4 py-2 text-center">
+                <button
+                  onClick={handleSubmit}
+                  className="text-primary-accent hover:text-brand-highlight font-medium"
+                >
+                  {t('viewAllResults')}
+                </button>
+              </li>
             </ul>
-          ) : (
+          ) : query.trim() ? (
             <div className="p-4 text-center text-gray-500">
               {t('noProductsFound')}
             </div>
-          )}
+          ) : null}
         </div>
       )}
     </div>

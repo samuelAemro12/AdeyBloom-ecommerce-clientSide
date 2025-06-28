@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { FiFilter, FiSearch, FiShoppingCart, FiHeart, FiStar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { FiFilter, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useTranslation } from '../context/TranslationContext';
 import { productService } from '../services/productService';
+import { categoryService } from '../services/categoryService';
+import ProductCard from '../components/ProductCard';
+import ProductSkeleton from '../components/ProductSkeleton';
 
 const ProductListing = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { t } = useTranslation();
@@ -14,20 +19,14 @@ const ProductListing = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [productsPerPage] = useState(20); // Show more products per page
+  const [productsPerPage] = useState(20);
   
   // Filter and search state
   const [filters, setFilters] = useState({
-    category: 'all',
-    subCategory: 'all',
-    priceRange: 'all',
-    brand: 'all',
-    rating: 'all',
-    availability: 'all'
+    priceRange: searchParams.get('priceRange') || 'all'
   });
-  const [sortBy, setSortBy] = useState('featured');
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
   // Fetch products with pagination and filters
   const fetchProducts = async (page = 1, searchParams = {}) => {
@@ -43,19 +42,15 @@ const ProductListing = () => {
       };
 
       // Add filters to query params
-      if (filters.category !== 'all') params.category = filters.category;
       if (filters.priceRange !== 'all') {
         const [min, max] = filters.priceRange.split('-').map(Number);
         if (min !== undefined) params.minPrice = min;
         if (max !== undefined) params.maxPrice = max;
+        console.log('💰 Filtering by price range:', min, 'to', max);
       }
-      if (searchQuery) params.search = searchQuery;
-      if (sortBy !== 'featured') {
-        params.sort = sortBy === 'price-low' ? 'price' : 
-                     sortBy === 'price-high' ? 'price' : 
-                     sortBy === 'rating' ? 'rating' : 
-                     sortBy === 'newest' ? 'createdAt' : 'createdAt';
-        params.order = sortBy === 'price-high' ? 'desc' : 'asc';
+      if (searchQuery) {
+        params.search = searchQuery;
+        console.log('🔍 Searching for:', searchQuery);
       }
 
       console.log('🔍 Fetching products with params:', params);
@@ -75,128 +70,50 @@ const ProductListing = () => {
     }
   };
 
+  // Update URL params when filters change
+  const updateURLParams = (newFilters, newSearch) => {
+    const params = new URLSearchParams();
+    if (newSearch) params.set('search', newSearch);
+    if (newFilters.priceRange !== 'all') params.set('priceRange', newFilters.priceRange);
+    setSearchParams(params);
+  };
+
   // Initial load
   useEffect(() => {
-    fetchProducts(1);
+    fetchProducts(1, { search: searchQuery });
   }, []);
 
-  // Refetch when filters, search, or sort changes
+  // Refetch when filters or search changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchProducts(1, { search: searchQuery });
+      updateURLParams(filters, searchQuery);
     }, 500); // Debounce search
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters, sortBy]);
+  }, [searchQuery, filters]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSortChange = (e) => {
-    setSortBy(e.target.value);
+    console.log('🔧 Filter changed:', name, '=', value);
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
+    updateURLParams(newFilters, searchQuery);
   };
 
   const clearFilters = () => {
-    setFilters({
-      category: 'all',
-      subCategory: 'all',
-      priceRange: 'all',
-      brand: 'all',
-      rating: 'all',
-      availability: 'all'
-    });
-    setSortBy('featured');
+    const newFilters = {
+      priceRange: 'all'
+    };
+    setFilters(newFilters);
     setSearchQuery('');
+    updateURLParams(newFilters, '');
   };
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       fetchProducts(page, { search: searchQuery });
     }
-  };
-
-  const formatPrice = (price, currencyCode = 'ETB') => {
-    if (!price || isNaN(price)) return `${currencyCode} 0.00`;
-    
-    // Define currency symbols and formatting options
-    const currencyConfig = {
-      'ETB': { symbol: 'ETB', locale: 'en-ET' },
-      'USD': { symbol: '$', locale: 'en-US' },
-      'EUR': { symbol: '€', locale: 'de-DE' },
-      'GBP': { symbol: '£', locale: 'en-GB' }
-    };
-    
-    const config = currencyConfig[currencyCode] || currencyConfig['ETB'];
-    
-    try {
-      return new Intl.NumberFormat(config.locale, {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 2
-      }).format(price);
-    } catch (error) {
-      // Fallback formatting
-      return `${config.symbol}${price.toFixed(2)}`;
-    }
-  };
-
-  const renderProductCard = (product) => {
-    // Handle missing essential data
-    if (!product || !product.name || !product._id) {
-      console.warn('Product missing essential data:', product);
-      return null;
-    }
-
-    // Use actual data from backend, with fallbacks for missing data
-    const {
-      _id,
-      name,
-      brand,
-      price,
-      currency = 'ETB',
-      images = [],
-      stock = 0,
-      rating = 0,
-      reviewCount = 0
-    } = product;
-
-    // Calculate display rating (ensure it's between 0 and 5)
-    const displayRating = Math.max(0, Math.min(5, rating || 0));
-    const displayReviewCount = Math.max(0, reviewCount || 0);
-
-    return (
-      <div key={_id} className="group relative bg-white border rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-        <Link to={`/product/${_id}`} className="block">
-          <img
-            src={images && images[0] ? images[0] : '/placeholder-image.jpg'}
-            alt={name}
-            className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-300"
-          />
-        </Link>
-        <div className="p-5">
-          <h3 className="text-lg font-semibold text-gray-800 truncate group-hover:text-[#C585D7] transition-colors">{name}</h3>
-          {brand && <p className="text-sm text-gray-500">{brand}</p>}
-          <div className="flex items-center justify-between mt-3">
-            <p className="text-xl font-bold text-[#C585D7]">{formatPrice(price, currency)}</p>
-            <div className="flex items-center space-x-1 text-yellow-500">
-              <FiStar className="w-5 h-5" />
-              <span>{displayRating.toFixed(1)}</span>
-            </div>
-          </div>
-          <div className="mt-4 flex space-x-2">
-            <button className="flex-1 bg-[#C585D7] text-white py-2 px-4 rounded-lg hover:bg-[#008080] transition-colors flex items-center justify-center">
-              <FiShoppingCart className="w-5 h-5 mr-2" />
-              {t('addToCart')}
-            </button>
-            <button className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
-              <FiHeart className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   // Pagination component
@@ -302,26 +219,12 @@ const ProductListing = () => {
                 className="w-full pl-12 pr-4 py-3 border-2 border-[#C585D7] rounded-full focus:outline-none focus:border-[#008080] transition"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <select 
-                value={sortBy}
-                onChange={handleSortChange}
-                className="px-4 py-3 border-2 border-[#C585D7] rounded-full focus:outline-none focus:border-[#008080] transition"
-              >
-                <option value="featured">{t('featured')}</option>
-                <option value="price-low">{t('priceLowToHigh')}</option>
-                <option value="price-high">{t('priceHighToLow')}</option>
-                <option value="rating">{t('rating')}</option>
-                <option value="reviews">{t('reviews')}</option>
-                <option value="newest">{t('newest')}</option>
-              </select>
-              <button 
-                onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                className="md:hidden p-3 bg-white border-2 border-[#C585D7] rounded-full text-[#C585D7] hover:bg-gray-50 transition"
-              >
-                <FiFilter className="w-5 h-5" />
-              </button>
-            </div>
+            <button 
+              onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+              className="md:hidden p-3 bg-white border-2 border-[#C585D7] rounded-full text-[#C585D7] hover:bg-gray-50 transition"
+            >
+              <FiFilter className="w-5 h-5" />
+            </button>
           </div>
         </div>
         
@@ -340,42 +243,6 @@ const ProductListing = () => {
               </div>
               
               <div className="space-y-6">
-                {/* Category Filter */}
-                <div>
-                  <h3 className="font-semibold mb-2">{t('category')}</h3>
-                  <select
-                    name="category"
-                    value={filters.category}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="all">{t('all')}</option>
-                    <option value="skincare">{t('skincare')}</option>
-                    <option value="makeup">{t('makeup')}</option>
-                    <option value="haircare">{t('haircare')}</option>
-                    <option value="fragrance">{t('fragrance')}</option>
-                  </select>
-                </div>
-
-                {/* Sub-Category Filter */}
-                <div>
-                  <h3 className="font-semibold mb-2">{t('subCategory')}</h3>
-                  <select
-                    name="subCategory"
-                    value={filters.subCategory}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="all">{t('all')}</option>
-                    <option value="serums">{t('serums')}</option>
-                    <option value="lips">{t('lips')}</option>
-                    <option value="treatments">{t('treatments')}</option>
-                    <option value="masks">{t('masks')}</option>
-                    <option value="eyes">{t('eyes')}</option>
-                    <option value="shampoo">{t('shampoo')}</option>
-                  </select>
-                </div>
-
                 {/* Price Range Filter */}
                 <div>
                   <h3 className="font-semibold mb-2">{t('priceRange')}</h3>
@@ -386,58 +253,12 @@ const ProductListing = () => {
                     className="w-full p-2 border rounded-lg"
                   >
                     <option value="all">{t('all')}</option>
-                    <option value="0-25">$0 - $25</option>
-                    <option value="25-50">$25 - $50</option>
-                    <option value="50-100">$50 - $100</option>
-                    <option value="100-200">$100+</option>
-                  </select>
-                </div>
-
-                {/* Brand Filter */}
-                <div>
-                  <h3 className="font-semibold mb-2">{t('brand')}</h3>
-                  <select
-                    name="brand"
-                    value={filters.brand}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="all">{t('all')}</option>
-                    <option value="GlowCo">GlowCo</option>
-                    <option value="BeautyBloom">BeautyBloom</option>
-                    <option value="HairLuxe">HairLuxe</option>
-                    <option value="Essence">Essence</option>
-                  </select>
-                </div>
-
-                {/* Rating Filter */}
-                <div>
-                  <h3 className="font-semibold mb-2">{t('rating')}</h3>
-                  <select
-                    name="rating"
-                    value={filters.rating}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="all">{t('all')}</option>
-                    <option value="4">{t('4starsAndUp')}</option>
-                    <option value="3">{t('3starsAndUp')}</option>
-                    <option value="2">{t('2starsAndUp')}</option>
-                    <option value="1">{t('1starAndUp')}</option>
-                  </select>
-                </div>
-
-                {/* Availability Filter */}
-                <div>
-                  <h3 className="font-semibold mb-2">{t('availability')}</h3>
-                  <select
-                    name="availability"
-                    value={filters.availability}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="all">{t('all')}</option>
-                    <option value="in-stock">{t('inStock')}</option>
+                    <option value="0-100">ETB 0 - ETB 100</option>
+                    <option value="100-500">ETB 100 - ETB 500</option>
+                    <option value="500-1000">ETB 500 - ETB 1000</option>
+                    <option value="1000-2000">ETB 1000 - ETB 2000</option>
+                    <option value="2000-5000">ETB 2000 - ETB 5000</option>
+                    <option value="5000-999999">ETB 5000+</option>
                   </select>
                 </div>
               </div>
@@ -449,15 +270,7 @@ const ProductListing = () => {
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {Array.from({ length: productsPerPage }).map((_, index) => (
-                  <div key={index} className="bg-white p-5 rounded-xl shadow-lg animate-pulse">
-                    <div className="w-full h-56 bg-gray-200 rounded-lg"></div>
-                    <div className="mt-3 h-6 w-3/4 bg-gray-200 rounded"></div>
-                    <div className="mt-2 h-4 w-1/2 bg-gray-200 rounded"></div>
-                    <div className="mt-4 flex justify-between items-center">
-                      <div className="h-8 w-1/4 bg-gray-200 rounded"></div>
-                      <div className="h-6 w-1/4 bg-gray-200 rounded"></div>
-                    </div>
-                  </div>
+                  <ProductSkeleton key={index} />
                 ))}
               </div>
             ) : error ? (
@@ -474,7 +287,9 @@ const ProductListing = () => {
             ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {products.map(renderProductCard)}
+                  {products.map(product => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
                 </div>
                 {totalPages > 1 && <Pagination />}
               </>

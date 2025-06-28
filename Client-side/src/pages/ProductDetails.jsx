@@ -3,11 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from '../context/TranslationContext';
 import { productService } from '../services/productService';
+import WishlistButton from '../components/WishlistButton';
+import { useAuth } from '../context/AuthContext';
 
 const ProductDetails = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -60,6 +63,10 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
+    if (!user) {
+      navigate('/signin', { state: { from: `/product/${productId}` } });
+      return;
+    }
     addToCart(product, quantity);
   };
 
@@ -102,7 +109,10 @@ const ProductDetails = () => {
 
         {/* Product Info */}
         <div className="space-y-6">
-          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <div className="flex items-start justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+            <WishlistButton productId={product._id} className="mt-1" />
+          </div>
           <p className="text-2xl font-semibold text-pink-600">{formatPrice(product.price, product.currency)}</p>
           <div className="prose max-w-none">
             <p className="text-gray-600">{product.description}</p>
