@@ -14,7 +14,7 @@ const RootLayout = () => {
           <WishlistProvider>
             <div className="min-h-screen bg-[#FFF9F6] flex flex-col">
               <Navbar />
-              <main className="flex-grow">
+              <main className="flex-grow pt-20">
                 <Outlet />
               </main>
               <Footer />

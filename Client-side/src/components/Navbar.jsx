@@ -21,6 +21,11 @@ const Navbar = () => {
   const { wishlistCount } = useWishlist();
   const { language, setLanguage, t } = useTranslation();
 
+  const menuItems = [
+    { name: t('home'), path: '/' },
+    { name: t('products'), path: '/products' },
+  ];
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -46,13 +51,6 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isProfileDropdownOpen]);
-
-  const menuItems = [
-    { name: t('home'), path: '/' },
-    { name: t('products'), path: '/products' },
-    { name: t('wishlist'), path: '/wishlist' },
-    { name: t('cart'), path: '/cart' },
-  ];
 
   const handleLogout = async () => {
     await logout();
@@ -103,15 +101,34 @@ const Navbar = () => {
 
           {/* Right Side Items */}
           <div className="hidden md:flex items-center space-x-6">
+            {/* Cart */}
+            <Link
+              to="/cart"
+              className="flex items-center text-primary-text hover:text-primary-accent relative transition-colors duration-300"
+            >
+              <FiShoppingCart className="h-5 w-5" />
+              {itemCount > 0 && (
+                <motion.span 
+                  className="absolute -top-2 -right-2 bg-primary-accent text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                >
+                  {itemCount}
+                </motion.span>
+              )}
+            </Link>
+            
             {/* Language Switcher */}
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="ml-4 border rounded p-1"
+              className="border rounded p-1 text-sm"
             >
               <option value="en">EN</option>
               <option value="am">አማ</option>
             </select>
+            
             {/* Wishlist */}
             <Link
               to="/wishlist"
@@ -129,7 +146,8 @@ const Navbar = () => {
                 </motion.span>
               )}
             </Link>
-            {/* Auth Buttons */}
+            
+            {/* Auth/Profile */}
             {user ? (
               <div className="flex items-center space-x-4 relative" ref={profileDropdownRef}>
                 <button
@@ -220,7 +238,24 @@ const Navbar = () => {
                     {item.name}
                   </Link>
                 ))}
+                
+                {/* Mobile Right Side Items */}
                 <div className="flex items-center justify-between px-3 py-2">
+                  {/* Cart - Mobile */}
+                  <Link
+                    to="/cart"
+                    className="text-primary-text hover:text-primary-accent relative transition-colors duration-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <FiShoppingCart className="h-5 w-5" />
+                    {itemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-primary-accent text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
+                        {itemCount}
+                      </span>
+                    )}
+                  </Link>
+                  
+                  {/* Language Switcher - Mobile */}
                   <motion.button
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center space-x-1 text-primary-text hover:text-primary-accent transition-colors duration-300"
@@ -245,6 +280,7 @@ const Navbar = () => {
                     )}
                   </Link>
                   
+                  {/* Auth/Profile - Mobile */}
                   {user ? (
                     <>
                       <Link
@@ -280,18 +316,6 @@ const Navbar = () => {
                       <FiUser className="h-5 w-5" />
                     </Link>
                   )}
-                  <Link
-                    to="/cart"
-                    className="text-primary-text hover:text-primary-accent relative transition-colors duration-300"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <FiShoppingCart className="h-5 w-5" />
-                    {itemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-primary-accent text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-                        {itemCount}
-                      </span>
-                    )}
-                  </Link>
                 </div>
               </div>
             </motion.div>

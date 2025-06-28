@@ -2,24 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartService } from '../services/cartService';
 import { useAuth } from './AuthContext';
 
-// Mock data for testing
-const mockCartItems = [
-  {
-    id: 1,
-    name: "Natural Face Cream",
-    price: 29.99,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400"
-  },
-  {
-    id: 2,
-    name: "Organic Lip Balm",
-    price: 12.99,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400"
-  }
-];
-
 const CartContext = createContext();
 
 export const useCart = () => {
@@ -48,66 +30,93 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const data = await cartService.getCart();
-      setCartItems(data.items || []);
       setError(null);
+      const response = await cartService.getCart();
+      // The backend returns cart with products array, each item has product and quantity
+      setCartItems(response.products || []);
     } catch (err) {
+      console.error('Error fetching cart:', err);
       setError(err.response?.data?.message || 'Failed to fetch cart');
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const addToCart = async (productId, quantity = 1) => {
+  const addToCart = async (product, quantity = 1) => {
     try {
-      const data = await cartService.addToCart(productId, quantity);
-      setCartItems(data.items);
-      return true;
+      setError(null);
+      const response = await cartService.addToCart(product._id, quantity);
+      setCartItems(response.products || []);
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add item to cart');
-      return false;
+      console.error('Error adding to cart:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to add item to cart';
+      setError(errorMessage);
+      return { success: false, message: errorMessage };
     }
   };
 
   const updateCartItem = async (productId, quantity) => {
     try {
-      const data = await cartService.updateCartItem(productId, quantity);
-      setCartItems(data.items);
-      return true;
+      setError(null);
+      const response = await cartService.updateCartItem(productId, quantity);
+      setCartItems(response.products || []);
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update cart item');
-      return false;
+      console.error('Error updating cart item:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to update cart item';
+      setError(errorMessage);
+      return { success: false, message: errorMessage };
     }
   };
 
   const removeFromCart = async (productId) => {
     try {
-      const data = await cartService.removeFromCart(productId);
-      setCartItems(data.items);
-      return true;
+      setError(null);
+      const response = await cartService.removeFromCart(productId);
+      setCartItems(response.products || []);
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to remove item from cart');
-      return false;
+      console.error('Error removing from cart:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to remove item from cart';
+      setError(errorMessage);
+      return { success: false, message: errorMessage };
     }
   };
 
   const clearCart = async () => {
     try {
+      setError(null);
       await cartService.clearCart();
       setCartItems([]);
-      return true;
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to clear cart');
-      return false;
+      console.error('Error clearing cart:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to clear cart';
+      setError(errorMessage);
+      return { success: false, message: errorMessage };
     }
   };
 
   const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.product?.price || 0;
+      return total + (price * item.quantity);
+    }, 0);
   };
 
   const getCartItemCount = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
+  };
+
+  const isInCart = (productId) => {
+    return cartItems.some(item => item.product._id === productId);
+  };
+
+  const getCartItemQuantity = (productId) => {
+    const item = cartItems.find(item => item.product._id === productId);
+    return item ? item.quantity : 0;
   };
 
   const value = {
@@ -120,6 +129,9 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartItemCount,
+    itemCount: getCartItemCount(),
+    isInCart,
+    getCartItemQuantity,
     refreshCart: fetchCart
   };
 

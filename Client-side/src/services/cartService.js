@@ -14,7 +14,7 @@ export const cartService = {
     // Add item to cart
     addToCart: async (productId, quantity = 1) => {
         try {
-            const response = await api.post('/cart', { productId, quantity });
+            const response = await api.post('/cart/add', { productId, quantity });
             return response.data;
         } catch (error) {
             throw error;
@@ -24,7 +24,7 @@ export const cartService = {
     // Update cart item quantity
     updateCartItem: async (productId, quantity) => {
         try {
-            const response = await api.patch(`/cart/${productId}`, { quantity });
+            const response = await api.patch(`/cart/update/${productId}`, { quantity });
             return response.data;
         } catch (error) {
             throw error;
@@ -34,7 +34,7 @@ export const cartService = {
     // Remove item from cart
     removeFromCart: async (productId) => {
         try {
-            const response = await api.delete(`/cart/${productId}`);
+            const response = await api.delete(`/cart/remove/${productId}`);
             return response.data;
         } catch (error) {
             throw error;
@@ -44,7 +44,7 @@ export const cartService = {
     // Clear cart
     clearCart: async () => {
         try {
-            const response = await api.delete('/cart');
+            const response = await api.delete('/cart/clear');
             return response.data;
         } catch (error) {
             throw error;

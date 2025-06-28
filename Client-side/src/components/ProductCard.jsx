@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { FiShoppingCart, FiPlus, FiMinus, FiStar, FiEye } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import WishlistButton from './WishlistButton';
@@ -8,7 +9,8 @@ import { useTranslation } from '../context/TranslationContext';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, getCartItemQuantity } = useCart();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
@@ -39,11 +41,31 @@ const ProductCard = ({ product }) => {
     return null;
   }
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation();
+    
+    // Check if user is authenticated
+    if (!user) {
+      navigate('/signin', { state: { from: '/products' } });
+      return;
+    }
+    
+    if (stock === 0) return;
+    
     setIsAdding(true);
-    addToCart(product, quantity);
-    setTimeout(() => setIsAdding(false), 1000);
+    try {
+      const result = await addToCart(product, quantity);
+      if (result.success) {
+        // Success feedback is handled by the context
+        setTimeout(() => setIsAdding(false), 1000);
+      } else {
+        // Error feedback is handled by the context
+        setIsAdding(false);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setIsAdding(false);
+    }
   };
 
   const handleQuantityChange = (value, e) => {
@@ -86,6 +108,10 @@ const ProductCard = ({ product }) => {
   // Calculate display rating (ensure it's between 0 and 5)
   const displayRating = Math.max(0, Math.min(5, rating || 0));
   const displayReviewCount = Math.max(0, reviewCount || 0);
+
+  // Check if product is in cart (only if user is authenticated)
+  const inCart = user ? isInCart(_id) : false;
+  const cartQuantity = user ? getCartItemQuantity(_id) : 0;
 
   return (
     <motion.div
@@ -130,10 +156,22 @@ const ProductCard = ({ product }) => {
           <WishlistButton productId={_id} />
         </div>
 
+        {/* Cart Badge */}
+        {user && inCart && (
+          <motion.div 
+            className="absolute top-4 left-4 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            {cartQuantity} in cart
+          </motion.div>
+        )}
+
         {/* Discount Badge */}
         {discount && discount > 0 && (
           <motion.span 
-            className="absolute top-4 left-4 bg-primary-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg"
+            className={`absolute ${user && inCart ? 'top-12' : 'top-4'} left-4 bg-primary-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
@@ -195,30 +233,32 @@ const ProductCard = ({ product }) => {
             )}
           </div>
           
-          {/* Quantity Controls */}
-          <div className="flex items-center space-x-2">
-            <motion.button
-              onClick={(e) => handleQuantityChange(-1, e)}
-              className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
-              disabled={quantity <= 1}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FiMinus className="w-4 h-4 text-secondary-text" />
-            </motion.button>
-            <span className="px-3 py-1 border-2 border-primary-accent rounded-full text-primary-text font-semibold min-w-[40px] text-center">
-              {quantity}
-            </span>
-            <motion.button
-              onClick={(e) => handleQuantityChange(1, e)}
-              className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
-              disabled={quantity >= Math.min(10, stock)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FiPlus className="w-4 h-4 text-secondary-text" />
-            </motion.button>
-          </div>
+          {/* Quantity Controls - Only show if user is authenticated */}
+          {user && (
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={(e) => handleQuantityChange(-1, e)}
+                className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
+                disabled={quantity <= 1}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <FiMinus className="w-4 h-4 text-secondary-text" />
+              </motion.button>
+              <span className="px-3 py-1 border-2 border-primary-accent rounded-full text-primary-text font-semibold min-w-[40px] text-center">
+                {quantity}
+              </span>
+              <motion.button
+                onClick={(e) => handleQuantityChange(1, e)}
+                className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
+                disabled={quantity >= Math.min(10, stock)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <FiPlus className="w-4 h-4 text-secondary-text" />
+              </motion.button>
+            </div>
+          )}
         </div>
         
         {/* Add to Cart Button */}
@@ -230,7 +270,11 @@ const ProductCard = ({ product }) => {
               ? 'bg-sage-green text-white' 
               : stock === 0
                 ? 'bg-cloud-gray text-secondary-text cursor-not-allowed'
-                : 'bg-primary-accent text-white hover:bg-brand-highlight hover:shadow-lg'
+                : !user
+                  ? 'bg-secondary-accent text-primary-accent hover:bg-primary-accent hover:text-white'
+                  : inCart
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'bg-primary-accent text-white hover:bg-brand-highlight hover:shadow-lg'
           }`}
           whileHover={!isAdding && stock > 0 ? { scale: 1.02 } : {}}
           whileTap={!isAdding && stock > 0 ? { scale: 0.98 } : {}}
@@ -241,7 +285,11 @@ const ProductCard = ({ product }) => {
               ? t('addedToCart') 
               : stock === 0 
                 ? t('outOfStock') 
-                : t('addToCart')
+                : !user
+                  ? t('signInToAddToCart')
+                  : inCart
+                    ? `${t('addMore')} (${cartQuantity})`
+                    : t('addToCart')
             }
           </span>
         </motion.button>
