@@ -109,12 +109,12 @@ const Navbar = () => {
               <FiShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
                 <motion.span 
-                  className="absolute -top-2 -right-2 bg-primary-accent text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold"
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold shadow-lg border-2 border-white"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
-                  {itemCount}
+                  {itemCount > 99 ? '99+' : itemCount}
                 </motion.span>
               )}
             </Link>
@@ -249,8 +249,8 @@ const Navbar = () => {
                   >
                     <FiShoppingCart className="h-5 w-5" />
                     {itemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-primary-accent text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-                        {itemCount}
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold shadow-lg border-2 border-white">
+                        {itemCount > 99 ? '99+' : itemCount}
                       </span>
                     )}
                   </Link>

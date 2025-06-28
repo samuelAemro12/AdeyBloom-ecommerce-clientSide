@@ -19,26 +19,26 @@ const FeaturedProducts = () => {
         setLoading(true);
         setError(null);
         console.log('🔍 Fetching featured products from API...');
-        console.log('🌐 API URL:', import.meta.env.VITE_API_URL);
         
-        // Use the new getFeaturedProducts method to get only 8 products
+        // Use the getFeaturedProducts method to get only 8 products
         const response = await productService.getFeaturedProducts(8);
         console.log('📦 API Response:', response);
         
-        // The API returns { products: [...], totalPages, currentPage, totalProducts }
-        const products = response.products || response;
-        console.log('🎯 Products extracted:', products);
+        // Handle different response formats
+        let products = [];
+        if (response && response.products) {
+          products = response.products;
+        } else if (Array.isArray(response)) {
+          products = response;
+        } else {
+          products = [];
+        }
         
+        console.log('🎯 Products extracted:', products);
         setProducts(products);
         setError(null);
       } catch (err) {
         console.error('❌ Error fetching products:', err);
-        console.error('❌ Error details:', {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-          config: err.config
-        });
         setError(`Failed to load products: ${err.message}`);
       } finally {
         setLoading(false);
