@@ -351,7 +351,7 @@ export const translations = {
     skinTypeRecommendation: 'How do I know which products are right for my skin type?',
     skinTypeRecommendationAnswer: 'We provide detailed product descriptions and recommendations for different skin types. You can also contact our customer service for personalized recommendations.',
     stillHaveQuestions: 'Still have questions?',
-    contactUsForHelp: 'Can't find what you're looking for? Contact our support team.',
+    contactUsForHelp: `Can't find what you're looking for? Contact our support team.`,
     shippingInformation: 'Shipping Information',
     shippingDescription: 'Learn about our shipping options, delivery times, and policies.',
     shippingOptions: 'Shipping Options',

@@ -15,7 +15,6 @@ import AboutUs from '../pages/AboutUs';
 import ContactUs from '../pages/ContactUs';
 import FAQ from '../pages/FAQ';
 import Shipping from '../pages/Shipping';
-import Returns from '../pages/Returns';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -95,10 +94,6 @@ const router = createBrowserRouter([
       {
         path: 'shipping',
         element: <Shipping />
-      },
-      {
-        path: 'returns',
-        element: <Returns />
       },
       {
         path: 'shop',
