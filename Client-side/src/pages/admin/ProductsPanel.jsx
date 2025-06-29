@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getProducts, deleteProduct, createProduct, updateProduct } from '../../../services/productService';
-import { getCategories } from '../../../services/categoryService';
+import { productService } from '../../services/productService';
+import { getCategories } from '../../services/categoryService';
 import Toast from '../../components/Toast';
 import { useTranslation } from '../../context/TranslationContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -24,6 +24,7 @@ const ProductsPanel = () => {
     });
     const [categories, setCategories] = useState([]);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const { getProducts, deleteProduct, createProduct, updateProduct } = productService;
 
     useEffect(() => {
         fetchProducts();

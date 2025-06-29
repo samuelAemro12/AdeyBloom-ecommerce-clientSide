@@ -1,6 +1,6 @@
 import api from '../config/axios';
 
-export const productService = {
+ export const productService = {
     // Get all products with pagination support
     getAllProducts: async (params = {}) => {
         try {
