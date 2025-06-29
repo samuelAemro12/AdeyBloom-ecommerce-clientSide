@@ -23,7 +23,7 @@ const FAQ = () => {
     {
       id: 'faq-2',
       question: '💳 What payment methods do you support?',
-      answer: 'We currently support Chapa, a secure Ethiopian payment gateway. Integration with international payment systems like Stripe is also available for demonstration purposes.'
+      answer: 'We currently support integration with international payment systems like Stripe for demonstration purposes.'
     },
     {
       id: 'faq-3',
@@ -43,7 +43,7 @@ const FAQ = () => {
     {
       id: 'faq-6',
       question: '💰 What is your refund policy?',
-      answer: 'You can request a refund within 7 days of delivery if the product is defective or unopened. Refunds are processed via Chapa (for real payments) or manually handled during demo scenarios.'
+      answer: 'You can request a refund within 7 days of delivery if the product is defective or unopened. Refunds are manually handled during demo scenarios.'
     },
     {
       id: 'faq-7',

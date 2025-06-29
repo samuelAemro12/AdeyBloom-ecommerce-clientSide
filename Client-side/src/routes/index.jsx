@@ -8,7 +8,6 @@ import ProductListing from '../pages/ProductListing';
 import Cart from '../pages/Cart';
 import Checkout from '../pages/Checkout';
 import OrderConfirmation from '../pages/OrderConfirmation';
-import PaymentVerification from '../pages/PaymentVerification';
 import UserProfile from '../pages/UserProfile';
 import OrderHistory from '../pages/OrderHistory';
 import WishlistPage from '../pages/WishlistPage';
@@ -64,10 +63,6 @@ const router = createBrowserRouter([
       {
         path: 'order-confirmation/:orderId',
         element: <OrderConfirmation />
-      },
-      {
-        path: 'payment-verification',
-        element: <PaymentVerification />
       },
       {
         path: 'profile',

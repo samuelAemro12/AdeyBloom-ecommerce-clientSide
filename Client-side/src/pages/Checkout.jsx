@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { orderService } from '../services/orderService';
-import { paymentService } from '../services/paymentService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 import { useTranslation } from '../context/TranslationContext';
@@ -15,6 +14,7 @@ const Checkout = () => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
     const [formData, setFormData] = useState({
         street: '',
         city: '',
@@ -45,14 +45,10 @@ const Checkout = () => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSuccess(false);
 
         try {
-            console.log('Starting order creation process...');
-            console.log('Form data:', formData);
-            console.log('User:', user);
-            console.log('Cart items:', cartItems);
-
-            // First create the order
+            // Create the order
             const orderData = {
                 shippingAddress: {
                     street: formData.street,
@@ -61,38 +57,16 @@ const Checkout = () => {
                     zipCode: formData.zipCode,
                     country: formData.country
                 },
-                paymentMethod: 'chapa' // Always Chapa
+                paymentMethod: 'none' // No payment
             };
-
-            console.log('Order data being sent:', orderData);
 
             const orderResponse = await orderService.createOrder(orderData);
-            console.log('Order created successfully:', orderResponse);
-            
-            const order = orderResponse.order;
-
-            // Initialize Chapa payment
-            const paymentData = {
-                orderId: order._id,
-                amount: order.totalAmount,
-                currency: order.currency || 'ETB',
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                phone: user.phone || ''
-            };
-
-            console.log('Payment data:', paymentData);
-
-            const paymentResponse = await paymentService.initializePayment(paymentData);
-            console.log('Payment initialized:', paymentResponse);
-            
-            // Redirect to Chapa checkout
-            paymentService.redirectToCheckout(paymentResponse.data.checkoutUrl);
+            setSuccess(true);
+            clearCart();
+            setTimeout(() => {
+                navigate(`/order-confirmation/${orderResponse.order._id}`);
+            }, 1500);
         } catch (err) {
-            console.error('Error in handleSubmit:', err);
-            console.error('Error response:', err.response);
-            console.error('Error message:', err.message);
             setError(err.response?.data?.message || t('orderCreationFailed'));
         } finally {
             setLoading(false);
@@ -124,7 +98,7 @@ const Checkout = () => {
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-2xl font-bold mb-8">{t('checkout')}</h1>
             {error && <Toast message={error} type="error" />}
-            
+            {success && <Toast message={t('orderConfirmed')} type="success" />}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Shipping Form */}
                 <div className="bg-white rounded-lg shadow-md p-6">
@@ -190,19 +164,15 @@ const Checkout = () => {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">{t('paymentMethod')}</label>
-                                <div className="mt-1 p-3 bg-gray-50 border border-gray-300 rounded-md">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
-                                            <span className="text-white text-xs font-bold">C</span>
-                                        </div>
-                                        <span className="font-medium text-gray-900">{t('chapa')}</span>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mt-1">Secure payment powered by Chapa</p>
-                                </div>
-                            </div>
                         </div>
+                        <button
+                            type="submit"
+                            form="checkout-form"
+                            disabled={loading}
+                            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 mt-6"
+                        >
+                            {loading ? <LoadingSpinner /> : t('placeOrder')}
+                        </button>
                     </form>
                 </div>
 
@@ -213,7 +183,7 @@ const Checkout = () => {
                         {cartItems.map((item) => (
                             <div key={item.product._id} className="flex justify-between">
                                 <span>{item.product.name} x {item.quantity}</span>
-                                <span>{formatCurrency(item.price * item.quantity, item.product.currency || 'ETB')}</span>
+                                <span>{formatCurrency(item.product.price * item.quantity, item.product.currency || 'ETB')}</span>
                             </div>
                         ))}
                         <div className="border-t pt-4">
@@ -234,14 +204,6 @@ const Checkout = () => {
                                 <span>{formatCurrency(total, 'ETB')}</span>
                             </div>
                         </div>
-                        <button
-                            type="submit"
-                            form="checkout-form"
-                            disabled={loading}
-                            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors disabled:bg-indigo-400"
-                        >
-                            {loading ? <LoadingSpinner /> : t('placeOrder')}
-                        </button>
                     </div>
                 </div>
             </div>
