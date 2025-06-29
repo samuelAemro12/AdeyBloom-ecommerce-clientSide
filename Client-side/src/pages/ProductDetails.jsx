@@ -5,6 +5,7 @@ import { useTranslation } from '../context/TranslationContext';
 import { productService } from '../services/productService';
 import WishlistButton from '../components/WishlistButton';
 import { useAuth } from '../context/AuthContext';
+import { demoProduct } from '../../demo.js';
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -30,15 +31,17 @@ const ProductDetails = () => {
         
         setProduct(productData);
       } catch (error) {
-        console.error('❌ Error fetching product:', error);
-        console.error('❌ Error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          config: error.config
-        });
-        setError(`Product not found: ${error.message}`);
-        setProduct(null);
+        // console.error('❌ Error fetching product:', error);
+        // console.error('❌ Error details:', {
+        //   message: error.message,
+        //   response: error.response?.data,
+        //   status: error.response?.status,
+        //   config: error.config
+        // });
+        // setError(`Product not found: ${error.message}`);
+        // setProduct(null);
+        
+        setProduct(demoProduct[productId]);
       } finally {
         setLoading(false);
       }

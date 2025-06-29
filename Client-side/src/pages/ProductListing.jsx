@@ -6,10 +6,11 @@ import { productService } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 import ProductCard from '../components/ProductCard';
 import ProductSkeleton from '../components/ProductSkeleton';
-
+import { demoProduct } from '../../demo';
 const ProductListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
+  
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,7 +65,9 @@ const ProductListing = () => {
       setError(null);
     } catch (error) {
       console.error('❌ Error fetching products:', error);
-      setError('Failed to load products. Please try again later.');
+      // setError('Failed to load products. Please try again later.');
+setProducts(demoProduct);
+
     } finally {
       setLoading(false);
     }
@@ -131,6 +134,9 @@ const ProductListing = () => {
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
+
+
+
 
     return (
       <div className="flex items-center justify-center space-x-2 mt-8">
