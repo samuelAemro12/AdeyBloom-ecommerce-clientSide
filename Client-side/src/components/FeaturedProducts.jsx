@@ -6,6 +6,7 @@ import ProductCard from './ProductCard';
 import ProductSkeleton from './ProductSkeleton';
 import { productService } from '../services/productService';
 import { useTranslation } from '../context/TranslationContext';
+import { demoProduct } from '../../demo.js';
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
@@ -39,7 +40,8 @@ const FeaturedProducts = () => {
         setError(null);
       } catch (err) {
         console.error('❌ Error fetching products:', err);
-        setError(`Failed to load products: ${err.message}`);
+        // setError(`Failed to load products: ${err.message}`);
+        setProducts(demoProduct)
       } finally {
         setLoading(false);
       }

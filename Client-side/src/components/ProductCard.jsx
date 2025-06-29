@@ -45,10 +45,10 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     // Check if user is authenticated
-    if (!user) {
-      navigate('/signin', { state: { from: '/products' } });
-      return;
-    }
+    // if (!user) {
+    //   navigate('/signin', { state: { from: '/products' } });
+    //   return;
+    // }
     
     if (stock === 0) return;
     
