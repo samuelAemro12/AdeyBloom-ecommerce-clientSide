@@ -120,14 +120,21 @@ const Navbar = () => {
             </Link>
             
             {/* Language Switcher */}
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="border rounded p-1 text-sm"
-            >
-              <option value="en">EN</option>
-              <option value="am">አማ</option>
-            </select>
+            <div className="relative">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-primary-text hover:border-primary-accent focus:outline-none focus:border-primary-accent transition-colors cursor-pointer"
+              >
+                <option value="en">🇺🇸 English</option>
+                <option value="am">🇪🇹 አማርኛ</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             
             {/* Wishlist */}
             <Link
@@ -256,15 +263,18 @@ const Navbar = () => {
                   </Link>
                   
                   {/* Language Switcher - Mobile */}
-                  <motion.button
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-1 text-primary-text hover:text-primary-accent transition-colors duration-300"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <IoLanguageOutline className="h-5 w-5" />
-                    <span className="font-medium">{language}</span>
-                  </motion.button>
+                  <div className="flex items-center space-x-2">
+                    <IoLanguageOutline className="h-5 w-5 text-primary-text" />
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="bg-white border border-gray-300 rounded-lg px-2 py-1 text-sm font-medium text-primary-text focus:outline-none focus:border-primary-accent transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <option value="en">🇺🇸 EN</option>
+                      <option value="am">🇪🇹 አማ</option>
+                    </select>
+                  </div>
                   
                   {/* Wishlist - Mobile */}
                   <Link

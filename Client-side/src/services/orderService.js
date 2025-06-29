@@ -22,7 +22,7 @@ export const orderService = {
     // Cancel order
     cancelOrder: async (orderId) => {
         try {
-            const response = await api.patch(`/orders/${orderId}/cancel`);
+            const response = await api.patch(`/api/orders/${orderId}/cancel`);
             return response.data;
         } catch (error) {
             throw error;

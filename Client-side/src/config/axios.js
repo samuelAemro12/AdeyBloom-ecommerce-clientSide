@@ -11,11 +11,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
     (config) => {
-        // Get token from localStorage if available
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        // No need to manually add token since we're using HTTP-only cookies
         return config;
     },
     (error) => {
@@ -29,8 +25,7 @@ api.interceptors.response.use(
     (error) => {
         // Handle authentication errors
         if (error.response?.status === 401) {
-            // Clear token and redirect to login
-            localStorage.removeItem('token');
+            // Redirect to login
             window.location.href = '/signin';
         }
         

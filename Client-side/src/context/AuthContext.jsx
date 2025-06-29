@@ -2,19 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/auth.service';
 
-// Mock user data for testing
-const mockUser = {
-  id: 1,
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  phone: "+1234567890",
-  address: "123 Main St",
-  city: "New York",
-  state: "NY",
-  zipCode: "10001",
-};
-
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -36,9 +23,14 @@ export const AuthProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const { user } = await authService.getCurrentUser();
-      setUser(user);
+      const response = await authService.getCurrentUser();
+      if (response.success) {
+        setUser(response.user);
+      } else {
+        setUser(null);
+      }
     } catch (error) {
+      console.log('User not authenticated:', error.message);
       setUser(null);
     } finally {
       setLoading(false);
@@ -47,10 +39,14 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const { user } = await authService.register(userData);
-      setUser(user);
-      navigate('/');
-      return { success: true };
+      const response = await authService.register(userData);
+      if (response.success) {
+        setUser(response.user);
+        navigate('/');
+        return { success: true };
+      } else {
+        return { success: false, message: response.message };
+      }
     } catch (error) {
       return { success: false, message: error.message };
     }
@@ -58,10 +54,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const { user } = await authService.login(credentials);
-      setUser(user);
-      navigate('/');
-      return { success: true };
+      const response = await authService.login(credentials);
+      if (response.success) {
+        setUser(response.user);
+        navigate('/');
+        return { success: true };
+      } else {
+        return { success: false, message: response.message };
+      }
     } catch (error) {
       return { success: false, message: error.message };
     }

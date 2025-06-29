@@ -12,6 +12,7 @@ const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useTranslation();
 
+  // Move slides array inside the render so it updates with language
   const slides = [
     {
       image: HeroSection1,

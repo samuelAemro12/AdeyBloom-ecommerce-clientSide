@@ -14,15 +14,15 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <FiMapPin className="text-[#C585D7]" />
-                <p>123 Beauty Street, Fashion City, FC 12345</p>
+                <p>Addis Ababa, Ethiopia</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiPhone className="text-[#C585D7]" />
-                <p>+1 (555) 123-4567</p>
+                <p>+251-902-329-031</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiMail className="text-[#C585D7]" />
-                <p>contact@adeybloom.com</p>
+                <p>samuelaemrowork12@gmail.com</p>
               </div>
             </div>
           </div>
@@ -34,7 +34,6 @@ const Footer = () => {
               <li><Link to="/shop" className="hover:text-[#C585D7] transition">Shop</Link></li>
               <li><Link to="/about" className="hover:text-[#C585D7] transition">About Us</Link></li>
               <li><Link to="/contact" className="hover:text-[#C585D7] transition">Contact</Link></li>
-              <li><Link to="/blog" className="hover:text-[#C585D7] transition">Blog</Link></li>
             </ul>
           </div>
 
@@ -45,7 +44,6 @@ const Footer = () => {
               <li><Link to="/shipping" className="hover:text-[#C585D7] transition">Shipping Info</Link></li>
               <li><Link to="/returns" className="hover:text-[#C585D7] transition">Returns</Link></li>
               <li><Link to="/faq" className="hover:text-[#C585D7] transition">FAQ</Link></li>
-              <li><Link to="/track-order" className="hover:text-[#C585D7] transition">Track Order</Link></li>
             </ul>
           </div>
 

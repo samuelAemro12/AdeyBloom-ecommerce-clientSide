@@ -7,6 +7,8 @@ import ProductDetails from '../pages/ProductDetails';
 import ProductListing from '../pages/ProductListing';
 import Cart from '../pages/Cart';
 import Checkout from '../pages/Checkout';
+import OrderConfirmation from '../pages/OrderConfirmation';
+import PaymentVerification from '../pages/PaymentVerification';
 import UserProfile from '../pages/UserProfile';
 import OrderHistory from '../pages/OrderHistory';
 import WishlistPage from '../pages/WishlistPage';
@@ -15,7 +17,6 @@ import ContactUs from '../pages/ContactUs';
 import FAQ from '../pages/FAQ';
 import Shipping from '../pages/Shipping';
 import Returns from '../pages/Returns';
-import Blog from '../pages/Blog';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -61,6 +62,14 @@ const router = createBrowserRouter([
         element: <Checkout />
       },
       {
+        path: 'order-confirmation/:orderId',
+        element: <OrderConfirmation />
+      },
+      {
+        path: 'payment-verification',
+        element: <PaymentVerification />
+      },
+      {
         path: 'profile',
         element: (
           <ProtectedRoute>
@@ -95,10 +104,6 @@ const router = createBrowserRouter([
       {
         path: 'returns',
         element: <Returns />
-      },
-      {
-        path: 'blog',
-        element: <Blog />
       },
       {
         path: 'shop',

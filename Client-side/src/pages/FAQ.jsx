@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from '../context/TranslationContext';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const FAQ = () => {
   const { t } = useTranslation();
@@ -14,111 +14,56 @@ const FAQ = () => {
     }));
   };
 
-  const faqCategories = [
+  const faqData = [
     {
-      title: t('generalQuestions'),
-      items: [
-        {
-          id: 'general-1',
-          question: t('whatIsAdeyBloom'),
-          answer: t('whatIsAdeyBloomAnswer')
-        },
-        {
-          id: 'general-2',
-          question: t('areProductsNatural'),
-          answer: t('areProductsNaturalAnswer')
-        },
-        {
-          id: 'general-3',
-          question: t('doYouShipInternationally'),
-          answer: t('doYouShipInternationallyAnswer')
-        }
-      ]
+      id: 'faq-1',
+      question: '🛍️ How do I place an order on AdeyBloom?',
+      answer: 'You can browse beauty and self-care products, add them to your cart, and proceed to checkout. You\'ll be prompted to log in or register before finalizing your purchase.'
     },
     {
-      title: t('orderingQuestions'),
-      items: [
-        {
-          id: 'ordering-1',
-          question: t('howToPlaceOrder'),
-          answer: t('howToPlaceOrderAnswer')
-        },
-        {
-          id: 'ordering-2',
-          question: t('paymentMethods'),
-          answer: t('paymentMethodsAnswer')
-        },
-        {
-          id: 'ordering-3',
-          question: t('orderConfirmation'),
-          answer: t('orderConfirmationAnswer')
-        },
-        {
-          id: 'ordering-4',
-          question: t('trackOrder'),
-          answer: t('trackOrderAnswer')
-        }
-      ]
+      id: 'faq-2',
+      question: '💳 What payment methods do you support?',
+      answer: 'We currently support Chapa, a secure Ethiopian payment gateway. Integration with international payment systems like Stripe is also available for demonstration purposes.'
     },
     {
-      title: t('shippingQuestions'),
-      items: [
-        {
-          id: 'shipping-1',
-          question: t('shippingTime'),
-          answer: t('shippingTimeAnswer')
-        },
-        {
-          id: 'shipping-2',
-          question: t('shippingCost'),
-          answer: t('shippingCostAnswer')
-        },
-        {
-          id: 'shipping-3',
-          question: t('freeShipping'),
-          answer: t('freeShippingAnswer')
-        }
-      ]
+      id: 'faq-3',
+      question: '🌐 Can I view prices in different currencies?',
+      answer: 'Yes. AdeyBloom supports multi-currency display. You can switch between ETB, USD, and EUR using the currency selector in the top navigation bar.'
     },
     {
-      title: t('returnsQuestions'),
-      items: [
-        {
-          id: 'returns-1',
-          question: t('returnPolicy'),
-          answer: t('returnPolicyAnswer')
-        },
-        {
-          id: 'returns-2',
-          question: t('howToReturn'),
-          answer: t('howToReturnAnswer')
-        },
-        {
-          id: 'returns-3',
-          question: t('refundTime'),
-          answer: t('refundTimeAnswer')
-        }
-      ]
+      id: 'faq-4',
+      question: '🌍 Is the website available in Amharic?',
+      answer: 'Absolutely. You can toggle between English and Amharic using the language switcher in the navigation bar. The content is dynamically translated using the Google Translate API.'
     },
     {
-      title: t('productQuestions'),
-      items: [
-        {
-          id: 'product-1',
-          question: t('productExpiry'),
-          answer: t('productExpiryAnswer')
-        },
-        {
-          id: 'product-2',
-          question: t('ingredientsList'),
-          answer: t('ingredientsListAnswer')
-        },
-        {
-          id: 'product-3',
-          question: t('skinTypeRecommendation'),
-          answer: t('skinTypeRecommendationAnswer')
-        }
-      ]
+      id: 'faq-5',
+      question: '📦 How can I track my order?',
+      answer: 'Once your order is placed, you\'ll receive a confirmation and a reference ID. You can view your order history and status under the "My Orders" section in your account.'
+    },
+    {
+      id: 'faq-6',
+      question: '💰 What is your refund policy?',
+      answer: 'You can request a refund within 7 days of delivery if the product is defective or unopened. Refunds are processed via Chapa (for real payments) or manually handled during demo scenarios.'
+    },
+    {
+      id: 'faq-7',
+      question: '📝 Do I need an account to shop on AdeyBloom?',
+      answer: 'Yes, an account is required to place orders, manage your cart and wishlist, and view your order history.'
+    },
+    {
+      id: 'faq-8',
+      question: '🛒 What is the Wishlist feature for?',
+      answer: 'The wishlist allows you to save products you\'re interested in for later. You can access it anytime from your profile or the navigation bar.'
+    },
+    {
+      id: 'faq-9',
+      question: '🧾 Will I receive an order receipt or confirmation?',
+      answer: 'Yes, after placing an order, a confirmation message is displayed, and a receipt is stored under your order history.'
+    },
+    {
+      id: 'faq-10',
+      question: '🧠 What makes AdeyBloom different from other beauty stores?',
+      answer: 'AdeyBloom is culturally aware, built for Ethiopian users, supports Amharic language, local payment systems, and uses a modern, minimal, mobile-first design for accessibility and responsiveness.'
     }
   ];
 
@@ -133,70 +78,54 @@ const FAQ = () => {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            {t('frequentlyAskedQuestions')}
+            🛍️ AdeyBloom – Frequently Asked Questions
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('faqDescription')}
+            Find answers to common questions about shopping on AdeyBloom
           </p>
         </motion.div>
 
-        {/* FAQ Categories */}
-        <div className="space-y-12">
-          {faqCategories.map((category, categoryIndex) => (
+        {/* FAQ Items */}
+        <div className="space-y-4">
+          {faqData.map((item, index) => (
             <motion.div
-              key={categoryIndex}
-              className="bg-white rounded-2xl shadow-lg p-8"
-              initial={{ opacity: 0, y: 30 }}
+              key={item.id}
+              className="bg-white rounded-2xl shadow-lg overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-                {category.title}
-              </h2>
+              <button
+                onClick={() => toggleItem(item.id)}
+                className="w-full px-6 py-4 text-left bg-white hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between"
+              >
+                <span className="font-semibold text-gray-900 pr-4 text-lg">
+                  {item.question}
+                </span>
+                {openItems[item.id] ? (
+                  <FiChevronUp className="w-6 h-6 text-gray-500 flex-shrink-0" />
+                ) : (
+                  <FiChevronDown className="w-6 h-6 text-gray-500 flex-shrink-0" />
+                )}
+              </button>
               
-              <div className="space-y-4">
-                {category.items.map((item, itemIndex) => (
+              <AnimatePresence>
+                {openItems[item.id] && (
                   <motion.div
-                    key={item.id}
-                    className="border border-gray-200 rounded-lg overflow-hidden"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: (categoryIndex * 0.1) + (itemIndex * 0.05) }}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
                   >
-                    <button
-                      onClick={() => toggleItem(item.id)}
-                      className="w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between"
-                    >
-                      <span className="font-semibold text-gray-900 pr-4">
-                        {item.question}
-                      </span>
-                      {openItems[item.id] ? (
-                        <FiChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                      ) : (
-                        <FiChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                      )}
-                    </button>
-                    
-                    <AnimatePresence>
-                      {openItems[item.id] && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-6 py-4 bg-white border-t border-gray-200">
-                            <p className="text-gray-600 leading-relaxed">
-                              {item.answer}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                      <p className="text-gray-700 leading-relaxed text-lg">
+                        {item.answer}
+                      </p>
+                    </div>
                   </motion.div>
-                ))}
-              </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </div>
@@ -209,10 +138,10 @@ const FAQ = () => {
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            {t('stillHaveQuestions')}
+            Still have questions?
           </h3>
           <p className="text-gray-600 mb-6">
-            {t('contactUsForHelp')}
+            Can't find what you're looking for? Contact our support team.
           </p>
           <motion.button
             className="bg-primary-accent text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors duration-300"
@@ -220,7 +149,7 @@ const FAQ = () => {
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/contact'}
           >
-            {t('contactUs')}
+            Contact Us
           </motion.button>
         </motion.div>
       </div>

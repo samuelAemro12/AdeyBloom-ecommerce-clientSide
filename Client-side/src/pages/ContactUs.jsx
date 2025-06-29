@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../context/TranslationContext';
 import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
+import { contactService } from '../services/contactService';
+import Toast from '../components/Toast';
 
 const ContactUs = () => {
   const { t } = useTranslation();
@@ -12,6 +14,8 @@ const ContactUs = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -23,26 +27,39 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setMessage('');
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const response = await contactService.submitContact(formData);
+      
+      if (response.success) {
+        setMessage(response.message);
+        setMessageType('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setMessage(response.message || 'Failed to send message. Please try again.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setMessage(error.response?.data?.message || 'Failed to send message. Please try again.');
+      setMessageType('error');
+    } finally {
       setIsSubmitting(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      alert('Thank you for your message! We will get back to you soon.');
-    }, 2000);
+    }
   };
 
   const contactInfo = [
     {
       icon: <FiMail className="w-6 h-6" />,
       title: t('email'),
-      value: 'info@adeybloom.com',
+      value: 'samuelaemrowork12@gmail.com',
       description: t('emailDescription')
     },
     {
       icon: <FiPhone className="w-6 h-6" />,
       title: t('phone'),
-      value: '+251 911 123 456',
+      value: '+251-902-329-031',
       description: t('phoneDescription')
     },
     {
@@ -76,6 +93,15 @@ const ContactUs = () => {
             {t('contactUsDescription')}
           </p>
         </motion.div>
+
+        {/* Toast Message */}
+        {message && (
+          <Toast 
+            message={message} 
+            type={messageType} 
+            onClose={() => setMessage('')}
+          />
+        )}
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}

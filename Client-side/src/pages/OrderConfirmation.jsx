@@ -14,6 +14,16 @@ const OrderConfirmation = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Currency formatting function
+    const formatCurrency = (amount, currency = 'ETB') => {
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 2
+        });
+        return formatter.format(amount);
+    };
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -61,6 +71,10 @@ const OrderConfirmation = () => {
                             <p className="text-sm text-gray-600">{t('status')}</p>
                             <p className="font-medium capitalize">{order.status}</p>
                         </div>
+                        <div>
+                            <p className="text-sm text-gray-600">{t('paymentMethod')}</p>
+                            <p className="font-medium capitalize">{order.paymentMethod}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -78,28 +92,28 @@ const OrderConfirmation = () => {
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 className="text-xl font-semibold mb-4">{t('orderSummary')}</h2>
                     <div className="space-y-4">
-                        {order.items.map((item) => (
-                            <div key={item.product._id} className="flex justify-between">
+                        {order.orderItems && order.orderItems.map((item) => (
+                            <div key={item._id} className="flex justify-between">
                                 <span>{item.product.name} x {item.quantity}</span>
-                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                <span>{formatCurrency(item.priceAtPurchase * item.quantity, 'ETB')}</span>
                             </div>
                         ))}
                         <div className="border-t pt-4">
                             <div className="flex justify-between mb-2">
                                 <span>{t('subtotal')}</span>
-                                <span>${order.subtotal.toFixed(2)}</span>
+                                <span>{formatCurrency(order.subtotal || 0, 'ETB')}</span>
                             </div>
                             <div className="flex justify-between mb-2">
                                 <span>{t('shipping')}</span>
-                                <span>${order.shippingCost.toFixed(2)}</span>
+                                <span>{formatCurrency(order.shippingCost || 150, 'ETB')}</span>
                             </div>
                             <div className="flex justify-between mb-2">
                                 <span>{t('tax')}</span>
-                                <span>${order.tax.toFixed(2)}</span>
+                                <span>{formatCurrency(order.tax || 0, 'ETB')}</span>
                             </div>
                             <div className="flex justify-between font-semibold text-lg border-t pt-2">
                                 <span>{t('total')}</span>
-                                <span>${order.total.toFixed(2)}</span>
+                                <span>{formatCurrency(order.totalAmount, 'ETB')}</span>
                             </div>
                         </div>
                     </div>

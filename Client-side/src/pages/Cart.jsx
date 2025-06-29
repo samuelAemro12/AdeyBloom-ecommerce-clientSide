@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import CartItem from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
@@ -6,12 +7,17 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 import { useTranslation } from '../context/TranslationContext';
 import { motion } from 'framer-motion';
-import { FiShoppingBag, FiArrowLeft } from 'react-icons/fi';
+import { FiShoppingBag, FiArrowLeft, FiCreditCard } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 const Cart = () => {
     const { cartItems, loading, error } = useCart();
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const handleProceedToCheckout = () => {
+        navigate('/checkout');
+    };
 
     if (loading) {
         return (
@@ -61,30 +67,45 @@ const Cart = () => {
                     </Link>
                 </motion.div>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-2xl shadow-lg p-6">
-                            <h2 className="text-xl font-semibold text-primary-text mb-6">
-                                {t('cartItems')} ({cartItems.length})
-                            </h2>
-                            <div className="space-y-6">
-                                {cartItems.map((item, index) => (
-                                    <motion.div
-                                        key={item.product._id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.1 }}
-                                    >
-                                        <CartItem item={item} />
-                                    </motion.div>
-                                ))}
+                <>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                            <div className="bg-white rounded-2xl shadow-lg p-6">
+                                <h2 className="text-xl font-semibold text-primary-text mb-6">
+                                    {t('cartItems')} ({cartItems.length})
+                                </h2>
+                                <div className="space-y-6">
+                                    {cartItems.map((item, index) => (
+                                        <motion.div
+                                            key={item.product._id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                        >
+                                            <CartItem item={item} />
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
+                        <div>
+                            <CartSummary />
+                        </div>
                     </div>
-                    <div>
-                        <CartSummary />
+                    
+                    {/* Mobile-friendly checkout button */}
+                    <div className="lg:hidden mt-8">
+                        <motion.button
+                            onClick={handleProceedToCheckout}
+                            className="w-full bg-primary-accent text-white py-4 px-6 rounded-full font-semibold hover:bg-brand-highlight transition-colors flex items-center justify-center space-x-2"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <FiCreditCard className="w-5 h-5" />
+                            <span>{t('proceedToCheckout')}</span>
+                        </motion.button>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );
