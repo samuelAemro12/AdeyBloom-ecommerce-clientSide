@@ -39,7 +39,7 @@ const CheckoutForm = ({ onSuccess }) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       onSuccess();
     } catch (error) {
-      console.error('Payment failed:', error);
+      console.error(t('paymentFailed'), error);
     } finally {
       setIsProcessing(false);
     }

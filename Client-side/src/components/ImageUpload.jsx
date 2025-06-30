@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { FiUpload, FiX } from 'react-icons/fi';
+import { useTranslation } from '../context/TranslationContext';
 
 const ImageUpload = ({ onImageUpload, multiple = false, maxFiles = 5 }) => {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [error, setError] = useState(null);
@@ -10,7 +12,7 @@ const ImageUpload = ({ onImageUpload, multiple = false, maxFiles = 5 }) => {
     const files = Array.from(event.target.files);
     
     if (files.length > maxFiles) {
-      setError(`Maximum ${maxFiles} files allowed`);
+      setError(t('maximumFilesAllowed').replace('{count}', maxFiles));
       return;
     }
 
@@ -23,12 +25,12 @@ const ImageUpload = ({ onImageUpload, multiple = false, maxFiles = 5 }) => {
       for (const file of files) {
         // Validate file type
         if (!file.type.startsWith('image/')) {
-          throw new Error('Only image files are allowed');
+          throw new Error(t('onlyImageFilesAllowed'));
         }
 
         // Validate file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
-          throw new Error('File size must be less than 5MB');
+          throw new Error(t('fileSizeTooLarge'));
         }
 
         const formData = new FormData();
@@ -40,7 +42,7 @@ const ImageUpload = ({ onImageUpload, multiple = false, maxFiles = 5 }) => {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to upload image');
+          throw new Error(t('failedToUploadImage'));
         }
 
         const data = await response.json();
@@ -79,10 +81,10 @@ const ImageUpload = ({ onImageUpload, multiple = false, maxFiles = 5 }) => {
         <label htmlFor="image-upload" className="cursor-pointer">
           <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-sm text-gray-600">
-            {uploading ? 'Uploading...' : 'Click to upload images'}
+            {uploading ? t('uploading') : t('clickToUpload')}
           </p>
           <p className="text-xs text-gray-500">
-            PNG, JPG, GIF up to 5MB
+            {t('fileTypeInfo')}
           </p>
         </label>
       </div>

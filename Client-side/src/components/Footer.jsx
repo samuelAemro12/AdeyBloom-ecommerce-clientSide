@@ -1,7 +1,9 @@
 import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (

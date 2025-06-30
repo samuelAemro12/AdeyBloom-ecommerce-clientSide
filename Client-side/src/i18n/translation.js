@@ -242,6 +242,12 @@ export const translations = {
     heroTitle4: 'Special Collections',
     heroSubtitle4: 'Exclusive luxury beauty products for the discerning',
     heroCTA4: 'View Collection',
+
+    // Hero Navigation
+    previousSlide: 'Previous slide',
+    nextSlide: 'Next slide',
+    goToSlide: 'Go to slide {number}',
+
     testimonialsHeader: 'What Our Customers Say',
     testimonialRole1: 'Regular Customer',
     testimonialRole2: 'Beauty Blogger',
@@ -251,7 +257,7 @@ export const translations = {
     testimonialText3: 'The customer service is outstanding, and the products are worth every penny. I love how my skin feels after using them.',
     testimonialName1: 'Abigail Teshome',
     testimonialName2: 'Absalat Mekonen',
-    testimonialName3: 'Meshgnashwerk Tigabu',
+    testimonialName3: 'Samrawit Tigabu',
     featuredProducts: 'Featured Products',
     featuredProductsDesc: 'Discover our carefully curated collection of premium beauty products',
     noProductsFound: 'No products found',
@@ -389,40 +395,60 @@ export const translations = {
     deliveryTime: 'Delivery Time',
     cost: 'Cost',
 
-    // Wishlist
-    addToWishlist: 'ወደ ምኞት ዝርዝር አክል',
-    removeFromWishlist: 'ከምኞት ዝርዝር አስወግድ',
-    myWishlist: 'የእኔ የምኞት ዝርዝር',
-    wishlistEmpty: 'የምኞት ዝርዝርዎ ባዶ ነው',
-    moveToCart: 'ወደ ጋሪ ውሰድ',
-    removing: 'በመሰረዝ ላይ...',
-    moving: 'በመዛወር ላይ...',
-    productMovedToCart: 'ምርቱ ወደ ጋሪ ተዛውሯል',
-    productRemovedFromWishlist: 'ምርቱ ከምኞት ዝርዝር ተሰርዟል',
-    failedToMoveToCart: 'ምርቱን ወደ ጋሪ መዛወር አልተሳካም',
-    failedToRemoveFromWishlist: 'ምርቱን ከምኞት ዝርዝር መሰረዝ አልተሳካም',
-    notificationPreferencesUpdated: 'የማሳወቂያ ምርጫዎች ተዘምነዋል',
-    failedToUpdatePreferences: 'ምርጫዎችን ማዘመን አልተሳካም',
-    notifyOnSale: 'በሽያጭ ላይ አሳውቀኝ',
-    notifyInStock: 'በክምችት ውስጥ ሲሆን አሳውቀኝ',
-    startShopping: 'ግዢ ጀምር',
-    tryAgain: 'እንደገና ይሞክሩ',
-    noProductsFound: 'ምንም ምርቶች አልተገኙም',
-    errorLoadingProducts: 'ምርቶችን በመጫን ላይ ስህተት ተፈጥሯል',
-    clearAllFilters: 'ሁሉንም ማጣሪያዎች አጽዳ',
+    // Loading and Status Messages
+    loadingText: 'Loading...',
+    uploading: 'Uploading...',
+    clickToUpload: 'Click to upload images',
+    fileTypeInfo: 'PNG, JPG, GIF up to 5MB',
+    maximumFilesAllowed: 'Maximum {count} files allowed',
+    onlyImageFilesAllowed: 'Only image files are allowed',
+    fileSizeTooLarge: 'File size must be less than 5MB',
+    failedToUploadImage: 'Failed to upload image',
+
+    // Payment Success Page
+    paymentSuccessful: 'Payment Successful!',
+    paymentSuccessMessage: 'Thank you for your purchase. Your payment has been processed successfully. You will receive a confirmation email shortly with the details of your order.',
+    returnToHome: 'Return to Home',
+
+    // Callback Page
+    callbackPage: 'Payment Processing...',
+
+    // Error Messages
+    wishlistOperationFailed: 'Wishlist operation failed',
+    errorRemovingItem: 'Error removing item',
+
+    // Form Fields Missing
+    email: 'Email',
+    password: 'Password',
+    createAccount: 'Create Account',
+    signingIn: 'Signing In...',
+    dontHaveAccount: "Don't have an account?",
+    errorFailedToSignIn: 'Failed to sign in',
+    ingredients: 'Ingredients',
+
+    // Common Actions
+    cancel: 'Cancel',
+    save: 'Save',
+
+    // Footer
+    quickLinks: 'Quick Links',
+    shop: 'Shop',
+    contact: 'Contact',
+    customerService: 'Customer Service',
+    shippingInfo: 'Shipping Info',
+    faq: 'FAQ',
+    allRightsReserved: 'All rights reserved',
 
     // Payment verification
-    verifyingPayment: 'ክፍያ በመረጋገጥ ላይ...',
-    paymentSuccessful: 'ክፍያ ተሳክቷል!',
-    paymentSuccessfulMessage: 'ክፍያዎ በተሳካ ሁኔታ ተካሂዷል። በቅርቡ የኢሜይል ማረጋገጫ ያገኛሉ።',
-    paymentFailed: 'ክፍያ አልተሳካም',
-    paymentFailedMessage: 'ክፍያዎ አልተሳካም። እባክዎ እንደገና ይሞክሩ ወይም የደንበኛ አገልግሎትን ያነጋግሩ።',
-    paymentReferenceNotFound: 'የክፍያ ማጣቀሻ አልተገኘም',
-    paymentVerificationFailed: 'የክፍያ ማረጋገጫ አልተሳካም',
-    paymentWasNotSuccessful: 'ክፍያ አልተሳካም',
-    paymentVerificationError: 'የክፍያ ማረጋገጫ ስህተት',
-    viewOrders: 'ትዕዛዞችን ይመልከቱ',
-    chapa: 'ቻፓ'
+    verifyingPayment: 'Verifying payment...',
+    paymentFailed: 'Payment Failed',
+    paymentFailedMessage: 'Your payment was not successful. Please try again or contact customer service.',
+    paymentReferenceNotFound: 'Payment reference not found',
+    paymentVerificationFailed: 'Payment verification failed',
+    paymentWasNotSuccessful: 'Payment was not successful',
+    paymentVerificationError: 'Payment verification error',
+    viewOrders: 'View Orders',
+    chapa: 'Chapa'
   },
   am: {
     home: 'መነሻ',
@@ -443,6 +469,39 @@ export const translations = {
     joinThousands: 'ከሺዎች ደስተኛ ደንበኞች ጋር ይቀላቀሉ። የተፈጥሮ ምርቶቻችን የቆዳ እንክብካቤዎን ቀይረዋል።',
     shopNow: 'አሁኑኑ ይግዙ',
     learnMore: 'ተጨማሪ ይማሩ',
+
+    // Hero Section
+    heroTitle1: 'የተፈጥሮ ውበት ምርቶች',
+    heroSubtitle1: 'የኦርጋኒክ የቆዳ እንክብካቤ እና የውበት አስፈላጊ ነገሮች ስብስባችንን ያግኙ',
+    heroCTA1: 'አሁኑኑ ይግዙ',
+    heroTitle2: 'የበጋ ስብስብ',
+    heroSubtitle2: 'ለወቅቱ ትኩስ ሽቶዎች እና ቀላል ቀመሮች',
+    heroCTA2: 'ተጨማሪ ያስሱ',
+    heroTitle3: 'የቅንጦት የቆዳ እንክብካቤ',
+    heroSubtitle3: 'ለዕለታዊ ተግባርዎ የቅንጦት ውበት አስፈላጊ ነገሮች',
+    heroCTA3: 'ስብስቡን ይመልከቱ',
+    heroTitle4: 'ልዩ ስብስቦች',
+    heroSubtitle4: 'ለተመራጮች ልዩ የቅንጦት ውበት ምርቶች',
+    heroCTA4: 'ስብስቡን ይመልከቱ',
+
+    // Hero Navigation
+    previousSlide: 'ቀዳሚ ስላይድ',
+    nextSlide: 'ቀጣይ ስላይድ',
+    goToSlide: 'ወደ ስላይድ {number} ይሂዱ',
+
+    // Testimonials
+    testimonialsHeader: 'ደንበኞቻችን ምን ይላሉ',
+    testimonialRole1: 'መደበኛ ደንበኛ',
+    testimonialRole2: 'የውበት ብሎገር',
+    testimonialRole3: 'ታማኝ ደንበኛ',
+    testimonialText1: 'በእነዚህ ምርቶች ውስጥ ያሉት የተፈጥሮ ንጥረ ነገሮች የቆዳ እንክብካቤ ተግባሬን ቀይረውታል። ቆዳዬ ከዚህ በፊት ይህን ያህል ጥሩ አልነበረም!',
+    testimonialText2: 'የውበት ምርቶችን በሙያዊ ሁኔታ የምገመግም ሰው እንደመሆኔ፣ AdeyBloom ልዩ ጥራት እንደሚሰጥ በመተማመን መናገር እችላለሁ።',
+    testimonialText3: 'የደንበኛ አገልግሎቱ ድንቅ ነው፣ እና ምርቶቹ እያንዳንዱ ሳንቲም ይገባቸዋል። ከተጠቀምኳቸው በኋላ ቆዳዬ እንዴት እንደሚሰማ እወዳለሁ።',
+    testimonialName1: 'አቢጊል ተሾመ',
+    testimonialName2: 'አብሳላት መኮነን',
+    testimonialName3: 'ሳምራዊት ጥጋቡ',
+    featuredProducts: 'ተለይተው የቀረቡ ምርቶች',
+    featuredProductsDesc: 'በጥንቃቄ የተመረጡ የቅንጦት ውበት ምርቶች ስብስባችንን ያግኙ',
 
     searchProducts: 'ምርቶችን ፈልግ...',
     viewAllResults: 'ምርቶችን ያስሱ',
@@ -528,11 +587,11 @@ export const translations = {
     ordersPanel: {
       title: 'የትዕዛዝ ፓነል',
       orderId: 'የትዕዛዝ መለያ',
-      customer: 'לקוח',
-      amount: 'כמות',
-      date: 'תאריך',
-      status: 'סטטוס',
-      actions: 'פעולות',
+      customer: 'ደንበኛ',
+      amount: 'መጠን',
+      date: 'ቀን',
+      status: 'ሁኔታ',
+      actions: 'ድርጊቶች',
       statusFilter: 'በሁኔታ ማጣራት',
       statusFilterAll: 'ሁሉም'
     },
@@ -644,11 +703,132 @@ export const translations = {
     shippingHelpText: 'መላኪያ መመለስ በመስመር ተመለስ በመስመር',
     deliveryTime: 'የመላኪያ ጊዜ',
     cost: 'ዋጋ',
-    startShopping: 'ግዢ ጀምር',
-    tryAgain: 'እንደገና ይሞክሩ',
-    noProductsFound: 'ምንም ምርቶች አልተገኙም',
-    errorLoadingProducts: 'ምርቶችን በመጫን ላይ ስህተት ተፈጥሯል',
-    clearAllFilters: 'ሁሉንም ማጣሪያዎች አጽዳ',
+
+    // Loading and Status Messages
+    loadingText: 'በመጫን ላይ...',
+    uploading: 'በመጫን ላይ...',
+    clickToUpload: 'ምስሎችን ለመስቀል ይጫኑ',
+    fileTypeInfo: 'PNG, JPG, GIF እስከ 5MB',
+    maximumFilesAllowed: 'ከፍተኛው {count} ፋይሎች ተፈቅደዋል',
+    onlyImageFilesAllowed: 'የምስል ፋይሎች ብቻ ተፈቅደዋል',
+    fileSizeTooLarge: 'የፋይል መጠን ከ5MB ያነሰ መሆን አለበት',
+    failedToUploadImage: 'ምስል መስቀል አልተሳካም',
+
+    // Payment Success Page
+    paymentSuccessful: 'ክፍያ ተሳክቷል!',
+    paymentSuccessMessage: 'ለግዢዎ እናመሰግናለን። ክፍያዎ በተሳካ ሁኔታ ተካሂዷል። በቅርቡ የትዕዛዝዎን ዝርዝር የያዘ የኢሜይል ማረጋገጫ ያገኛሉ።',
+    returnToHome: 'ወደ መነሻ ይመለሱ',
+
+    // Callback Page
+    callbackPage: 'ክፍያ በመስራት ላይ...',
+
+    // Error Messages
+    wishlistOperationFailed: 'የምኞት ዝርዝር ስራ አልተሳካም',
+    errorRemovingItem: 'ንጥል በማስወገድ ላይ ስህተት',
+
+    // Form Fields Missing
+    email: 'ኢሜይል',
+    password: 'የይለፍ ቃል',
+    createAccount: 'መለያ ይፍጠሩ',
+    signingIn: 'በመግባት ላይ...',
+    dontHaveAccount: 'መለያ የለዎትም?',
+    errorFailedToSignIn: 'መግባት አልተሳካም',
+    ingredients: 'ንጥረ ነገሮች',
+
+    // Common Actions
+    cancel: 'ሰርዝ',
+    save: 'አስቀምጥ',
+
+    // Footer
+    quickLinks: 'ፈጣን አገናኞች',
+    shop: 'ግዢ',
+    contact: 'ያነጋግሩን',
+    customerService: 'የደንበኛ አገልግሎት',
+    shippingInfo: 'የመላኪያ መረጃ',
+    faq: 'ተደጋጋሚ ጥያቄዎች',
+    allRightsReserved: 'ሁሉም መብቶች የተጠበቁ ናቸው',
+
+    // About Us Page
+    aboutUs: 'ስለ እኛ',
+    aboutUsDescription: 'የAdeyBloom ታሪክ እና ለተፈጥሮ ውበት ያለንን ቁርጠኝነት ያግኙ።',
+    ourMission: 'የእኛ ተልእኮ',
+    missionDescription: 'በAdeyBloom፣ ውበት ተደራሽ፣ ዘላቂ እና ለእርስዎም ለአካባቢውም ደግ መሆን እንዳለበት እናምናለን። የእኛ ተልእኮ የተፈጥሮ ውበትዎን የሚያጎላ፣ ጤናማ ቆዳን እና የአካባቢ ኃላፊነትን የሚያበረታታ ከፍተኛ ጥራት ያላቸውን የተፈጥሮ ውበት ምርቶች ማቅረብ ነው።',
+    missionDescription2: 'ከዓለም ዙሪያ ምርጥ የተፈጥሮ ንጥረ ነገሮችን እናገኛለን፣ በስብስባችን ውስጥ ያለ እያንዳንዱ ምርት ከፍተኛ የጥራት እና ውጤታማነት ደረጃዎችን እንዲያሟላ እናረጋግጣለን።',
+    ourVision: 'የእኛ ራዕይ',
+    visionDescription: 'በኢትዮጵያ እና ከዚያ በላይ ለተፈጥሮ ውበት ምርቶች ዋና መዳረሻ ሆነን፣ ግለሰቦች የተፈጥሮ ውበታቸውን በመተማመን እና በእንክብካቤ እንዲቀበሉ ማብቃት።',
+    ourValues: 'የእኛ እሴቶች',
+    valuesDescription: 'እነዚህ ዋና እሴቶች በAdeyBloom የምናደርገውን ሁሉ ይመራሉ።',
+    naturalIngredients: 'የተፈጥሮ ንጥረ ነገሮች',
+    naturalIngredientsDesc: 'በጥንቃቄ የተመረጡ እና ለጥራት እና ውጤታማነት የተሞከሩ ምርጥ የተፈጥሮ ንጥረ ነገሮችን ብቻ እንጠቀማለን።',
+    qualityAssurance: 'የጥራት ማረጋገጫ',
+    qualityAssuranceDesc: 'እያንዳንዱ ምርት ለደህንነት እና አፈጻጸም ያለንን ከፍተኛ ደረጃዎች እንዲያሟላ ለማረጋገጥ ጥብቅ ሙከራ ያደርጋል።',
+    customerSatisfaction: 'የደንበኛ እርካታ',
+    customerSatisfactionDesc: 'የእርስዎ እርካታ ቅድሚያችን ነው። ልዩ አገልግሎት እና ድጋፍ ለመስጠት ቁርጠኞች ነን።',
+    community: 'ማህበረሰብ',
+    communityDesc: 'የእኛን እሴቶች እና ለተፈጥሮ ውበት ያለን ፍቅር የሚጋሩ የውበት አፍቃሪዎች ማህበረሰብ መገንባት እንደሚቻል እናምናለን።',
+    joinOurJourney: 'ጉዞአችንን ይቀላቀሉ',
+    joinJourneyDescription: 'ለሁሉም ሰው የተፈጥሮ ውበት ለማምጣት ባለን ተልእኮ አካል ይሁኑ። ምርቶቻችንን ያስሱ እና የተፈጥሮ ንጥረ ነገሮች ሊያመጡት የሚችለውን ልዩነት ያግኙ።',
+    exploreProducts: 'ምርቶችን ያስሱ',
+    joinCommunity: 'የውበት ማህበረሰባችንን ይቀላቀሉ',
+
+    // Contact Us Page
+    contactUs: 'ያነጋግሩን',
+    contactUsDescription: 'ከእርስዎ መስማት እንወዳለን። ለማንኛውም ጥያቄ፣ አስተያየት ወይም ድጋፍ ያነጋግሩን።',
+    sendMessage: 'መልእክት ላክ',
+    fullName: 'ሙሉ ስም',
+    fullNamePlaceholder: 'ሙሉ ስምዎን ያስገቡ',
+    emailPlaceholder: 'የኢሜይል አድራሻዎን ያስገቡ',
+    subject: 'ርዕስ',
+    subjectPlaceholder: 'ይህ ስለ ምን ነው?',
+    message: 'መልእክት',
+    messagePlaceholder: 'እንዴት ልንረዳዎ እንደምንችል ይንገሩን...',
+    sending: 'በመላክ ላይ...',
+    getInTouch: 'ያነጋግሩን',
+    getInTouchDescription: 'ለመርዳት እና ሊኖሩዎት የሚችሉ ጥያቄዎችን ለመመለስ እዚህ ነን። ከእርስዎ መስማት እንጠብቃለን።',
+    emailDescription: 'በማንኛውም ጊዜ ኢሜይል ይላኩልን',
+    phone: 'ስልክ',
+    phoneDescription: 'በስራ ሰዓት ውስጥ ይደውሉልን',
+    address: 'አድራሻ',
+    addressDescription: 'የመደብራችንን አካባቢ ይጎብኙ',
+    businessHours: 'የስራ ሰዓቶች',
+    businessHoursDescription: 'ሰኞ እስከ አርብ፣ ከጠዋቱ 9 እስከ ምሽቱ 6',
+    mapPlaceholder: 'በቅርቡ የይነተገናኝ ካርታ',
+
+    // FAQ Page
+    frequentlyAskedQuestions: 'ተደጋጋሚ ጥያቄዎች',
+    faqDescription: 'ስለ ምርቶቻችን፣ መላኪያ፣ መመለሻ እና ሌሎችም ለተለመዱ ጥያቄዎች መልሶችን ያግኙ።',
+    generalQuestions: 'አጠቃላይ ጥያቄዎች',
+    whatIsAdeyBloom: 'AdeyBloom ምንድን ነው?',
+    whatIsAdeyBloomAnswer: 'AdeyBloom በተፈጥሮ የቆዳ እንክብካቤ እና የውበት ምርቶች ላይ የተካነ የቅንጦት ውበት ብራንድ ነው። የተፈጥሮ ውበትዎን የሚያጎላ ከፍተኛ ጥራት ያላቸውን፣ በሥነ ምግባር የተገኙ ምርቶችን እናቀርባለን።',
+    areProductsNatural: 'ምርቶቻችሁ በእውነት የተፈጥሮ ናቸው?',
+    areProductsNaturalAnswer: 'አዎ፣ ሁሉም ምርቶቻችን በተፈጥሮ ንጥረ ነገሮች የተሠሩ ናቸው። ጎጂ ኬሚካሎችን እና ሰው ሰራሽ ተጨማሪዎችን በማስወገድ እያንዳንዱን ንጥረ ነገር ለውጤታማነቱ እና ደህንነቱ በጥንቃቄ እንመርጣለን።',
+    doYouShipInternationally: 'በአለም አቀፍ ደረጃ ትላኩ ወይ?',
+    doYouShipInternationallyAnswer: 'በአሁኑ ጊዜ በኢትዮጵያ ውስጥ እንላካለን። የመላኪያ አማራጮቻችንን ወደ ሌሎች ሀገሮች ለማስፋት እየሰራን ነው።',
+    orderingQuestions: 'የትዕዛዝ ጥያቄዎች',
+    howToPlaceOrder: 'እንዴት ትዕዛዝ አስቀምጣለሁ?',
+    howToPlaceOrderAnswer: 'ምርቶቻችንን ያስሱ፣ ዕቃዎችን ወደ ጋሪዎ ያክሉ እና ወደ ክፍያ ይቀጥሉ። ግዢዎን ለማጠናቀቅ መለያ መፍጠር ወይም መግባት ያስፈልግዎታል።',
+    paymentMethods: 'ምን አይነት የክፍያ ዘዴዎችን ትቀበላላችሁ?',
+    paymentMethodsAnswer: 'የክሬዲት ካርዶች፣ የሞባይል ገንዘብ እና የባንክ ዝውውሮችን ጨምሮ የተለያዩ የክፍያ ዘዴዎችን እንቀበላለን። ሁሉም ክፍያዎች በደህንነት ይሰራሉ።',
+    canIModifyOrder: 'ትዕዛዝ ካስቀመጥኩ በኋላ ማሻሻል እችላለሁ?',
+    canIModifyOrderAnswer: 'ትዕዛዝዎ ከመላክዎ በፊት ማሻሻያዎችን ማድረግ ይችላሉ። እባክዎ በተቻለ ፍጥነት የደንበኛ አገልግሎታችንን ያነጋግሩ።',
+    shippingAndReturns: 'መላኪያ እና መመለሻ',
+    howLongShipping: 'መላኪያ ምን ያህል ጊዜ ይወስዳል?',
+    howLongShippingAnswer: 'መደበኛ መላኪያ 3-5 የስራ ቀናት ይወስዳል። ፈጣን መላኪያ 1-2 የስራ ቀናት ይወስዳል።',
+    returnPolicy: 'የመመለሻ ፖሊሲዎ ምንድን ነው?',
+    returnPolicyAnswer: 'ከግዢ በኋላ በ30 ቀናት ውስጥ ያልተጠቀሙባቸውን ምርቶች መመለስ ይችላሉ። ምርቶቹ በመጀመሪያ ሁኔታቸው መሆን አለባቸው።',
+    refundTime: 'ተመላሽ ገንዘብ ምን ያህል ጊዜ ይወስዳል?',
+    refundTimeAnswer: 'የተመለሰውን ዕቃ ከተቀበልን በኋላ ተመላሽ ገንዘብ በ5-7 የስራ ቀናት ውስጥ ይሰራል።',
+    productQuestions: 'የምርት ጥያቄዎች',
+    productExpiry: 'የምርቶቻችሁ የመቆያ ጊዜ ምን ያህል ነው?',
+    productExpiryAnswer: 'ሁሉም ምርቶቻችን በትክክል ሲቀመጡ የ12-24 ወራት የመቆያ ጊዜ አላቸው። የማለቂያ ቀን በእያንዳንዱ ምርት ላይ በግልጽ ተመልክቷል።',
+    ingredientsList: 'የንጥረ ነገሮች ዝርዝር የት ማግኘት እችላለሁ?',
+    ingredientsListAnswer: 'የንጥረ ነገሮች ዝርዝር በእያንዳንዱ የምርት ገጽ ላይ ይገኛል እና በምርት ማሸጊያ ላይም ተጽፏል።',
+    skinTypeRecommendation: 'ለቆዳዬ አይነት የትኞቹ ምርቶች ተስማሚ እንደሆኑ እንዴት ማወቅ እችላለሁ?',
+    skinTypeRecommendationAnswer: 'ለተለያዩ የቆዳ አይነቶች ዝርዝር የምርት መግለጫዎች እና ምክሮች እንሰጣለን። ለግል ምክሮች የደንበኛ አገልግሎታችንንም ማነጋገር ይችላሉ።',
+    stillHaveQuestions: 'አሁንም ጥያቄዎች አሉዎት?',
+    contactUsForHelp: 'የሚፈልጉትን ማግኘት አልቻሉም? የድጋፍ ቡድናችንን ያነጋግሩ።',
+
+    // Additional missing translations
     removing: 'በመሰረዝ ላይ...',
     moving: 'በመዛወር ላይ...',
     productMovedToCart: 'ምርቱ ወደ ጋሪ ተዛውሯል',
@@ -660,8 +840,6 @@ export const translations = {
 
     // Payment verification
     verifyingPayment: 'ክፍያ በመረጋገጥ ላይ...',
-    paymentSuccessful: 'ክፍያ ተሳክቷል!',
-    paymentSuccessfulMessage: 'ክፍያዎ በተሳካ ሁኔታ ተካሂዷል። በቅርቡ የኢሜይል ማረጋገጫ ያገኛሉ።',
     paymentFailed: 'ክፍያ አልተሳካም',
     paymentFailedMessage: 'ክፍያዎ አልተሳካም። እባክዎ እንደገና ይሞክሩ ወይም የደንበኛ አገልግሎትን ያነጋግሩ።',
     paymentReferenceNotFound: 'የክፍያ ማጣቀሻ አልተገኘም',

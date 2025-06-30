@@ -120,7 +120,7 @@ const HeroSection = () => {
         className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 hover:bg-white text-primary-text transition-all duration-300 shadow-lg hover:shadow-xl"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        aria-label="Previous slide"
+        aria-label={t('previousSlide')}
       >
         <FiChevronLeft className="w-6 h-6" />
       </motion.button>
@@ -129,7 +129,7 @@ const HeroSection = () => {
         className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 hover:bg-white text-primary-text transition-all duration-300 shadow-lg hover:shadow-xl"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        aria-label="Next slide"
+        aria-label={t('nextSlide')}
       >
         <FiChevronRight className="w-6 h-6" />
       </motion.button>
@@ -147,7 +147,7 @@ const HeroSection = () => {
             }`}
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.8 }}
-            aria-label={`Go to slide ${index + 1}`}
+            aria-label={t('goToSlide').replace('{number}', index + 1)}
           />
         ))}
       </div>

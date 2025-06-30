@@ -22,6 +22,8 @@ import OrdersPanel from './pages/admin/OrdersPanel';
 import UsersPanel from './pages/admin/UsersPanel';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import OrderConfirmation from './pages/OrderConfirmation';
+import CallbackPage from './payment/CallbackPage';
+import SuccessPage from './payment/SuccessPage';
 
 const App = () => {
   return (

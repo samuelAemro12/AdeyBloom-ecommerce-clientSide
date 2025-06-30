@@ -27,7 +27,7 @@ const WishlistButton = ({ productId, className = '' }) => {
                 await addToWishlist(productId);
             }
         } catch (error) {
-            console.error('Wishlist operation failed:', error);
+            console.error(t('wishlistOperationFailed'), error);
         } finally {
             setIsLoading(false);
         }
