@@ -1,0 +1,17 @@
+ <Route path='/CallbackPage' element={<CallbackPage/>}/>
+                                                <Route path='/SuccessPage' element={<SuccessPage/>}/>
+
+
+
+
+
+{
+        path: 'SuccessPage',
+        element: <SuccessPage />
+      },{
+        path: 'CallbackPage',
+        element: <CallbackPage />
+      },{
+        path: 'pay',
+        element: <Pay />
+      },

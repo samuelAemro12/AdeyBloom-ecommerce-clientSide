@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '../context/TranslationContext';
 
 const CartItem = ({ item }) => {
-    const { updateCartItem, removeFromCart } = useCart();
+    const { updateCartItem, removeFromCart,clearAllFromCart } = useCart();
     const { t } = useTranslation();
     const [isUpdating, setIsUpdating] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
@@ -23,10 +23,24 @@ const CartItem = ({ item }) => {
         }
     };
 
+
     const handleRemove = async () => {
         setIsRemoving(true);
         try {
             await removeFromCart(item.product._id);
+        } catch (error) {
+            console.error('Error removing item:', error);
+        } finally {
+            setIsRemoving(false);
+        }
+    };
+
+    
+
+        const clearAllFromCarts = async () => {
+        setIsRemoving(true);
+        try {
+            await clearAllFromCart();
         } catch (error) {
             console.error('Error removing item:', error);
         } finally {
@@ -138,6 +152,11 @@ const CartItem = ({ item }) => {
                 >
                     <FiTrash2 className="w-5 h-5" />
                 </motion.button>
+
+
+                {/* <button onClick={clearAllFromCarts}>
+                    clear all from cart
+                </button> */}
             </div>
         </motion.div>
     );

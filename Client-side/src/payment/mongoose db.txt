@@ -1,0 +1,1 @@
+mongodump --db yourDatabaseName --out ./db-backup

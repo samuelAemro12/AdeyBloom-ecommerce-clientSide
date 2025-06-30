@@ -99,6 +99,20 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+    const clearAllFromCart = async () => {
+    try {
+      setError(null);
+      await cartService.clearAllFromCart();
+      setCartItems([]);
+      return { success: true };
+    } catch (err) {
+      console.error('Error clearing cart:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to clear cart';
+      setError(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => {
       const price = item.product?.price || 0;
@@ -128,6 +142,7 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     clearCart,
     getCartTotal,
+    clearAllFromCart,
     getCartItemCount,
     itemCount: getCartItemCount(),
     isInCart,
@@ -142,4 +157,6 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-export default CartContext; 
+export default CartContext;
+
+

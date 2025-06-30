@@ -1,9 +1,7 @@
 import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import { useTranslation } from '../context/TranslationContext';
 
 const Footer = () => {
-  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -16,35 +14,35 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <FiMapPin className="text-[#C585D7]" />
-                <p>{t('footer.location')}</p>
+                <p>Addis Ababa, Ethiopia</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiPhone className="text-[#C585D7]" />
-                <p>{t('footer.phone')}</p>
+                <p>+251-902-329-031</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiMail className="text-[#C585D7]" />
-                <p>{t('footer.email')}</p>
+                <p>samuelaemrowork12@gmail.com</p>
               </div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-white text-lg font-semibold mb-4">{t('footer.quickLinks')}</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/shop" className="hover:text-[#C585D7] transition">{t('footer.shop')}</Link></li>
-              <li><Link to="/about" className="hover:text-[#C585D7] transition">{t('footer.aboutUs')}</Link></li>
-              <li><Link to="/contact" className="hover:text-[#C585D7] transition">{t('footer.contact')}</Link></li>
+              <li><Link to="/shop" className="hover:text-[#C585D7] transition">Shop</Link></li>
+              <li><Link to="/about" className="hover:text-[#C585D7] transition">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-[#C585D7] transition">Contact</Link></li>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div>
-            <h3 className="text-white text-lg font-semibold mb-4">{t('footer.customerService')}</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">Customer Service</h3>
             <ul className="space-y-2">
-              <li><Link to="/shipping" className="hover:text-[#C585D7] transition">{t('footer.shippingInfo')}</Link></li>
-              <li><Link to="/faq" className="hover:text-[#C585D7] transition">{t('footer.faq')}</Link></li>
+              <li><Link to="/shipping" className="hover:text-[#C585D7] transition">Shipping Info</Link></li>
+              <li><Link to="/faq" className="hover:text-[#C585D7] transition">FAQ</Link></li>
             </ul>
           </div>
         </div>
@@ -64,7 +62,7 @@ const Footer = () => {
       {/* Copyright */}
       <div className="bg-gray-950 py-4">
         <div className="container mx-auto px-4 text-center text-sm">
-          <p>&copy; {currentYear} AdeyBloom. {t('footer.rightsReserved')}</p>
+          <p>&copy; {currentYear} AdeyBloom. All rights reserved.</p>
         </div>
       </div>
     </footer>

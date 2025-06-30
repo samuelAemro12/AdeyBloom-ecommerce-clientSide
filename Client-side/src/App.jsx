@@ -51,6 +51,9 @@ const App = () => {
             <Route path="/orders" element={<OrderHistory />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+            <Route path='/CallbackPage' element={<CallbackPage/>}/>
+            <Route path='/SuccessPage' element={<SuccessPage/>}/>
+
 
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedAdminRoute />}>

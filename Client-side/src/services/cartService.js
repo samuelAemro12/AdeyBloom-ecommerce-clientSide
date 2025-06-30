@@ -49,5 +49,15 @@ export const cartService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    // clearAllFromCart
+     clearAllFromCart: async () => {
+        try {
+            const response = await api.delete('/cart/clearAllFromCart');
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 }; 

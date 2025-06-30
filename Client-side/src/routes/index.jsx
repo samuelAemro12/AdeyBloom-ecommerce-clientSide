@@ -28,6 +28,8 @@ import UsersPanel from '../pages/admin/UsersPanel';
 import ContactManagement from '../pages/admin/ContactManagement';
 import Settings from '../pages/admin/Settings';
 import AppProviders from '../components/AppProviders';
+import SuccessPage from '../payment/SuccessPage';
+import CallbackPage from '../payment/CallbackPage'
 
 const router = createBrowserRouter([
   {
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
       {
         path: 'signin',
         element: <SignIn />
+      },
+
+{
+        path: 'SuccessPage',
+        element: <SuccessPage />
+      },{
+        path: 'CallbackPage',
+        element: <CallbackPage />
       },
       {
         path: 'signup',
