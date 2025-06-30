@@ -1,37 +1,22 @@
-import axios from '../config/axios';
+import api from '../config/axios';
 
-export const getUsers = async () => {
-    try {
-        const response = await axios.get('/api/admin/users');
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
+export const adminService = {
+  // Products
+  getProducts: () => api.get('/admin/products').then(res => res.data),
+  createProduct: (data) => api.post('/admin/products', data).then(res => res.data),
+  updateProduct: (id, data) => api.put(`/admin/products/${id}`, data).then(res => res.data),
+  deleteProduct: (id) => api.delete(`/admin/products/${id}`).then(res => res.data),
 
-export const deleteUser = async (userId) => {
-    try {
-        const response = await axios.delete(`/api/admin/users/${userId}`);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
+  // Orders
+  getOrders: () => api.get('/admin/orders').then(res => res.data),
+  updateOrderStatus: (id, status) => api.put(`/admin/orders/${id}/status`, { status }).then(res => res.data),
 
-export const updateUserStatus = async (userId, isActive) => {
-    try {
-        const response = await axios.patch(`/api/admin/users/${userId}/status`, { isActive });
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
+  // Users
+  getUsers: () => api.get('/admin/users').then(res => res.data),
+  updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }).then(res => res.data),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`).then(res => res.data),
+  updateUserStatus: (id, isActive) => api.put(`/admin/users/${id}/status`, { isActive }).then(res => res.data),
 
-export const updateUserRole = async (userId, role) => {
-    try {
-        const response = await axios.patch(`/api/admin/users/${userId}/role`, { role });
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
+  // Dashboard
+  getDashboardStats: () => api.get('/admin/dashboard/stats').then(res => res.data),
 }; 

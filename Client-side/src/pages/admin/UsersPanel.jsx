@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiUserPlus, FiLock, FiUnlock } from 'react-icons/fi';
 import { useTranslation } from '../../context/TranslationContext';
-import { getUsers, deleteUser, updateUserStatus, updateUserRole } from '../../services/admin.service';
+import { adminService } from '../../services/admin.service';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
 
@@ -12,6 +12,7 @@ const UsersPanel = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('all');
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const { getUsers, deleteUser, updateUserStatus, updateUserRole } = adminService;
 
     useEffect(() => {
         fetchUsers();
