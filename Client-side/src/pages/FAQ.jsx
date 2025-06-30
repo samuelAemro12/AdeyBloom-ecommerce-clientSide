@@ -17,53 +17,38 @@ const FAQ = () => {
   const faqData = [
     {
       id: 'faq-1',
-      question: '🛍️ How do I place an order on AdeyBloom?',
-      answer: 'You can browse beauty and self-care products, add them to your cart, and proceed to checkout. You\'ll be prompted to log in or register before finalizing your purchase.'
+      question: t('faqHowToPlaceOrder'),
+      answer: t('faqHowToPlaceOrderAnswer')
     },
     {
       id: 'faq-2',
-      question: '💳 What payment methods do you support?',
-      answer: 'We currently support integration with international payment systems like Stripe for demonstration purposes.'
+      question: t('faqPaymentMethods'),
+      answer: t('faqPaymentMethodsAnswer')
     },
     {
       id: 'faq-3',
-      question: '🌐 Can I view prices in different currencies?',
-      answer: 'Yes. AdeyBloom supports multi-currency display. You can switch between ETB, USD, and EUR using the currency selector in the top navigation bar.'
+      question: t('faqAmharicSupport'),
+      answer: t('faqAmharicSupportAnswer')
     },
     {
       id: 'faq-4',
-      question: '🌍 Is the website available in Amharic?',
-      answer: 'Absolutely. You can toggle between English and Amharic using the language switcher in the navigation bar. The content is dynamically translated using the Google Translate API.'
+      question: t('faqRefundPolicy'),
+      answer: t('faqRefundPolicyAnswer')
     },
     {
       id: 'faq-5',
-      question: '📦 How can I track my order?',
-      answer: 'Once your order is placed, you\'ll receive a confirmation and a reference ID. You can view your order history and status under the "My Orders" section in your account.'
+      question: t('faqNeedAccount'),
+      answer: t('faqNeedAccountAnswer')
     },
     {
       id: 'faq-6',
-      question: '💰 What is your refund policy?',
-      answer: 'You can request a refund within 7 days of delivery if the product is defective or unopened. Refunds are manually handled during demo scenarios.'
+      question: t('faqWishlistFeature'),
+      answer: t('faqWishlistFeatureAnswer')
     },
     {
       id: 'faq-7',
-      question: '📝 Do I need an account to shop on AdeyBloom?',
-      answer: 'Yes, an account is required to place orders, manage your cart and wishlist, and view your order history.'
-    },
-    {
-      id: 'faq-8',
-      question: '🛒 What is the Wishlist feature for?',
-      answer: 'The wishlist allows you to save products you\'re interested in for later. You can access it anytime from your profile or the navigation bar.'
-    },
-    {
-      id: 'faq-9',
-      question: '🧾 Will I receive an order receipt or confirmation?',
-      answer: 'Yes, after placing an order, a confirmation message is displayed, and a receipt is stored under your order history.'
-    },
-    {
-      id: 'faq-10',
-      question: '🧠 What makes AdeyBloom different from other beauty stores?',
-      answer: 'AdeyBloom is culturally aware, built for Ethiopian users, supports Amharic language, local payment systems, and uses a modern, minimal, mobile-first design for accessibility and responsiveness.'
+      question: t('faqWhatMakesAdeyBloomDifferent'),
+      answer: t('faqWhatMakesAdeyBloomDifferentAnswer')
     }
   ];
 
@@ -78,10 +63,10 @@ const FAQ = () => {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            🛍️ AdeyBloom – Frequently Asked Questions
+            🛍️ AdeyBloom – {t('frequentlyAskedQuestions')}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about shopping on AdeyBloom
+            {t('faqDescription')}
           </p>
         </motion.div>
 
@@ -138,10 +123,10 @@ const FAQ = () => {
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Still have questions?
+            {t('stillHaveQuestions')}
           </h3>
           <p className="text-gray-600 mb-6">
-            Can't find what you're looking for? Contact our support team.
+            {t('contactUsForHelp')}
           </p>
           <motion.button
             className="bg-primary-accent text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors duration-300"
@@ -149,7 +134,7 @@ const FAQ = () => {
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/contact'}
           >
-            Contact Us
+            {t('contactUs')}
           </motion.button>
         </motion.div>
       </div>
