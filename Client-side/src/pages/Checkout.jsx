@@ -17,8 +17,7 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-const testPublicKey="CHAPUBK_TEST-YGmba3v3XLwhsK5m3kE7zwKnI5zzBbn8";
-
+    const paymentKey = process.env.REACT_APP_TEST_PUBLIC_API;
 
         const [txRef, setTxRef] = useState('');
         const generateTxRef = () => {
@@ -238,7 +237,7 @@ const testPublicKey="CHAPUBK_TEST-YGmba3v3XLwhsK5m3kE7zwKnI5zzBbn8";
 
 
 <form method="POST" action="https://api.chapa.co/v1/hosted/pay" >
-    <input type="hidden" name="public_key" value={testPublicKey} />
+    <input type="hidden" name="public_key" value={paymentKey} />
     <input type="hidden" name="tx_ref" value={txRef} />
     <input type="hidden" name="amount" value={total} />
     <input type="hidden" name="currency" value="ETB" />
