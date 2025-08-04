@@ -275,6 +275,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Authors
 
 - **Samuel Aemro** - *Lead Developer* - [@samuelAemro12](https://github.com/samuelAemro12)
+- **davee1625** - *Developer* - [@davee1625](https://github.com/davee1625)
 
 ## 🙏 Acknowledgments
 
