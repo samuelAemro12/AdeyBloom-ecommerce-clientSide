@@ -97,6 +97,14 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Admin Link */}
+            <Link
+              to="/admin-signin"
+              className="text-sm text-primary-text hover:text-primary-accent transition-colors duration-300 font-medium border border-primary-accent px-3 py-1 rounded-lg hover:bg-primary-accent hover:text-white"
+            >
+              Admin
+            </Link>
           </div>
 
           {/* Right Side Items */}
@@ -177,6 +185,15 @@ const Navbar = () => {
                     >
                       {t('profile')}
                     </Link>
+                    {user && user.role === 'admin' && (
+                      <Link
+                        to="/admin/dashboard"
+                        className="block px-4 py-2 text-primary-text hover:bg-gray-100 w-full text-left"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
                     <button
                       onClick={() => { handleLogout(); setIsProfileDropdownOpen(false); }}
                       className="block w-full text-left px-4 py-2 text-primary-text hover:bg-gray-100"
@@ -300,6 +317,15 @@ const Navbar = () => {
                       >
                         <FiUser className="h-5 w-5" />
                       </Link>
+                      {user && user.role === 'admin' && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="text-primary-text hover:text-primary-accent transition-colors duration-300"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <FiMenu className="h-5 w-5" />
+                        </Link>
+                      )}
                       <motion.button
                         onClick={handleLogout}
                         className="text-primary-text hover:text-coral-rose transition-colors duration-300"

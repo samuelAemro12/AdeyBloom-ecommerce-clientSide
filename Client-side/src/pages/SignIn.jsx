@@ -111,6 +111,24 @@ const SignIn = () => {
             </Link>
           </p>
         </div>
+        <div className="text-sm text-center mt-4">
+          <p className="text-gray-600">
+            Admin access?{' '}
+            <Link 
+              to="/admin-signin" 
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Admin Sign In
+            </Link>
+            {' | '}
+            <Link 
+              to="/admin-register" 
+              className="font-medium text-purple-600 hover:text-purple-500"
+            >
+              Register as Admin
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
