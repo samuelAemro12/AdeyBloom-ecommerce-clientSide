@@ -17,7 +17,14 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    const paymentKey = process.env.REACT_APP_TEST_PUBLIC_API;
+    // Get Chapa public key from environment variables
+    const chapaPublicKey = import.meta.env.VITE_CHAPA_PUBLIC_KEY;
+
+    // Validate that the API key is loaded
+    if (!chapaPublicKey) {
+        console.error('Chapa public key not found in environment variables');
+    }
+
 
         const [txRef, setTxRef] = useState('');
         const generateTxRef = () => {
@@ -237,7 +244,7 @@ const Checkout = () => {
 
 
 <form method="POST" action="https://api.chapa.co/v1/hosted/pay" >
-    <input type="hidden" name="public_key" value={paymentKey} />
+    <input type="hidden" name="public_key" value={chapaPublicKey} />
     <input type="hidden" name="tx_ref" value={txRef} />
     <input type="hidden" name="amount" value={total} />
     <input type="hidden" name="currency" value="ETB" />
