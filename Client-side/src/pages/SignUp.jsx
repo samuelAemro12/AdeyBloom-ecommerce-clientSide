@@ -8,11 +8,13 @@ const SignUp = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'customer', // Default to customer
+    adminSecret: '' // Only shown when admin is selected
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +24,7 @@ const SignUp = () => {
     score: 0,
     message: ''
   });
+  const [showAdminSecret, setShowAdminSecret] = useState(false);
 
   const validatePasswordStrength = (password) => {
     let score = 0;
@@ -58,17 +61,27 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    if (form.password) {
-      setPasswordStrength(validatePasswordStrength(form.password));
+    if (formData.password) {
+      setPasswordStrength(validatePasswordStrength(formData.password));
     }
-  }, [form.password, t]);
+  }, [formData.password, t]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleRoleChange = (e) => {
+    const selectedRole = e.target.value;
+    setFormData({
+      ...formData,
+      role: selectedRole,
+      adminSecret: selectedRole === 'admin' ? formData.adminSecret : ''
+    });
+    setShowAdminSecret(selectedRole === 'admin');
   };
 
   const handleSubmit = async (e) => {
@@ -76,21 +89,34 @@ const SignUp = () => {
     setError('');
     setIsLoading(true);
 
-    if (form.password !== form.confirmPassword) {
-      setError(t('errorPasswordsDoNotMatch'));
-      setIsLoading(false);
-      return;
-    }
+    // For admin registration, only validate admin secret
+    if (formData.role === 'admin') {
+      if (!formData.adminSecret) {
+        setError('Admin secret key is required');
+        setIsLoading(false);
+        return;
+      }
+    } else {
+      // For customer registration, validate passwords
+      if (formData.password !== formData.confirmPassword) {
+        setError(t('errorPasswordsDoNotMatch'));
+        setIsLoading(false);
+        return;
+      }
 
-    if (passwordStrength.score < 3) {
-      setError(t('errorChooseStrongerPassword'));
-      setIsLoading(false);
-      return;
+      if (passwordStrength.score < 3) {
+        setError(t('errorChooseStrongerPassword'));
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
-      await register(form);
-      navigate('/');
+      const result = await register(formData);
+      if (!result.success) {
+        setError(result.message || t('errorFailedToCreateAccount'));
+      }
+      // Remove the manual navigate('/') - let AuthContext handle the redirect
     } catch (err) {
       setError(err.message || t('errorFailedToCreateAccount'));
     } finally {
@@ -149,7 +175,7 @@ const SignUp = () => {
                 autoFocus
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder={t('fullName')}
-                value={form.name}
+                value={formData.name}
                 onChange={handleChange}
                 autoComplete="name"
               />
@@ -164,74 +190,116 @@ const SignUp = () => {
                 required
                 className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
                 placeholder={t('email')}
-                value={form.email}
+                value={formData.email}
                 onChange={handleChange}
                 autoComplete="email"
               />
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <div className="relative">
-                <FiLock className="absolute top-3.5 left-3 text-gray-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  required
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                  placeholder={t('password')}
-                  value={form.password}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  tabIndex={-1}
-                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-                >
-                  {showPassword ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-              {form.password && (
-                <div className="space-y-1">
-                  <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${getPasswordStrengthColor()} transition-all duration-300`}
-                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+            {formData.role === 'customer' && (
+              <>
+                <div className="space-y-2">
+                  <div className="relative">
+                    <FiLock className="absolute top-3.5 left-3 text-gray-400" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      required={formData.role === 'customer'}
+                      className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
+                      placeholder={t('password')}
+                      value={formData.password}
+                      onChange={handleChange}
+                      autoComplete="new-password"
                     />
+                    <button
+                      type="button"
+                      className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                    >
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
                   </div>
-                  <p className="text-xs text-ash-gray">
-                    {t('passwordStrength')}: <span className="font-medium">{passwordStrength.message}</span>
-                  </p>
+                  {formData.password && (
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
+                            style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-600">{passwordStrength.message}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <FiLock className="absolute top-3.5 left-3 text-gray-400" />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    required={formData.role === 'customer'}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
+                    placeholder={t('confirmPassword')}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    tabIndex={-1}
+                    aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
+                  >
+                    {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Register as
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleRoleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              >
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
 
-            {/* Confirm Password */}
-            <div className="relative">
-              <FiLock className="absolute top-3.5 left-3 text-gray-400" />
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                required
-                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-cloud-gray focus:ring-2 focus:ring-primary-accent focus:outline-none transition"
-                placeholder={t('confirmPassword')}
-                value={form.confirmPassword}
-                onChange={handleChange}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                tabIndex={-1}
-                aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
-              >
-                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
+            {/* Admin Secret - Only show when admin is selected */}
+            {formData.role === 'admin' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Admin Secret Key
+                </label>
+                <input
+                  type="password"
+                  name="adminSecret"
+                  value={formData.adminSecret}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter admin secret key"
+                  required={formData.role === 'admin'}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Contact system administrator for the admin secret key
+                </p>
+              </div>
+            )}
 
             {/* Buttons */}
             <div className="space-y-4 mt-4">

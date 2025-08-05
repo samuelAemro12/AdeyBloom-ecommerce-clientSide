@@ -86,7 +86,7 @@ const Navbar = () => {
             <SearchBar />
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - Remove Admin Link */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
               <Link
@@ -97,14 +97,6 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            
-            {/* Admin Link */}
-            <Link
-              to="/admin-signin"
-              className="text-sm text-primary-text hover:text-primary-accent transition-colors duration-300 font-medium border border-primary-accent px-3 py-1 rounded-lg hover:bg-primary-accent hover:text-white"
-            >
-              Admin
-            </Link>
           </div>
 
           {/* Right Side Items */}

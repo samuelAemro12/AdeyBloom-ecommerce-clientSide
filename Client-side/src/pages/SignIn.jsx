@@ -9,11 +9,22 @@ const SignIn = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    role: 'customer' // Default to customer
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +32,8 @@ const SignIn = () => {
     setError('');
 
     try {
-      const result = await login({ email, password });
+      // Pass the complete formData including role
+      const result = await login(formData);
       if (!result.success) {
         setError(result.message || t('errorFailedToSignIn'));
       }
@@ -60,8 +72,8 @@ const SignIn = () => {
                 required
                 className="appearance-none rounded-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder={t('email')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             <div className="relative">
@@ -73,9 +85,9 @@ const SignIn = () => {
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={t('password')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder={formData.role === 'admin' ? 'Admin Secret Key' : t('password')}
+                value={formData.password}
+                onChange={handleChange}
               />
               <button
                 type="button"
@@ -86,11 +98,28 @@ const SignIn = () => {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
+            {formData.role === 'admin' && (
+              <p className="text-xs text-gray-500 mt-1">
+                Use your admin secret key as password
+              </p>
+            )}
           </div>
 
-          <div className="flex items-center justify-between">
-            <div />
-            <div />
+          {/* Role Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sign in as
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            >
+              <option value="customer">Customer</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
 
           <div>
@@ -111,24 +140,7 @@ const SignIn = () => {
             </Link>
           </p>
         </div>
-        <div className="text-sm text-center mt-4">
-          <p className="text-gray-600">
-            Admin access?{' '}
-            <Link 
-              to="/admin-signin" 
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Admin Sign In
-            </Link>
-            {' | '}
-            <Link 
-              to="/admin-register" 
-              className="font-medium text-purple-600 hover:text-purple-500"
-            >
-              Register as Admin
-            </Link>
-          </p>
-        </div>
+        {/* Removed admin links */}
       </div>
     </div>
   );

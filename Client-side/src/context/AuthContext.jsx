@@ -42,7 +42,14 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       if (response.success) {
         setUser(response.user);
-        navigate('/');
+        
+        // Smart redirect based on user role
+        if (response.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/'); // Customer goes to home
+        }
+        
         return { success: true };
       } else {
         return { success: false, message: response.message };
@@ -52,32 +59,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (credentialsOrUser) => {
+  const login = async (credentials) => {
     try {
-      // If it's already a user object (from registration)
-      if (credentialsOrUser._id) {
-        setUser(credentialsOrUser);
-        
-        // Redirect based on user role
-        if (credentialsOrUser.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/');
-        }
-        
-        return { success: true };
-      }
-      
-      // Otherwise, treat as credentials for login
-      const response = await authService.login(credentialsOrUser);
+      const response = await authService.login(credentials);
       if (response.success) {
         setUser(response.user);
         
-        // Redirect based on user role
+        // Smart redirect based on user role
         if (response.user.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
-          navigate('/');
+          navigate('/'); // Customer goes to home
         }
         
         return { success: true };

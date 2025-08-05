@@ -17,9 +17,6 @@ import FAQ from '../pages/FAQ';
 import Shipping from '../pages/Shipping';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
-import AdminRegister from '../pages/AdminRegister';
-import AdminSignIn from '../pages/AdminSignIn';
-
 // Admin imports
 import ProtectedAdminRoute from '../components/ProtectedAdminRoute';
 import AdminLayout from '../pages/admin/AdminLayout';
@@ -45,14 +42,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />
-      },
-      {
-        path: 'admin-register',
-        element: <AdminRegister />
-      },
-      {
-        path: 'admin-signin',
-        element: <AdminSignIn />
       },
       {
         path: 'signin',
