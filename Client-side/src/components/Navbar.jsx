@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus, FiSettings } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
@@ -168,32 +168,46 @@ const Navbar = () => {
                   <span className="ml-2 font-medium">{user.name ? user.name.split(' ')[0] : (user.firstName || '')}</span>
                 </button>
                 {/* Dropdown */}
-                {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-fade-in">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-primary-text hover:bg-gray-100 w-full text-left"
-                      onClick={() => setIsProfileDropdownOpen(false)}
+                <AnimatePresence>
+                  {isProfileDropdownOpen && (
+                    <motion.div 
+                      className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      {t('profile')}
-                    </Link>
-                    {user && user.role === 'admin' && (
-                      <Link
-                        to="/admin/dashboard"
-                        className="block px-4 py-2 text-primary-text hover:bg-gray-100 w-full text-left"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        Admin Panel
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => { handleLogout(); setIsProfileDropdownOpen(false); }}
-                      className="block w-full text-left px-4 py-2 text-primary-text hover:bg-gray-100"
-                    >
-                      {t('logout')}
-                    </button>
-                  </div>
-                )}
+                      <div className="py-1">
+                        <Link
+                          to="/profile"
+                          className="flex items-center px-4 py-2 text-sm text-primary-text hover:bg-gray-100 transition-colors"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <FiUser className="w-4 h-4 mr-3" />
+                          {t('profile')}
+                        </Link>
+                        {user && user.role === 'admin' && (
+                          <Link
+                            to="/admin/dashboard"
+                            className="flex items-center px-4 py-2 text-sm text-primary-text hover:bg-gray-100 transition-colors"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <FiSettings className="w-4 h-4 mr-3" />
+                            Admin Panel
+                          </Link>
+                        )}
+                        <hr className="my-1 border-gray-200" />
+                        <button
+                          onClick={() => { handleLogout(); setIsProfileDropdownOpen(false); }}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <FiLogOut className="w-4 h-4 mr-3" />
+                          {t('logout')}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : location.pathname === '/signin' ? (
               <Link
