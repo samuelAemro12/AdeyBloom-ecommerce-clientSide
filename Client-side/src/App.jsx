@@ -24,7 +24,7 @@ import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import OrderConfirmation from './pages/OrderConfirmation';
 import CallbackPage from './payment/CallbackPage';
 import SuccessPage from './payment/SuccessPage';
-import AdminRegister from './pages/AdminRegister';
+// Remove: import AdminRegister from './pages/AdminRegister';
 
 const App = () => {
   return (
@@ -66,11 +66,12 @@ const App = () => {
                 <Route path="products" element={<ProductsPanel />} />
                 <Route path="orders" element={<OrdersPanel />} />
                 <Route path="users" element={<UsersPanel />} />
+                <Route path="contacts" element={<ContactManagement />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
 
             {/* 404 route - must be last */}
-            <Route path="/admin-register" element={<AdminRegister />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </WishlistProvider>
