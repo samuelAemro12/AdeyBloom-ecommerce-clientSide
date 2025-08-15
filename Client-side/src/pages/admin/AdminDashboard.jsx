@@ -3,6 +3,9 @@ import { FiShoppingBag, FiUsers, FiDollarSign, FiPackage } from 'react-icons/fi'
 import { useToast } from '../../context/ToastContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useTranslation } from '../../context/TranslationContext';
+import adminService from '../../services/admin.service';
+import SalesChart from '../../components/admin/SalesChart';
+import TopProducts from '../../components/admin/TopProducts';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div className="bg-white rounded-lg shadow p-6">
@@ -12,7 +15,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
         <p className="text-2xl font-semibold mt-2">{value}</p>
       </div>
       <div className={`p-3 rounded-full ${color}`}>
-        <Icon className="w-6 h-6 text-white" />
+        {Icon ? <Icon className="w-6 h-6 text-white" /> : null}
       </div>
     </div>
   </div>
@@ -27,11 +30,10 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Replace with your actual API endpoint
-        const response = await fetch('/api/admin/dashboard/stats');
-        const data = await response.json();
-        setStats(data);
-      } catch (error) {
+  const data = await adminService.getDashboardStats();
+  // adminService returns { success, stats } or stats depending on implementation; normalize
+  setStats(data.stats || data);
+      } catch {
         showError(t('fetchDashboardStatsFailed'));
       } finally {
         setIsLoading(false);
@@ -75,6 +77,16 @@ const AdminDashboard = () => {
           icon={FiPackage}
           color="bg-orange-500"
         />
+      </div>
+
+      {/* Charts & Top Products */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <SalesChart data={stats?.salesData || []} />
+        </div>
+        <div>
+          <TopProducts items={stats?.topSellingProducts || []} />
+        </div>
       </div>
 
       {/* Recent Activity */}
