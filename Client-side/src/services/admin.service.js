@@ -16,6 +16,7 @@ export const adminService = {
 
   // Users
   getUsers: () => api.get('/admin/users').then(res => res.data),
+  toggleUserActive: (id, isActive) => api.put(`/admin/users/${id}/active`, { isActive }).then(res => res.data),
 
   // Admin registration
   registerAdmin: async (adminData) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiEye, FiTruck, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { orderService } from '../../services/orderService';
+import adminService from '../../services/admin.service';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
 import { useTranslation } from '../../context/TranslationContext';
@@ -14,29 +14,31 @@ const OrdersPanel = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    const fetchOrders = async () => {
+      try {
+        const data = await adminService.getOrders();
+        setOrders(data.orders || data);
+        setError(null);
+      } catch (err) {
+        console.error('fetchOrders error:', err?.message || err);
+        setError(t('fetchOrdersFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchOrders = async () => {
-    try {
-      const data = await orderService.getUserOrders();
-      setOrders(data);
-      setError(null);
-    } catch (err) {
-      setError(t('fetchOrdersFailed'));
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchOrders();
+  }, [t]);
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await orderService.updateOrderStatus(orderId, newStatus);
+      await adminService.updateOrderStatus(orderId, newStatus);
       setOrders(orders.map(order => 
         order._id === orderId ? { ...order, status: newStatus } : order
       ));
     } catch (err) {
-      setError(t('updateOrderStatusFailed'));
+  console.error('updateOrderStatus error:', err);
+  setError(t('updateOrderStatusFailed'));
     }
   };
 
@@ -59,8 +61,8 @@ const OrdersPanel = () => {
 
   const filteredOrders = orders.filter(order => {
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus;
-    const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             (order.user?.email || order.customer?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -125,13 +127,13 @@ const OrdersPanel = () => {
                   #{order._id.slice(-6)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {order.customer.email}
+                  {order.user?.email || order.customer?.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${order.totalAmount.toFixed(2)}
+                  ${order.totalAmount?.toFixed ? order.totalAmount.toFixed(2) : order.totalAmount}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>

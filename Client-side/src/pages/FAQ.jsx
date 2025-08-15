@@ -30,11 +30,7 @@ const FAQ = () => {
       question: t('faqAmharicSupport'),
       answer: t('faqAmharicSupportAnswer')
     },
-    {
-      id: 'faq-4',
-      question: t('faqRefundPolicy'),
-      answer: t('faqRefundPolicyAnswer')
-    },
+  // refund policy FAQ removed
     {
       id: 'faq-5',
       question: t('faqNeedAccount'),

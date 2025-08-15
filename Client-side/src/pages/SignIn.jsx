@@ -85,7 +85,7 @@ const SignIn = () => {
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={formData.role === 'admin' ? 'Admin Secret Key' : t('password')}
+                placeholder={t('password')}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -98,11 +98,7 @@ const SignIn = () => {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-            {formData.role === 'admin' && (
-              <p className="text-xs text-gray-500 mt-1">
-                Use your admin secret key as password
-              </p>
-            )}
+            {/* Admins should use their account password to sign in. */}
           </div>
 
           {/* Role Selection */}

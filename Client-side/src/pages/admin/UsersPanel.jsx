@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiUserPlus, FiLock, FiUnlock } from 'react-icons/fi';
 import { useTranslation } from '../../context/TranslationContext';
-import { adminService } from '../../services/admin.service';
+import adminService from '../../services/admin.service';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
 
@@ -12,23 +12,24 @@ const UsersPanel = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('all');
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
-    const { getUsers, deleteUser, updateUserStatus, updateUserRole } = adminService;
+    const { getUsers, deleteUser, updateUserRole } = adminService;
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        const fetchUsers = async () => {
+            setLoading(true);
+            try {
+                const data = await getUsers();
+                setUsers(data.users || data);
+            } catch (error) {
+                console.error('fetchUsers error:', error);
+                setToast({ show: true, message: t('admin.usersPanel.fetchError'), type: 'error' });
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const data = await getUsers();
-            setUsers(data);
-        } catch (error) {
-            setToast({ show: true, message: t('admin.usersPanel.fetchError'), type: 'error' });
-        } finally {
-            setLoading(false);
-        }
-    };
+        fetchUsers();
+    }, [getUsers, t]);
 
     const handleDeleteUser = async (userId) => {
         if (!window.confirm(t('admin.usersPanel.deleteConfirm'))) {
@@ -40,18 +41,20 @@ const UsersPanel = () => {
             setUsers(users.filter(user => user._id !== userId));
             setToast({ show: true, message: t('admin.usersPanel.deleteSuccess'), type: 'success' });
         } catch (error) {
+            console.error('deleteUser error:', error);
             setToast({ show: true, message: t('admin.usersPanel.deleteError'), type: 'error' });
         }
     };
 
     const handleToggleUserStatus = async (userId, currentStatus) => {
         try {
-            await updateUserStatus(userId, !currentStatus);
+            await adminService.toggleUserActive(userId, !currentStatus);
             setUsers(users.map(user =>
                 user._id === userId ? { ...user, isActive: !currentStatus } : user
             ));
             setToast({ show: true, message: t('admin.usersPanel.statusUpdateSuccess'), type: 'success' });
         } catch (error) {
+            console.error('toggleUserActive error:', error);
             setToast({ show: true, message: t('admin.usersPanel.statusUpdateError'), type: 'error' });
         }
     };
@@ -64,6 +67,7 @@ const UsersPanel = () => {
             ));
             setToast({ show: true, message: t('admin.usersPanel.roleUpdateSuccess'), type: 'success' });
         } catch (error) {
+            console.error('updateUserRole error:', error);
             setToast({ show: true, message: t('admin.usersPanel.roleUpdateError'), type: 'error' });
         }
     };
