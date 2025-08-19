@@ -8,14 +8,14 @@ import SalesChart from '../../components/admin/SalesChart';
 import TopProducts from '../../components/admin/TopProducts';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">{title}</p>
-        <p className="text-2xl font-semibold mt-2">{value}</p>
-      </div>
-      <div className={`p-3 rounded-full ${color}`}>
+  <div className="bg-white rounded-lg shadow p-4 sm:p-6 flex items-center justify-between space-x-4 hover:shadow-lg transition-shadow">
+    <div className="flex items-center space-x-4">
+      <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${color} shrink-0`} aria-hidden>
         {Icon ? <Icon className="w-6 h-6 text-white" /> : null}
+      </div>
+      <div>
+        <p className="text-gray-500 text-xs sm:text-sm">{title}</p>
+        <p className="text-lg sm:text-2xl font-semibold mt-1 truncate">{value}</p>
       </div>
     </div>
   </div>
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
       <h1 className="text-2xl font-bold text-gray-800">{t('dashboardOverview')}</h1>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t('totalOrders')}
           value={stats?.totalOrders || 0}
@@ -90,34 +90,38 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('recentActivity')}</h2>
         <div className="space-y-4">
-          {stats?.recentActivity?.map((activity, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <div className={`w-2 h-2 rounded-full ${activity.color}`} />
+          {stats?.recentActivity?.length ? stats.recentActivity.map((activity, index) => (
+            <div key={index} className="flex items-center space-x-3">
+              <div className={`w-3 h-3 rounded-full ${activity.color}`} />
               <div>
                 <p className="text-sm text-gray-600">{activity.description}</p>
                 <p className="text-xs text-gray-400">{activity.time}</p>
               </div>
             </div>
-          ))}
+          )) : (
+            <p className="text-sm text-gray-500">{t('noRecentActivity')}</p>
+          )}
         </div>
       </div>
 
       {/* Low Stock Alert */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('lowStockAlert')}</h2>
-        <div className="space-y-4">
-          {stats?.lowStockItems?.map((item, index) => (
+        <div className="space-y-3">
+          {stats?.lowStockItems?.length ? stats.lowStockItems.map((item, index) => (
             <div key={index} className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-800">{item.name}</p>
+                <p className="text-sm font-medium text-gray-800 truncate" title={item.name}>{item.name}</p>
                 <p className="text-xs text-gray-500">{t('currentStock')}: {item.stock}</p>
               </div>
               <span className="text-red-500 text-sm">{t('lowStock')}</span>
             </div>
-          ))}
+          )) : (
+            <p className="text-sm text-gray-500">{t('noLowStockItems')}</p>
+          )}
         </div>
       </div>
     </div>
