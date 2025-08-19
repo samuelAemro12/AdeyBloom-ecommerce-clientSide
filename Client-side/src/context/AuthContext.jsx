@@ -41,16 +41,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       if (response.success) {
-        setUser(response.user);
-        
-        // Smart redirect based on user role
-        if (response.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/'); // Customer goes to home
-        }
-        
-        return { success: true };
+  setUser(response.user);
+  // Return user to allow caller to perform navigation (avoids race conditions)
+  return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
       }
@@ -63,16 +56,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       if (response.success) {
-        setUser(response.user);
-        
-        // Smart redirect based on user role
-        if (response.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/'); // Customer goes to home
-        }
-        
-        return { success: true };
+  setUser(response.user);
+  // Return user to allow caller to perform navigation (avoids race conditions)
+  return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
       }

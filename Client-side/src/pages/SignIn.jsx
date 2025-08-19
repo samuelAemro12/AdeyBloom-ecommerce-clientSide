@@ -36,8 +36,17 @@ const SignIn = () => {
       const result = await login(formData);
       if (!result.success) {
         setError(result.message || t('errorFailedToSignIn'));
+      } else {
+        // If login returned user, navigate based on role
+        const loggedInUser = result.user;
+        if (loggedInUser && loggedInUser.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       }
     } catch (err) {
+      console.debug('SignIn error:', err?.message || err);
       setError(t('errorFailedToSignIn'));
     } finally {
       setIsLoading(false);
