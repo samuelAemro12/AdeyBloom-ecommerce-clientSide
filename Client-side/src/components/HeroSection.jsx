@@ -65,16 +65,22 @@ const HeroSection = () => {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${slides[currentSlide].image})` }}
-          >
+          {/* Use an img tag with object-cover to avoid background-size scaling blur */}
+          <div className="absolute inset-0">
+            <img
+              src={slides[currentSlide].image}
+              alt={slides[currentSlide].title}
+              decoding="sync"
+              loading="eager"
+              className="w-full h-full object-cover object-center"
+              style={{ imageRendering: 'auto', transform: 'translateZ(0)' }}
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/40" />
           </div>
           
