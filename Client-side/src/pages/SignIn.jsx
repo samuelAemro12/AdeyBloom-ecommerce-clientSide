@@ -39,6 +39,16 @@ const SignIn = () => {
       } else {
         // If login returned user, navigate based on role
         const loggedInUser = result.user;
+        // Set a short-lived session flag so protected routes can accept the new admin
+        // while auth state synchronizes (avoids a race that causes an immediate redirect back)
+        if (loggedInUser && loggedInUser.role) {
+          try {
+            sessionStorage.setItem('TEMP_AUTH_ROLE', loggedInUser.role);
+          } catch (e) {
+            console.debug('Could not set session flag for auth fallback', e);
+          }
+        }
+
         if (loggedInUser && loggedInUser.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
