@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../../context/TranslationContext';
 import { FiSave, FiSettings, FiUser, FiMail, FiLock, FiGlobe } from 'react-icons/fi';
 
@@ -7,9 +6,9 @@ const Settings = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [settings, setSettings] = useState({
-    siteName: 'Beauty Products Store',
-    siteDescription: 'Your one-stop shop for beauty products',
-    adminEmail: 'admin@beautystore.com',
+    siteName: '',
+    siteDescription: '',
+    adminEmail: '',
     currency: 'USD',
     language: 'en',
     timezone: 'UTC',
@@ -19,6 +18,23 @@ const Settings = () => {
     maintenanceMode: false
   });
 
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadSettings = async () => {
+      try {
+        const resp = await (await import('../../services/admin.service')).default.getSettings();
+        const payload = resp.settings || resp;
+        if (mounted) setSettings(prev => ({ ...prev, ...payload }));
+      } catch (err) {
+        console.error('Failed to load settings', err);
+      }
+    };
+    loadSettings();
+    return () => { mounted = false; };
+  }, []);
+
   const handleInputChange = (field, value) => {
     setSettings(prev => ({
       ...prev,
@@ -27,9 +43,18 @@ const Settings = () => {
   };
 
   const handleSave = () => {
-    // Here you would typically save to backend
-    console.log('Saving settings:', settings);
-    // Show success message
+    setIsSaving(true);
+    (async () => {
+      try {
+        const adminService = (await import('../../services/admin.service')).default;
+        await adminService.updateSettings(settings);
+        // Optionally show toast
+      } catch (err) {
+        console.error('Failed to save settings', err);
+      } finally {
+        setIsSaving(false);
+      }
+    })();
   };
 
   const tabs = [
@@ -45,10 +70,11 @@ const Settings = () => {
         <h1 className="text-3xl font-bold text-gray-900">{t('settings') || 'Settings'}</h1>
         <button
           onClick={handleSave}
-          className="bg-[#C585D7] text-white px-6 py-2 rounded-lg hover:bg-[#B574C6] transition-colors flex items-center gap-2"
+          disabled={isSaving}
+          className="bg-[#C585D7] disabled:opacity-60 text-white px-6 py-2 rounded-lg hover:bg-[#B574C6] transition-colors flex items-center gap-2"
         >
           <FiSave className="w-4 h-4" />
-          {t('save') || 'Save Changes'}
+          {isSaving ? (t('saving') || 'Saving...') : (t('save') || 'Save Changes')}
         </button>
       </div>
 

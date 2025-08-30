@@ -30,9 +30,41 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-  const data = await adminService.getDashboardStats();
-  // adminService returns { success, stats } or stats depending on implementation; normalize
-  setStats(data.stats || data);
+  // Fetch dashboard stats and product list in parallel so we can compute low-stock items
+  const [dashboardResp, productsResp] = await Promise.all([
+    adminService.getDashboardStats(),
+    adminService.getProducts()
+  ]);
+
+  // dashboardResp is expected to be { success: true, stats: { ... } }
+  const rawStats = dashboardResp.stats || dashboardResp;
+
+  // Normalize recentOrders -> recentActivity for the UI
+  const recentActivity = (rawStats.recentOrders || []).map((order) => ({
+    description: `${order.user?.name || 'User'} placed order #${order._id} — ${order.status}`,
+    time: order.createdAt ? new Date(order.createdAt).toLocaleString() : '',
+    color: order.status === 'delivered' ? 'bg-green-400' : order.status === 'pending' ? 'bg-yellow-400' : 'bg-gray-400'
+  }));
+
+  // Compute low stock items from products list (threshold can be adjusted)
+  const products = productsResp.products || productsResp;
+  const lowStockThreshold = 5;
+  const lowStockItems = (products || [])
+    .filter(p => typeof p.stock === 'number' ? p.stock <= lowStockThreshold : false)
+    .map(p => ({ name: p.name, stock: p.stock }));
+
+  const normalized = {
+    totalOrders: rawStats.totalOrders || 0,
+    totalRevenue: rawStats.totalRevenue || 0,
+    totalUsers: rawStats.totalUsers || 0,
+    totalProducts: rawStats.totalProducts || (products || []).length || 0,
+    salesData: rawStats.salesData || [],
+    topSellingProducts: rawStats.topSellingProducts || [],
+    recentActivity,
+    lowStockItems
+  };
+
+  setStats(normalized);
       } catch {
         showError(t('fetchDashboardStatsFailed'));
       } finally {

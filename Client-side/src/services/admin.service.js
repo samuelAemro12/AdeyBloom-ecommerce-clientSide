@@ -18,6 +18,10 @@ export const adminService = {
   getUsers: () => api.get('/admin/users').then(res => res.data),
   toggleUserActive: (id, isActive) => api.put(`/admin/users/${id}/active`, { isActive }).then(res => res.data),
 
+  // Settings
+  getSettings: () => api.get('/admin/settings').then(res => res.data),
+  updateSettings: (data) => api.put('/admin/settings', data).then(res => res.data),
+
   // Admin registration
   registerAdmin: async (adminData) => {
     try {

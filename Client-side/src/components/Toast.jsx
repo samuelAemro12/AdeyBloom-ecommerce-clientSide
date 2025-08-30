@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 
-const Toast = ({ message, type = 'info', onClose, duration = 3000 }) => {
+const Toast = ({ message, type = 'info', onClose = () => {}, duration = 3000 }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onClose();
+  try { onClose(); } catch { /* ignore callback errors */ }
     }, duration);
 
     return () => clearTimeout(timer);
@@ -31,7 +31,7 @@ const Toast = ({ message, type = 'info', onClose, duration = 3000 }) => {
         <span className="font-bold">{iconClasses[type]}</span>
         <p>{message}</p>
         <button
-          onClick={onClose}
+          onClick={() => { try { onClose(); } catch { /* ignore */ } }}
           className="ml-auto text-white hover:text-gray-200 focus:outline-none"
         >
           ✕
