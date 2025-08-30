@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../../services/productService';
-import { getCategories } from '../../services/categoryService';
 import Toast from '../../components/Toast';
 import { useTranslation } from '../../context/TranslationContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -22,39 +21,43 @@ const ProductsPanel = () => {
         countInStock: 0,
         isFeatured: false,
     });
-    const [categories, setCategories] = useState([]);
+    // categories removed from ProductsPanel UI
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const [saving, setSaving] = useState(false);
     const { getProducts, deleteProduct, createProduct, updateProduct } = productService;
 
     useEffect(() => {
-        fetchProducts();
-        fetchCategories();
+        const init = async () => {
+            setLoading(true);
+            try {
+                const fetchedProducts = await productService.getProducts();
+                setProducts(fetchedProducts);
+                setError(null);
+            } catch (err) {
+                console.error(err);
+                setError('Error loading products');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        init();
     }, []);
 
     const fetchProducts = async () => {
-        setLoading(true);
         try {
             const fetchedProducts = await getProducts();
             setProducts(fetchedProducts);
             setError(null);
-        } catch (error) {
+        } catch (err) {
+            console.error(err);
             setError(t('admin.productsPanel.errorLoadingProducts'));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchCategories = async () => {
-        try {
-            const fetchedCategories = await getCategories();
-            setCategories(fetchedCategories);
-        } catch (error) {
-            // Handle category fetch error if needed
         }
     };
 
     const handleEdit = (product) => {
-        setCurrentProduct({ ...product, category: product.category?._id });
+        // Keep category id in currentProduct if present, but do not show categories in this panel
+        setCurrentProduct({ ...product });
         setIsModalOpen(true);
     };
 
@@ -65,6 +68,7 @@ const ProductsPanel = () => {
                 setToast({ show: true, message: t('admin.productsPanel.productDeletedSuccess'), type: 'success' });
                 fetchProducts();
             } catch (error) {
+                console.error(error);
                 setToast({ show: true, message: t('admin.productsPanel.productDeletedError'), type: 'error' });
             }
         }
@@ -77,18 +81,34 @@ const ProductsPanel = () => {
 
     const handleSave = async (e) => {
         e.preventDefault();
+    setSaving(true);
         try {
-            if (currentProduct._id) {
-                await updateProduct(currentProduct._id, currentProduct);
+            // Normalize payload to match backend product model
+            const payload = { ...currentProduct };
+            // backend expects 'stock' not 'countInStock'
+            if (payload.countInStock !== undefined) {
+                payload.stock = Number(payload.countInStock);
+                delete payload.countInStock;
+            }
+            // backend uses images: [String]
+            if (payload.image) {
+                payload.images = [payload.image];
+                delete payload.image;
+            }
+
+            if (payload._id) {
+                await updateProduct(payload._id, payload);
             } else {
-                await createProduct(currentProduct);
+                await createProduct(payload);
             }
             setToast({ show: true, message: t('admin.productsPanel.productSavedSuccess'), type: 'success' });
             setIsModalOpen(false);
             fetchProducts();
         } catch (error) {
+            console.error(error);
             setToast({ show: true, message: t('admin.productsPanel.productSavedError'), type: 'error' });
         }
+    setSaving(false);
     };
 
     const openNewProductModal = () => {
@@ -109,12 +129,12 @@ const ProductsPanel = () => {
     return (
         <div className="container mx-auto p-4">
             <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
-            <h1 className="text-2xl font-bold mb-4">{t('admin.productsPanel.title')}</h1>
+            <h1 className="text-2xl font-bold mb-4">{t('Admin products Panel')}</h1>
             <button
                 onClick={openNewProductModal}
                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
             >
-                {t('admin.productsPanel.addNewProduct')}
+                {t('Add new product')}
             </button>
 
             {loading && <LoadingSpinner />}
@@ -126,35 +146,43 @@ const ProductsPanel = () => {
                     <table className="min-w-full bg-white">
                         <thead>
                             <tr>
-                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.image')}</th>
-                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.productName')}</th>
-                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.category')}</th>
-                                <th className="py-2 px-4 border-b text-right">{t('admin.productsPanel.price')}</th>
-                                <th className="py-2 px-4 border-b text-right">{t('admin.productsPanel.stock')}</th>
-                                <th className="py-2 px-4 border-b text-center">{t('admin.productsPanel.actions')}</th>
+                                <th className="py-2 px-4 border-b text-left">Image</th>
+                                <th className="py-2 px-4 border-b text-left">Product Name</th>
+                                <th className="py-2 px-4 border-b text-right">Price</th>
+                                <th className="py-2 px-4 border-b text-right">Stock</th>
+                                <th className="py-2 px-4 border-b text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {products.map((product) => (
                                 <tr key={product._id}>
                                     <td className="py-2 px-4 border-b">
-                                            <img
-                                                src={product.images && product.images[0] ? product.images[0] : product.image || '/placeholder-image.jpg'}
-                                                alt={product.name}
-                                                className="h-16 w-16 object-cover rounded-md"
-                                            />
-                                        </td>
-                                        <td className="py-2 px-4 border-b">
-                                          <div className="font-medium text-gray-900 truncate max-w-[220px]" title={product.name}>{product.name}</div>
-                                          <div className="text-xs text-gray-500">{product.brand || ''}</div>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{product.category?.name || product.category}</td>
-                                        <td className="py-2 px-4 border-b text-right">{product.currency ? `${product.currency} ${product.price}` : `$${product.price}`}</td>
-                                        <td className="py-2 px-4 border-b text-right">{product.stock ?? product.countInStock ?? 0}</td>
-                                        <td className="py-2 px-4 border-b text-center">
-                                            <button onClick={() => handleEdit(product)} className="text-blue-500 hover:underline mr-2">{t('admin.productsPanel.edit')}</button>
-                                            <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:underline">{t('admin.productsPanel.delete')}</button>
-                                        </td>
+                                        <img
+                                            src={product.images && product.images[0] ? product.images[0] : product.image || '/placeholder-image.jpg'}
+                                            alt={product.name}
+                                            className="h-16 w-16 object-cover rounded-md"
+                                        />
+                                    </td>
+                                    <td className="py-2 px-4 border-b">
+                                        <div className="font-medium text-gray-900 truncate max-w-[220px]" title={product.name}>{product.name}</div>
+                                        <div className="text-xs text-gray-500">{product.brand || ''}</div>
+                                    </td>
+                                    <td className="py-2 px-4 border-b text-right">{product.currency ? `${product.currency} ${product.price}` : `$${product.price}`}</td>
+                                    <td className="py-2 px-4 border-b text-right">{product.stock ?? product.countInStock ?? 0}</td>
+                                    <td className="py-2 px-4 border-b text-center">
+                                        <button
+                                            onClick={() => handleEdit(product)}
+                                            className="inline-flex items-center px-3 py-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium mr-2"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(product._id)}
+                                            className="inline-flex items-center px-3 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -168,7 +196,7 @@ const ProductsPanel = () => {
                         <h2 className="text-xl font-bold mb-4">{currentProduct._id ? t('admin.productsPanel.editProduct') : t('admin.productsPanel.addProduct')}</h2>
                         <form onSubmit={handleSave}>
                             <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.name')}</label>
+                                <label className="block text-gray-700">Name</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -179,7 +207,7 @@ const ProductsPanel = () => {
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.description')}</label>
+                                <label className="block text-gray-700">Description</label>
                                 <textarea
                                     name="description"
                                     value={currentProduct.description}
@@ -188,7 +216,7 @@ const ProductsPanel = () => {
                                 ></textarea>
                             </div>
                             <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.richDescription')}</label>
+                                <label className="block text-gray-700">Detailed description</label>
                                 <textarea
                                     name="richDescription"
                                     value={currentProduct.richDescription}
@@ -197,18 +225,18 @@ const ProductsPanel = () => {
                                 ></textarea>
                             </div>
                             <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.productImage')}</label>
+                                <label className="block text-gray-700">Product image URL</label>
                                 <input
                                     type="text"
                                     name="image"
                                     value={currentProduct.image}
                                     onChange={handleInputChange}
-                                    placeholder={t('admin.productsPanel.imageUrlPlaceholder')}
+                                    placeholder="https://..."
                                     className="w-full px-3 py-2 border rounded"
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.brand')}</label>
+                                <label className="block text-gray-700">Brand</label>
                                 <input
                                     type="text"
                                     name="brand"
@@ -219,7 +247,7 @@ const ProductsPanel = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="block text-gray-700">{t('admin.productsPanel.price')}</label>
+                                    <label className="block text-gray-700">Price</label>
                                     <input
                                         type="number"
                                         name="price"
@@ -230,7 +258,7 @@ const ProductsPanel = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-700">{t('admin.productsPanel.countInStock')}</label>
+                                    <label className="block text-gray-700">Stock</label>
                                     <input
                                         type="number"
                                         name="countInStock"
@@ -241,27 +269,12 @@ const ProductsPanel = () => {
                                     />
                                 </div>
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">{t('admin.productsPanel.category')}</label>
-                                <select
-                                    name="category"
-                                    value={currentProduct.category}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border rounded"
-                                    required
-                                >
-                                    <option value="">{t('admin.productsPanel.selectCategory')}</option>
-                                    {categories.map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            </div>
                             <div className="flex justify-end">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">
-                                    {t('cancel')}
+                                    Cancel
                                 </button>
-                                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                    {t('save')}
+                                <button type="submit" disabled={saving} className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                                    {saving ? 'Saving...' : 'Save'}
                                 </button>
                             </div>
                         </form>
