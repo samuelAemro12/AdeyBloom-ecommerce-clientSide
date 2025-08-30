@@ -126,28 +126,35 @@ const ProductsPanel = () => {
                     <table className="min-w-full bg-white">
                         <thead>
                             <tr>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.image')}</th>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.productName')}</th>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.category')}</th>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.price')}</th>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.stock')}</th>
-                                <th className="py-2 px-4 border-b">{t('admin.productsPanel.actions')}</th>
+                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.image')}</th>
+                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.productName')}</th>
+                                <th className="py-2 px-4 border-b text-left">{t('admin.productsPanel.category')}</th>
+                                <th className="py-2 px-4 border-b text-right">{t('admin.productsPanel.price')}</th>
+                                <th className="py-2 px-4 border-b text-right">{t('admin.productsPanel.stock')}</th>
+                                <th className="py-2 px-4 border-b text-center">{t('admin.productsPanel.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {products.map((product) => (
                                 <tr key={product._id}>
                                     <td className="py-2 px-4 border-b">
-                                        <img src={product.image} alt={product.name} className="h-16 w-16 object-cover" />
-                                    </td>
-                                    <td className="py-2 px-4 border-b">{product.name}</td>
-                                    <td className="py-2 px-4 border-b">{product.category?.name}</td>
-                                    <td className="py-2 px-4 border-b">${product.price}</td>
-                                    <td className="py-2 px-4 border-b">{product.countInStock}</td>
-                                    <td className="py-2 px-4 border-b">
-                                        <button onClick={() => handleEdit(product)} className="text-blue-500 hover:underline mr-2">{t('admin.productsPanel.edit')}</button>
-                                        <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:underline">{t('admin.productsPanel.delete')}</button>
-                                    </td>
+                                            <img
+                                                src={product.images && product.images[0] ? product.images[0] : product.image || '/placeholder-image.jpg'}
+                                                alt={product.name}
+                                                className="h-16 w-16 object-cover rounded-md"
+                                            />
+                                        </td>
+                                        <td className="py-2 px-4 border-b">
+                                          <div className="font-medium text-gray-900 truncate max-w-[220px]" title={product.name}>{product.name}</div>
+                                          <div className="text-xs text-gray-500">{product.brand || ''}</div>
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{product.category?.name || product.category}</td>
+                                        <td className="py-2 px-4 border-b text-right">{product.currency ? `${product.currency} ${product.price}` : `$${product.price}`}</td>
+                                        <td className="py-2 px-4 border-b text-right">{product.stock ?? product.countInStock ?? 0}</td>
+                                        <td className="py-2 px-4 border-b text-center">
+                                            <button onClick={() => handleEdit(product)} className="text-blue-500 hover:underline mr-2">{t('admin.productsPanel.edit')}</button>
+                                            <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:underline">{t('admin.productsPanel.delete')}</button>
+                                        </td>
                                 </tr>
                             ))}
                         </tbody>
