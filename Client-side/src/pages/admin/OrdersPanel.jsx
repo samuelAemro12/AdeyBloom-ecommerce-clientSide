@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiEye, FiTruck, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import adminService from '../../services/admin.service';
+import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
 import { useTranslation } from '../../context/TranslationContext';
@@ -13,11 +14,33 @@ const OrdersPanel = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
 
+  const navigate = useNavigate();
+
+  const refreshOrders = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const d = await adminService.getOrders();
+      const ordersPayload = Array.isArray(d) ? d : (d.orders || (d.data && d.data.orders) || []);
+      setOrders(ordersPayload);
+    } catch (err) {
+      console.error('refreshOrders error:', err);
+      setError('Failed to refresh orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const data = await adminService.getOrders();
-        setOrders(data.orders || data);
+        // support multiple response shapes: array, { orders: [...] }, { success:true, orders: [...] }
+        const ordersPayload = Array.isArray(data)
+          ? data
+          : (data.orders || (data.data && data.data.orders) || []);
+        console.debug('Loaded orders count:', ordersPayload.length, data);
+        setOrders(ordersPayload);
         setError(null);
       } catch (err) {
         console.error('fetchOrders error:', err?.message || err);
@@ -72,8 +95,17 @@ const OrdersPanel = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">{t('ordersManagement')}</h2>
+        <div>
+          <h2 className="text-2xl font-bold">{t('ordersManagement')}</h2>
+          <div className="text-sm text-gray-500">{orders.length} orders</div>
+        </div>
         <div className="flex space-x-4">
+          <button
+            onClick={() => refreshOrders()}
+            className="px-3 py-2 border rounded-md bg-white"
+          >
+            Refresh
+          </button>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
@@ -121,48 +153,72 @@ const OrdersPanel = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredOrders.map((order) => (
-              <tr key={order._id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #{order._id.slice(-6)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {order.user?.email || order.customer?.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${order.totalAmount?.toFixed ? order.totalAmount.toFixed(2) : order.totalAmount}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                    {t(order.status)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => window.location.href = `/admin/orders/${order._id}`}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      <FiEye className="w-5 h-5" />
-                    </button>
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                      className="text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="pending">{t('pending')}</option>
-                      <option value="processing">{t('processing')}</option>
-                      <option value="shipped">{t('shipped')}</option>
-                      <option value="delivered">{t('delivered')}</option>
-                      <option value="cancelled">{t('cancelled')}</option>
-                    </select>
+            {filteredOrders.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-6 text-center text-sm text-gray-500">
+                  <div className="space-y-3">
+                    <div>No orders found.</div>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => navigate('/checkout')}
+                        className="px-4 py-2 bg-primary text-white rounded-md"
+                      >
+                        Create Order
+                      </button>
+                      <button
+                        onClick={() => refreshOrders()}
+                        className="px-4 py-2 border rounded-md"
+                      >
+                        Refresh
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredOrders.map((order) => (
+                <tr key={order._id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    #{order._id.slice(-6)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {order.user?.email || order.customer?.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${order.totalAmount?.toFixed ? order.totalAmount.toFixed(2) : order.totalAmount}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                      {t(order.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => window.location.href = `/admin/orders/${order._id}`}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        <FiEye className="w-5 h-5" />
+                      </button>
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                        className="text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="pending">{t('pending')}</option>
+                        <option value="processing">{t('processing')}</option>
+                        <option value="shipped">{t('shipped')}</option>
+                        <option value="delivered">{t('delivered')}</option>
+                        <option value="cancelled">{t('cancelled')}</option>
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

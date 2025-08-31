@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+// framer-motion removed to avoid runtime dependency in admin settings
 import { useTranslation } from '../../context/TranslationContext';
 import { FiSave, FiSettings, FiUser, FiMail, FiLock, FiGlobe } from 'react-icons/fi';
+import adminService from '../../services/admin.service';
+import Toast from '../../components/Toast';
 
 const Settings = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [settings, setSettings] = useState({
     siteName: '',
     siteDescription: '',
     adminEmail: '',
-    currency: 'USD',
+    currency: 'ETB',
     language: 'en',
     timezone: 'UTC',
     emailNotifications: true,
@@ -19,16 +22,18 @@ const Settings = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
 
   useEffect(() => {
     let mounted = true;
     const loadSettings = async () => {
       try {
-        const resp = await (await import('../../services/admin.service')).default.getSettings();
+        const resp = await adminService.getSettings();
         const payload = resp.settings || resp;
         if (mounted) setSettings(prev => ({ ...prev, ...payload }));
       } catch (err) {
         console.error('Failed to load settings', err);
+        setToast({ show: true, message: 'Failed to load settings', type: 'error' });
       }
     };
     loadSettings();
@@ -42,39 +47,37 @@ const Settings = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    (async () => {
-      try {
-        const adminService = (await import('../../services/admin.service')).default;
-        await adminService.updateSettings(settings);
-        // Optionally show toast
-      } catch (err) {
-        console.error('Failed to save settings', err);
-      } finally {
-        setIsSaving(false);
-      }
-    })();
+    try {
+      await adminService.updateSettings(settings);
+      setToast({ show: true, message: 'Settings saved', type: 'success' });
+    } catch (err) {
+      console.error('Failed to save settings', err);
+      setToast({ show: true, message: 'Failed to save settings', type: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const tabs = [
-    { id: 'general', name: t('general') || 'General', icon: FiSettings },
-    { id: 'admin', name: t('adminSettings') || 'Admin', icon: FiUser },
-    { id: 'notifications', name: t('notifications') || 'Notifications', icon: FiMail },
-    { id: 'system', name: t('system') || 'System', icon: FiGlobe }
+    { id: 'general', name: 'General', icon: FiSettings },
+    { id: 'admin', name: 'Admin Settings', icon: FiUser },
+    { id: 'notifications', name: 'Notifications', icon: FiMail },
+    { id: 'system', name: 'System', icon: FiGlobe }
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{t('settings') || 'Settings'}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         <button
           onClick={handleSave}
           disabled={isSaving}
           className="bg-[#C585D7] disabled:opacity-60 text-white px-6 py-2 rounded-lg hover:bg-[#B574C6] transition-colors flex items-center gap-2"
         >
           <FiSave className="w-4 h-4" />
-          {isSaving ? (t('saving') || 'Saving...') : (t('save') || 'Save Changes')}
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
@@ -102,15 +105,11 @@ const Settings = () => {
         {/* Tab Content */}
         <div className="p-6">
           {activeTab === 'general' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('siteName') || 'Site Name'}
+                    Site Name
                   </label>
                   <input
                     type="text"
@@ -121,7 +120,7 @@ const Settings = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('currency') || 'Currency'}
+                    Currency
                   </label>
                   <select
                     value={settings.currency}
@@ -129,15 +128,13 @@ const Settings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C585D7]"
                   >
                     <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
                     <option value="ETB">ETB</option>
                   </select>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('siteDescription') || 'Site Description'}
+                  Site Description
                 </label>
                 <textarea
                   value={settings.siteDescription}
@@ -146,18 +143,14 @@ const Settings = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C585D7]"
                 />
               </div>
-            </motion.div>
+            </div>
           )}
 
           {activeTab === 'admin' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('adminEmail') || 'Admin Email'}
+                  Admin Email
                 </label>
                 <input
                   type="email"
@@ -166,23 +159,19 @@ const Settings = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C585D7]"
                 />
               </div>
-            </motion.div>
+            </div>
           )}
 
           {activeTab === 'notifications' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">
-                      {t('emailNotifications') || 'Email Notifications'}
+                      Email Notifications
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {t('emailNotificationsDesc') || 'Receive email notifications for important events'}
+                      Receive email notifications for important events
                     </p>
                   </div>
                   <input
@@ -195,10 +184,10 @@ const Settings = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">
-                      {t('orderNotifications') || 'Order Notifications'}
+                      Order Notifications
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {t('orderNotificationsDesc') || 'Get notified when new orders are placed'}
+                      Get notified when new orders are placed
                     </p>
                   </div>
                   <input
@@ -211,10 +200,10 @@ const Settings = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">
-                      {t('lowStockAlerts') || 'Low Stock Alerts'}
+                      Low Stock Alerts
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {t('lowStockAlertsDesc') || 'Get alerted when products are running low'}
+                      Get alerted when products are running low
                     </p>
                   </div>
                   <input
@@ -225,19 +214,15 @@ const Settings = () => {
                   />
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {activeTab === 'system' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('language') || 'Language'}
+                    Language
                   </label>
                   <select
                     value={settings.language}
@@ -250,7 +235,7 @@ const Settings = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('timezone') || 'Timezone'}
+                    Timezone
                   </label>
                   <select
                     value={settings.timezone}
@@ -267,10 +252,10 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">
-                    {t('maintenanceMode') || 'Maintenance Mode'}
+                    Maintenance Mode
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {t('maintenanceModeDesc') || 'Put the site in maintenance mode'}
+                    Put the site in maintenance mode
                   </p>
                 </div>
                 <input
@@ -280,10 +265,12 @@ const Settings = () => {
                   className="h-4 w-4 text-[#C585D7] focus:ring-[#C585D7] border-gray-300 rounded"
                 />
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
+
+      <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiUserPlus, FiLock, FiUnlock } from 'react-icons/fi';
 import { useTranslation } from '../../context/TranslationContext';
 import adminService from '../../services/admin.service';
+import authService from '../../services/auth.service';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Toast from '../../components/Toast';
 
@@ -12,24 +13,28 @@ const UsersPanel = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('all');
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newUser, setNewUser] = useState({ name: '', email: '', password: '' });
+    const [savingUser, setSavingUser] = useState(false);
     const { getUsers, deleteUser, updateUserRole } = adminService;
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            setLoading(true);
-            try {
-                const data = await getUsers();
-                setUsers(data.users || data);
-            } catch (error) {
-                console.error('fetchUsers error:', error);
-                setToast({ show: true, message: t('admin.usersPanel.fetchError'), type: 'error' });
-            } finally {
-                setLoading(false);
-            }
-        };
+    const loadUsers = async () => {
+        setLoading(true);
+        try {
+            const data = await getUsers();
+            setUsers(data.users || data);
+        } catch (error) {
+            console.error('loadUsers error:', error);
+            setToast({ show: true, message: t('admin.usersPanel.fetchError'), type: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchUsers();
-    }, [getUsers, t]);
+    useEffect(() => {
+        loadUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleDeleteUser = async (userId) => {
         if (!window.confirm(t('admin.usersPanel.deleteConfirm'))) {
@@ -87,52 +92,119 @@ const UsersPanel = () => {
         <div className="p-6">
             <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-semibold">{t('admin.usersPanel.title')}</h1>
+                <h1 className="text-2xl font-semibold">Users</h1>
                 <div className="flex gap-4">
                     <select
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
                         className="border rounded-lg px-4 py-2"
                     >
-                        <option value="all">{t('admin.usersPanel.allRoles')}</option>
-                        <option value="user">{t('admin.usersPanel.user')}</option>
-                        <option value="admin">{t('admin.usersPanel.admin')}</option>
+                        <option value="all">All roles</option>
+                        <option value="customer">Customer</option>
+                        <option value="admin">Admin</option>
                     </select>
                     <input
                         type="text"
-                        placeholder={t('admin.usersPanel.searchPlaceholder')}
+                        placeholder="Search by name or email"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="border rounded-lg px-4 py-2 w-64"
                     />
                     <button
-                        onClick={() => { /* Implement add user modal */ }}
+                        onClick={() => setIsModalOpen(true)}
                         className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     >
                         <FiUserPlus className="w-5 h-5" />
-                        {t('admin.usersPanel.addUser')}
+                        Add User
                     </button>
                 </div>
             </div>
+
+            {/* Add User Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h2 className="text-lg font-semibold mb-4">Add New User</h2>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    value={newUser.name}
+                                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                    className="w-full border rounded px-3 py-2"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={newUser.email}
+                                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                    className="w-full border rounded px-3 py-2"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Password</label>
+                                <input
+                                    type="password"
+                                    value={newUser.password}
+                                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                    className="w-full border rounded px-3 py-2"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-4 flex justify-end gap-3">
+                            <button
+                                onClick={() => { setIsModalOpen(false); setNewUser({ name: '', email: '', password: '' }); }}
+                                className="px-4 py-2 rounded border"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setSavingUser(true);
+                                    try {
+                                        await authService.register(newUser);
+                                        setToast({ show: true, message: 'User created', type: 'success' });
+                                        setIsModalOpen(false);
+                                        setNewUser({ name: '', email: '', password: '' });
+                                        await loadUsers();
+                                    } catch (error) {
+                                        console.error('create user error:', error);
+                                        setToast({ show: true, message: 'Failed to create user', type: 'error' });
+                                    } finally {
+                                        setSavingUser(false);
+                                    }
+                                }}
+                                disabled={savingUser}
+                                className="bg-primary text-white px-4 py-2 rounded"
+                            >
+                                {savingUser ? 'Creating...' : 'Create'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {t('admin.usersPanel.user')}
+                                User
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {t('admin.usersPanel.role')}
+                                Role
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {t('admin.usersPanel.status')}
+                                Status
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {t('admin.usersPanel.joined')}
+                                Joined
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {t('admin.usersPanel.actions')}
+                                Actions
                             </th>
                         </tr>
                     </thead>
@@ -142,11 +214,12 @@ const UsersPanel = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <div className="flex-shrink-0 h-10 w-10">
-                                            <img
-                                                className="h-10 w-10 rounded-full"
-                                                src={user.avatar || 'https://via.placeholder.com/40'}
-                                                alt=""
-                                            />
+                                            <div
+                                                className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700"
+                                                aria-hidden="true"
+                                            >
+                                                {(user && user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : '?'}
+                                            </div>
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">
@@ -164,14 +237,14 @@ const UsersPanel = () => {
                                         onChange={(e) => handleUpdateUserRole(user._id, e.target.value)}
                                         className="border rounded px-2 py-1 text-sm"
                                     >
-                                        <option value="user">{t('admin.usersPanel.user')}</option>
-                                        <option value="admin">{t('admin.usersPanel.admin')}</option>
+                                        <option value="customer">Customer</option>
+                                        <option value="admin">Admin</option>
                                     </select>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                         }`}>
-                                        {user.isActive ? t('admin.usersPanel.active') : t('admin.usersPanel.inactive')}
+                                        {user.isActive ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -182,14 +255,14 @@ const UsersPanel = () => {
                                         <button
                                             onClick={() => { /* Implement edit user modal */ }}
                                             className="text-indigo-600 hover:text-indigo-900"
-                                            title={t('admin.usersPanel.editUser')}
+                                            title={'Edit user'}
                                         >
                                             <FiEdit2 className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={() => handleToggleUserStatus(user._id, user.isActive)}
                                             className={user.isActive ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"}
-                                            title={user.isActive ? t('admin.usersPanel.deactivateUser') : t('admin.usersPanel.activateUser')}
+                                            title={user.isActive ? 'Deactivate user' : 'Activate user'}
                                         >
                                             {user.isActive ? (
                                                 <FiLock className="w-5 h-5" />
@@ -200,7 +273,7 @@ const UsersPanel = () => {
                                         <button
                                             onClick={() => handleDeleteUser(user._id)}
                                             className="text-red-600 hover:text-red-900"
-                                            title={t('admin.usersPanel.deleteUser')}
+                                            title={'Delete user'}
                                         >
                                             <FiTrash2 className="w-5 h-5" />
                                         </button>
@@ -215,4 +288,5 @@ const UsersPanel = () => {
     );
 };
 
-export default UsersPanel; 
+// Note: keep internal toast/error translation keys as-is; UI labels above are user-facing.
+export default UsersPanel;
