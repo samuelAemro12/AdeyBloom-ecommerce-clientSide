@@ -11,6 +11,16 @@ export const reviewService = {
         }
     },
 
+    // Get recent site-wide reviews
+    getRecentReviews: async (limit = 3) => {
+        try {
+            const response = await api.get(`/reviews/recent?limit=${limit}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     // Add review
     addReview: async (productId, reviewData) => {
         try {
