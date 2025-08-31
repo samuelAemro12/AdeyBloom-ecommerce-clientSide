@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useTranslation } from '../context/TranslationContext';
 import { productService } from '../services/productService';
 import WishlistButton from '../components/WishlistButton';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { demoProduct } from '../../demo.js';
 
 const ProductDetails = () => {

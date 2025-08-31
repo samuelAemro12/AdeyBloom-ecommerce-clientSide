@@ -6,7 +6,7 @@ import {
     moveToCart as moveToCartAPI,
     updateNotificationPreferences as updateNotificationPreferencesAPI
 } from '../services/wishlistService';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 const WishlistContext = createContext();
 

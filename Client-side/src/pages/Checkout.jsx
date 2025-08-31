@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { orderService } from '../services/orderService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';

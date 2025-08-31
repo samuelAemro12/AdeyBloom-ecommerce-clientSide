@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { useTranslation } from '../context/TranslationContext';
 
 const WishlistButton = ({ productId, className = '' }) => {

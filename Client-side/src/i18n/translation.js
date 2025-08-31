@@ -81,6 +81,7 @@ export const translations = {
     dashboardOverview: 'Dashboard Overview',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
+  itemsSold: 'Items Sold',
     totalUsers: 'Total Users',
     totalProducts: 'Total Products',
     recentActivity: 'Recent Activity',

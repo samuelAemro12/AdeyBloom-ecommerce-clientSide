@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartService } from '../services/cartService';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 const CartContext = createContext();
 

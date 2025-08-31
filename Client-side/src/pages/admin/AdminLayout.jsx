@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiSettings, FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { useToast } from '../../context/ToastContext';
 import { useTranslation } from '../../context/TranslationContext';
 

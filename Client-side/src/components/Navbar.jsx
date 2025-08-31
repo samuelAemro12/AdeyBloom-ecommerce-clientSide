@@ -4,7 +4,7 @@ import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus, FiS
 import { IoLanguageOutline } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { useWishlist } from '../context/WishlistContext';
 import SearchBar from './SearchBar';
 import { useTranslation } from '../context/TranslationContext';

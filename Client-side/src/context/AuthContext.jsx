@@ -1,16 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/auth.service';
 
 const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -41,9 +33,17 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       if (response.success) {
-  setUser(response.user);
-  // Return user to allow caller to perform navigation (avoids race conditions)
-  return { success: true, user: response.user };
+        setUser(response.user);
+        // Ensure auth state is synchronized with the server (cookie -> /me)
+        // This avoids a race where protected routes render before the provider
+        // has the latest user data.
+        try {
+          await checkUser();
+        } catch (e) {
+          console.debug('Post-register checkUser failed', e);
+        }
+        // Return user to allow caller to perform navigation (avoids race conditions)
+        return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
       }
@@ -56,9 +56,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       if (response.success) {
-  setUser(response.user);
-  // Return user to allow caller to perform navigation (avoids race conditions)
-  return { success: true, user: response.user };
+        setUser(response.user);
+        // Sync provider state with server to ensure protected routes see the
+        // authenticated user immediately after login.
+        try {
+          await checkUser();
+        } catch (e) {
+          console.debug('Post-login checkUser failed', e);
+        }
+        // Return user to allow caller to perform navigation (avoids race conditions)
+        return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
       }
@@ -105,4 +112,8 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export default AuthContext; 
+// Export the context so a separate hook file can import it without exporting
+// non-component helpers from this module (avoids Fast Refresh warnings).
+export { AuthContext };
+
+export default AuthProvider;

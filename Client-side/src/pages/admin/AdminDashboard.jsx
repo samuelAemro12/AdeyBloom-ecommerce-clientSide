@@ -56,6 +56,7 @@ const AdminDashboard = () => {
   const normalized = {
     totalOrders: rawStats.totalOrders || 0,
     totalRevenue: rawStats.totalRevenue || 0,
+  itemsSold: rawStats.itemsSold || 0,
     totalUsers: rawStats.totalUsers || 0,
     totalProducts: rawStats.totalProducts || (products || []).length || 0,
     salesData: rawStats.salesData || [],
@@ -84,7 +85,7 @@ const AdminDashboard = () => {
       <h1 className="text-2xl font-bold text-gray-800">{t('dashboardOverview')}</h1>
 
       {/* Stats Grid */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t('totalOrders')}
           value={stats?.totalOrders || 0}
@@ -96,6 +97,12 @@ const AdminDashboard = () => {
           value={`$${stats?.totalRevenue?.toFixed(2) || 0}`}
           icon={FiDollarSign}
           color="bg-green-500"
+        />
+        <StatCard
+          title={t('itemsSold')}
+          value={stats?.itemsSold || 0}
+          icon={FiPackage}
+          color="bg-indigo-500"
         />
         <StatCard
           title={t('totalUsers')}

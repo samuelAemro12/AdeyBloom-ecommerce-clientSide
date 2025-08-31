@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
-import { AuthProvider } from './context/AuthContext';
+import AuthProvider from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
 import HomePage from './pages/HomePage';
 import SignIn from './pages/SignIn';

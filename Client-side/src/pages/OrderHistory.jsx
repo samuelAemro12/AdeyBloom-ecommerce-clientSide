@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { motion } from 'framer-motion';
 import { FiPackage, FiShoppingBag, FiStar } from 'react-icons/fi';
 import { useTranslation } from '../context/TranslationContext';
