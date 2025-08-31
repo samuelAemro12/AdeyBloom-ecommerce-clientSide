@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-// removed framer-motion (not required for simple hover effect)
+import React, { useEffect, useState, useCallback } from 'react';
 import { FiStar } from 'react-icons/fi';
 import { useTranslation } from '../context/TranslationContext';
 import { reviewService } from '../services/reviewService';
@@ -30,73 +29,122 @@ const fallbackTestimonials = [
 ];
 
 const Testimonials = () => {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation(); // Renamed to avoid conflict
   const [testimonials, setTestimonials] = useState([]);
-
+  const [current, setCurrent] = useState(0);
+  const total = testimonials.length;
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       try {
-        const resp = await reviewService.getRecentReviews(3);
+        // Fetch all reviews from backend by passing no limit
+        const resp = await reviewService.getRecentReviews();
+        const reviewsArr = Array.isArray(resp?.reviews) ? resp.reviews : [];
+
         if (mounted) {
-          if (resp && resp.reviews && resp.reviews.length > 0) {
-            // Map to the expected shape
-            setTestimonials(resp.reviews.map(r => ({
-              id: r._id,
-              name: r.user?.name || 'User',
-              role: r.product?.name || '',
-              text: r.comment || '',
-              rating: r.rating || 5
+          if (reviewsArr.length > 0) {
+            setTestimonials(reviewsArr.map(r => ({
+              id: r._id || r.id,
+              name: r.user?.name || 'Anonymous',
+              role: r.product?.name || 'Verified Buyer',
+              text: r.comment || r.text || 'No comment provided.',
+              rating: 5 // Always 5 stars as requested
             })));
           } else {
-            // No reviews returned — use fallback static testimonials
             setTestimonials(fallbackTestimonials);
           }
         }
-      } catch (e) {
-        // fail silently for now; you may want a toast later
-        if (mounted) setTestimonials(fallbackTestimonials);
-        console.debug('Failed to load testimonials', e);
+      } catch (err) {
+        if (mounted) {
+          setTestimonials(fallbackTestimonials);
+        }
+        console.error('Failed to load testimonials:', err);
       }
     };
-
     load();
-
     return () => { mounted = false; };
   }, []);
+
+  // Carousel navigation
+  const prev = useCallback(() => setCurrent((c) => (c - 1 + total) % total), [total]);
+  const next = useCallback(() => setCurrent((c) => (c + 1) % total), [total]);
+
+  // Auto-advance
+  useEffect(() => {
+    if (total < 2) return;
+    const timer = setInterval(next, 6000);
+    return () => clearInterval(timer);
+  }, [total, next]);
+
+  if (total === 0) {
+    return null; // Don't render anything if there are no testimonials to show
+  }
+
+  const activeTestimonial = testimonials[current];
 
   return (
     <section className="py-16 bg-[#FAF3EC]">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-[#2F2F2F] text-center mb-12">{t('testimonialsHeader')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="bg-white p-8 rounded-lg shadow-lg transform transition-transform duration-150 hover:scale-105"
-            >
-              <div className="flex items-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4 text-lg font-semibold text-gray-700">
-                  {testimonial.name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-[#2F2F2F]">{testimonial.name}</h3>
-                  <p className="text-[#6A6A6A]">{testimonial.role}</p>
-                </div>
+        <h2 className="text-4xl font-bold text-[#2F2F2F] text-center mb-6">{translate('testimonialsHeader')}</h2>
+        <div className="text-center mb-4 text-sm text-gray-600">Showing {total} testimonials</div>
+        <div className="relative w-full max-w-4xl mx-auto">
+          <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center min-h-[300px] transition-opacity duration-500 ease-in-out">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4 text-lg font-semibold text-gray-700">
+                {activeTestimonial.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
-              <div className="flex mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <FiStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                ))}
+              <div>
+                <h3 className="text-xl font-semibold text-[#2F2F2F]">{activeTestimonial.name}</h3>
+                <p className="text-[#6A6A6A]">{activeTestimonial.role}</p>
               </div>
-              <p className="text-[#6A6A6A] italic">"{testimonial.text}"</p>
             </div>
-          ))}
+            <div className="flex mb-4">
+              {[...Array(5)].map((_, i) => (
+                <FiStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+              ))}
+            </div>
+            <p className="text-[#6A6A6A] italic text-center">"{activeTestimonial.text}"</p>
+          </div>
+
+          {/* Controls */}
+          {total > 1 && (
+            <>
+              <button
+                aria-label="Previous testimonial"
+                onClick={prev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-white border border-gray-300 rounded-full w-10 h-10 flex items-center justify-center shadow hover:bg-gray-100 transition"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button
+                aria-label="Next testimonial"
+                onClick={next}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-white border border-gray-300 rounded-full w-10 h-10 flex items-center justify-center shadow hover:bg-gray-100 transition"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </>
+          )}
+
+          {/* Dots */}
+          {total > 1 && (
+            <div className="flex justify-center mt-6 space-x-2">
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrent(idx)}
+                  className={`w-3 h-3 rounded-full ${idx === current ? 'bg-yellow-400' : 'bg-gray-300'} focus:outline-none transition-colors`}
+                  aria-label={`Go to testimonial ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
   );
 };
 
-export default Testimonials; 
+export default Testimonials;
+ 

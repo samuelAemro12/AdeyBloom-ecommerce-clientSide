@@ -11,10 +11,11 @@ export const reviewService = {
         }
     },
 
-    // Get recent site-wide reviews
-    getRecentReviews: async (limit = 3) => {
+    // Get recent site-wide reviews. If `limit` is omitted or null, fetch all reviews.
+    getRecentReviews: async (limit) => {
         try {
-            const response = await api.get(`/reviews/recent?limit=${limit}`);
+            const url = typeof limit === 'number' ? `/reviews/recent?limit=${limit}` : `/reviews/recent`;
+            const response = await api.get(url);
             return response.data;
         } catch (error) {
             throw error;
