@@ -32,26 +32,45 @@ A modern, responsive React-based frontend for a beauty products e-commerce platf
 
 ## 🛠️ Tech Stack
 
-### Frontend Framework
+- **Dynamic Testimonials** - Live customer reviews carousel (falls back to curated static samples if API empty)
 - **React 19** - Latest React with modern hooks and features
 - **Vite** - Fast build tool and development server
-- **React Router DOM** - Client-side routing and navigation
-
-### Styling & UI
+- **Remote-First Fallback** - Automatic switch from production API to local dev API on network / 5xx failure (with manual override helpers)
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **Framer Motion** - Smooth animations and transitions
 - **React Icons** - Comprehensive icon library
-- **Lucide React** - Beautiful, customizable icons
-- **Headless UI** - Unstyled, accessible UI components
+   Create a `.env` file in `Client-side/` (root of the frontend project). The API base value SHOULD NOT include `/api` if you want the automatic normalizer to append it once. (If you include it, the normalizer prevents duplication.)
+   ```env
+   # Primary remote (e.g. Render deployment root WITHOUT trailing /api preferred)
+   VITE_API_BASE_URL=https://adeybloom-ecommerce-backend-1.onrender.com
 
-### State Management & HTTP
+   # Local fallback (used automatically if remote unreachable / 5xx)
+   VITE_API_BASE_URL_LOCAL=http://localhost:5000
+
+   # Payment / Other keys
+   VITE_CHAPA_PUBLIC_KEY=your_chapa_public_key
+   ```
+   When the app boots it logs: `[API] Initial base URL set to: <resolved>/api`.
 - **Context API** - Global state management for auth, cart, wishlist
 - **Axios** - HTTP client for API communication
-- **Custom Hooks** - Reusable logic for data fetching and state
+### Axios Remote-First Strategy
+The shared `src/config/axios.js` client:
+1. Normalizes base so it ends with `/api` exactly once.
+2. Starts with `VITE_API_BASE_URL` (remote) when defined.
+3. On network failure or server 5xx (first request only), it falls back to `VITE_API_BASE_URL_LOCAL`.
+4. Provides helpers:
+   - `forceLocalApi()` – manually switch to local.
+   - `resetToRemoteApi()` – switch back to remote.
+   - `getCurrentApiBase()` – inspect current active base.
+5. Optional redirect on 401 (enabled by default). Can be toggled via `setRedirectOn401(false)` (if added) to avoid loops during custom flows.
 
-### Development Tools
-- **ESLint** - Code linting and quality assurance
-- **PostCSS** - CSS processing and optimization
+### Authentication
+- HTTP-only cookie based (no manual token injection required in requests)
+- `AuthContext` calls `/auth/me` on mount to hydrate user state
+
+### Error Handling
+- 404 on remote before fallback triggers a console hint to check that the environment base is missing `/api`.
+- Product fetch gracefully substitutes demo products if initial load fails, keeping the homepage populated.
 - **TypeScript Support** - Type definitions for better development
 
 ## 📁 Project Structure
@@ -66,6 +85,27 @@ Client-side/
 │   │   ├── ProductCard.jsx  # Product display card
 │   │   ├── SearchBar.jsx    # Product search functionality
 │   │   └── LoadingSpinner.jsx
+
+**Local Override Flow**
+In dev tools console you can run:
+```js
+import { forceLocalApi, resetToRemoteApi, getCurrentApiBase } from '/src/config/axios.js';
+forceLocalApi();
+getCurrentApiBase(); // -> http://localhost:5000/api
+resetToRemoteApi();
+```
+
+**Troubleshooting 404 /products**
+If you see `Cannot GET /products` from the remote host:
+1. Ensure backend actually mounts routes at `/api/products`.
+2. Ensure `VITE_API_BASE_URL` does NOT already include `/api` twice.
+3. Confirm console log normalized: `.../api`.
+
+**Dynamic Testimonials**
+`Testimonials.jsx` fetches `/reviews/recent`. If empty or error, fallback static testimonials render (ensures consistent UX during early staging).
+
+**Ratings & Discounts**
+`product.controller.js` enriches products with rating, reviewCount, discount, and computed final price; product cards reflect these.
 │   ├── pages/               # Page components
 │   │   ├── HomePage.jsx     # Landing page with hero section
 │   │   ├── ProductDetails.jsx # Individual product view
