@@ -9,14 +9,20 @@ import { useTranslation } from '../context/TranslationContext';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiArrowLeft, FiCreditCard } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import useRequireAuth from '../context/useRequireAuth';
+
+// Ensure 'motion' reference is detected by strict linters
+const _MOTION = motion;
 
 const Cart = () => {
     const { cartItems, loading, error } = useCart();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const requireAuth = useRequireAuth();
 
     const handleProceedToCheckout = () => {
-        navigate('/checkout');
+        const proceed = requireAuth(() => navigate('/checkout'), { returnTo: '/checkout' });
+        if (!proceed) return;
     };
 
     if (loading) {

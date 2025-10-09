@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import Toast from '../components/Toast';
@@ -8,6 +8,7 @@ import Toast from '../components/Toast';
 const SignIn = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
@@ -32,31 +33,30 @@ const SignIn = () => {
     setError('');
 
     try {
-      // Pass the complete formData including role
       const result = await login(formData);
       if (!result.success) {
         setError(result.message || t('errorFailedToSignIn'));
       } else {
-        // If login returned user, navigate based on role
         const loggedInUser = result.user;
-        // Set a short-lived session flag so protected routes can accept the new admin
-        // while auth state synchronizes (avoids a race that causes an immediate redirect back)
-        if (loggedInUser && loggedInUser.role) {
-          try {
-            sessionStorage.setItem('TEMP_AUTH_ROLE', loggedInUser.role);
-          } catch (e) {
-            console.debug('Could not set session flag for auth fallback', e);
-          }
+        // Choose redirect target
+        const storedReturn = (() => { try { return sessionStorage.getItem('RETURN_TO'); } catch { return null; } })();
+        let redirectTo = '/';
+        if (loggedInUser?.role === 'admin') {
+          redirectTo = '/admin/dashboard';
+        } else {
+          redirectTo = location.state?.from || storedReturn || '/';
         }
 
-        if (loggedInUser && loggedInUser.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/');
-        }
+        // Cleanup any stored intents / return paths
+        try {
+          sessionStorage.removeItem('RETURN_TO');
+          sessionStorage.removeItem('PENDING_INTENT');
+          sessionStorage.removeItem('TEMP_AUTH_ROLE');
+        } catch { /* noop */ }
+
+        navigate(redirectTo, { replace: true });
       }
-    } catch (err) {
-      console.debug('SignIn error:', err?.message || err);
+    } catch {
       setError(t('errorFailedToSignIn'));
     } finally {
       setIsLoading(false);
@@ -117,7 +117,6 @@ const SignIn = () => {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-            {/* Admins should use their account password to sign in. */}
           </div>
 
           {/* Role Selection */}
@@ -155,10 +154,9 @@ const SignIn = () => {
             </Link>
           </p>
         </div>
-        {/* Removed admin links */}
       </div>
     </div>
   );
 };
 
-export default SignIn; 
+export default SignIn;

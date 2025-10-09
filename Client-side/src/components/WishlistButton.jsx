@@ -1,36 +1,34 @@
 import { useState } from 'react';
 import { useWishlist } from '../context/WishlistContext';
-import { useAuth } from '../context/useAuth';
 import { useTranslation } from '../context/TranslationContext';
+import useRequireAuth from '../context/useRequireAuth';
 
 const WishlistButton = ({ productId, className = '' }) => {
     const { addToWishlist, removeFromWishlist, wishlistItems } = useWishlist();
-    const { user } = useAuth();
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
+    const requireAuth = useRequireAuth();
 
     const isInWishlist = wishlistItems.some(
         item => item.product._id === productId
     );
 
     const handleWishlistToggle = async () => {
-        if (!user) {
-            // Redirect to login or show login modal
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            if (isInWishlist) {
-                await removeFromWishlist(productId);
-            } else {
-                await addToWishlist(productId);
+        const proceed = requireAuth(async () => {
+            setIsLoading(true);
+            try {
+                if (isInWishlist) {
+                    await removeFromWishlist(productId);
+                } else {
+                    await addToWishlist(productId);
+                }
+            } catch (error) {
+                console.error(t('wishlistOperationFailed'), error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            console.error(t('wishlistOperationFailed'), error);
-        } finally {
-            setIsLoading(false);
-        }
+        }, { intent: { type: 'wishlist', productId } });
+        if (!proceed) return;
     };
 
     return (
@@ -71,6 +69,7 @@ const WishlistButton = ({ productId, className = '' }) => {
                         strokeLinecap="round" 
                         strokeLinejoin="round" 
                         strokeWidth="2" 
+                        strokeWidth="2" 
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                     />
                 </svg>
@@ -79,4 +78,4 @@ const WishlistButton = ({ productId, className = '' }) => {
     );
 };
 
-export default WishlistButton; 
+export default WishlistButton;

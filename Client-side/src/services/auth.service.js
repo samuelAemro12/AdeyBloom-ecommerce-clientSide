@@ -7,7 +7,11 @@ const authService = {
     register: async (userData) => {
         try {
             const response = await api.post('/auth/register', userData);
-            return response.data;
+            const data = response.data;
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+            return data;
         } catch (error) {
             throw error.response?.data || { message: 'An error occurred during registration' };
         }
@@ -17,7 +21,11 @@ const authService = {
     login: async (credentials) => {
         try {
             const response = await api.post('/auth/login', credentials);
-            return response.data;
+            const data = response.data;
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+            return data;
         } catch (error) {
             throw error.response?.data || { message: 'An error occurred during login' };
         }
@@ -27,6 +35,7 @@ const authService = {
     logout: async () => {
         try {
             const response = await api.post('/auth/logout');
+            localStorage.removeItem('token');
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: 'An error occurred during logout' };
@@ -44,4 +53,4 @@ const authService = {
     }
 };
 
-export default authService; 
+export default authService;

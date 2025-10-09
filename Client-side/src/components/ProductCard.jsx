@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/useAuth';
+import useRequireAuth from '../context/useRequireAuth';
 import { FiShoppingCart, FiPlus, FiMinus, FiStar, FiEye } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import WishlistButton from './WishlistButton';
 import { useTranslation } from '../context/TranslationContext';
 
+// Ensure 'motion' reference is detected by strict linters
+const _MOTION = motion;
+
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { addToCart, isInCart, getCartItemQuantity } = useCart();
   const { user } = useAuth();
+  const requireAuth = useRequireAuth();
   const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
@@ -43,29 +48,26 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
-    
-    // Check if user is authenticated
-    // if (!user) {
-    //   navigate('/signin', { state: { from: '/products' } });
-    //   return;
-    // }
-    
     if (stock === 0) return;
-    
-    setIsAdding(true);
-    try {
-      const result = await addToCart(product, quantity);
-      if (result.success) {
-        // Success feedback is handled by the context
-        setTimeout(() => setIsAdding(false), 1000);
-      } else {
+
+    const proceed = requireAuth(async () => {
+      setIsAdding(true);
+      try {
+        const result = await addToCart(product, quantity);
+        if (result.success) {
+          // Success feedback is handled by the context
+          setTimeout(() => setIsAdding(false), 1000);
+        } else {
+          // Error feedback is handled by the context
+          setIsAdding(false);
+        }
+      } catch {
         // Error feedback is handled by the context
         setIsAdding(false);
       }
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      setIsAdding(false);
-    }
+    }, { intent: { type: 'cart', productId: _id, quantity } });
+
+    if (!proceed) return; // not authenticated -> redirected to signin
   };
 
   const handleQuantityChange = (value, e) => {
@@ -99,7 +101,7 @@ const ProductCard = ({ product }) => {
         currency: currencyCode,
         minimumFractionDigits: 2
       }).format(price);
-    } catch (error) {
+    } catch {
       // Fallback formatting
       return `${config.symbol}${price.toFixed(2)}`;
     }
@@ -302,4 +304,4 @@ const ProductCard = ({ product }) => {
   );
 };
 
-export default ProductCard; 
+export default ProductCard;

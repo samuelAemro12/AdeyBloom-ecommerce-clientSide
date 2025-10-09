@@ -4,11 +4,16 @@ import { useCart } from '../context/CartContext';
 import { useTranslation } from '../context/TranslationContext';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiTruck, FiCreditCard } from 'react-icons/fi';
+import useRequireAuth from '../context/useRequireAuth';
+
+// Ensure 'motion' reference is detected by strict linters
+const _MOTION = motion;
 
 const CartSummary = () => {
     const { cartItems, getCartTotal } = useCart();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const requireAuth = useRequireAuth();
 
     // Currency formatting function
     const formatCurrency = (amount, currency = 'ETB') => {
@@ -26,7 +31,8 @@ const CartSummary = () => {
     const total = subtotal + shipping + tax;
 
     const handleCheckout = () => {
-        navigate('/checkout');
+        const proceed = requireAuth(() => navigate('/checkout'), { returnTo: '/checkout' });
+        if (!proceed) return;
     };
 
     if (cartItems.length === 0) {

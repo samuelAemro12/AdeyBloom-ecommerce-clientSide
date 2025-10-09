@@ -24,7 +24,7 @@ const LOCAL_BASE = ensureApiBase(RAW_LOCAL_BASE);
 const allowLocalFallback = import.meta.env.DEV === true;
 
 // Flag to optionally disable automatic redirect on 401 (helps avoid loops during provider mounting)
-let AUTO_REDIRECT_ON_401 = true;
+let AUTO_REDIRECT_ON_401 = false; // disabled so public pages load even if /me returns 401
 
 const initialBase = REMOTE_BASE || (allowLocalFallback ? LOCAL_BASE : undefined);
 if (!initialBase) {
@@ -44,12 +44,14 @@ let usingLocalFallback = false;
 // Request interceptor
 api.interceptors.request.use(
     (config) => {
-        // No need to manually add token since we're using HTTP-only cookies
+        // Attach token from localStorage if present
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 // Response interceptor
@@ -78,13 +80,11 @@ api.interceptors.response.use(
             }
         }
 
-        // Auth error handling (401) -> redirect
+        // Auth error handling (401) -> do not redirect globally
         if (status === 401) {
-            if (AUTO_REDIRECT_ON_401) {
-                // Avoid redirect loops when already on signin
-                if (!window.location.pathname.startsWith('/signin')) {
-                    window.location.href = '/signin';
-                }
+            // If we had a token, clear it so future requests don't keep failing
+            if (localStorage.getItem('token')) {
+                localStorage.removeItem('token');
             }
         }
 
@@ -100,14 +100,12 @@ api.interceptors.response.use(
     }
 );
 
-// Helper to manually force local (e.g., during dev troubleshooting)
 export const forceLocalApi = () => {
     usingLocalFallback = true;
     api.defaults.baseURL = LOCAL_BASE;
     console.info('[API] Forced local API base URL:', LOCAL_BASE);
 };
 
-// Helper to reset to remote (will not switch automatically back unless page reloads)
 export const resetToRemoteApi = () => {
     if (REMOTE_BASE) {
         usingLocalFallback = false;
