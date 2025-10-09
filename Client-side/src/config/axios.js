@@ -14,17 +14,19 @@ const ensureApiBase = (raw) => {
 };
 
 // Primary (remote / production) and fallback (local) API base URLs
-const RAW_REMOTE_BASE = import.meta.env.VITE_API_BASE_URL; // user may or may not include /api
-const RAW_LOCAL_BASE = import.meta.env.VITE_API_BASE_URL_LOCAL || 'http://localhost:5000/api';
+const RAW_REMOTE_BASE = import.meta.env.VITE_API_BASE_URL; // e.g. https://adeybloom-ecommerce-backend-1.onrender.com
+const RAW_LOCAL_BASE = import.meta.env.VITE_API_BASE_URL_LOCAL || 'http://localhost:5000';
 
 const REMOTE_BASE = ensureApiBase(RAW_REMOTE_BASE);
 const LOCAL_BASE = ensureApiBase(RAW_LOCAL_BASE);
 
+// In production, do not attempt to fallback to localhost
+const allowLocalFallback = import.meta.env.DEV === true;
+
 // Flag to optionally disable automatic redirect on 401 (helps avoid loops during provider mounting)
 let AUTO_REDIRECT_ON_401 = true;
 
-// Create axios instance pointing first to remote if defined, else local, always API scoped
-const initialBase = REMOTE_BASE || LOCAL_BASE;
+const initialBase = REMOTE_BASE || (allowLocalFallback ? LOCAL_BASE : undefined);
 if (!initialBase) {
     console.warn('[API] No base URL configured; requests will fail unless provided later. Configure VITE_API_BASE_URL or VITE_API_BASE_URL_LOCAL.');
 }
@@ -60,14 +62,8 @@ api.interceptors.response.use(
         const isNetworkIssue = !error.response && !!error.request; // no response received
         const status = error.response?.status;
         const isServerError = status >= 500;
-        const isNotFound = status === 404;
 
-        // If we get 404 from remote for top-level endpoints like /products it could indicate missing /api prefix.
-        if (REMOTE_BASE && !usingLocalFallback && isNotFound) {
-            console.warn('[API] 404 from remote. Verify VITE_API_BASE_URL includes backend root (without /api). We normalized to:', REMOTE_BASE);
-        }
-
-        const shouldAttemptFallback = REMOTE_BASE && !usingLocalFallback && (isNetworkIssue || isServerError);
+        const shouldAttemptFallback = allowLocalFallback && REMOTE_BASE && !usingLocalFallback && (isNetworkIssue || isServerError);
 
         if (shouldAttemptFallback) {
             console.warn('[API] Remote unreachable or failing. Falling back to local API:', LOCAL_BASE);
@@ -129,4 +125,4 @@ export const setRedirectOn401 = (value) => {
     console.info('[API] AUTO_REDIRECT_ON_401 set to', AUTO_REDIRECT_ON_401);
 };
 
-export default api; 
+export default api;
