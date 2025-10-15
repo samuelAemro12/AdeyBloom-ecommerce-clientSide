@@ -48,7 +48,13 @@ const ProductCard = ({ product }) => {
       setIsAdding(true);
       try {
         const result = await addToCart(product, quantity);
-        setTimeout(() => setIsAdding(false), 1000);
+        if (result && result.success) {
+          // Success feedback is handled by the context
+          setTimeout(() => setIsAdding(false), 1000);
+        } else {
+          // Error feedback is handled by the context
+          setIsAdding(false);
+        }
       } catch {
         setIsAdding(false);
       }
