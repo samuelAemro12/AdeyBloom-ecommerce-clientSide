@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import WishlistButton from './WishlistButton';
 import { useTranslation } from '../context/TranslationContext';
 
-// Ensure 'motion' reference is detected by strict linters
 const _MOTION = motion;
 
 const ProductCard = ({ product }) => {
@@ -21,11 +20,8 @@ const ProductCard = ({ product }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  if (!product) {
-    return null;
-  }
+  if (!product) return null;
 
-  // Use actual data from backend, with fallbacks for missing data
   const {
     _id,
     name,
@@ -40,7 +36,6 @@ const ProductCard = ({ product }) => {
     reviewCount = 0
   } = product;
 
-  // Handle missing essential data
   if (!name || !_id) {
     console.warn('Product missing essential data:', product);
     return null;
@@ -49,12 +44,11 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = async (e) => {
     e.stopPropagation();
     if (stock === 0) return;
-
     const proceed = requireAuth(async () => {
       setIsAdding(true);
       try {
         const result = await addToCart(product, quantity);
-        if (result.success) {
+        if (result && result.success) {
           // Success feedback is handled by the context
           setTimeout(() => setIsAdding(false), 1000);
         } else {
@@ -62,12 +56,10 @@ const ProductCard = ({ product }) => {
           setIsAdding(false);
         }
       } catch {
-        // Error feedback is handled by the context
         setIsAdding(false);
       }
     }, { intent: { type: 'cart', productId: _id, quantity } });
-
-    if (!proceed) return; // not authenticated -> redirected to signin
+    if (!proceed) return;
   };
 
   const handleQuantityChange = (value, e) => {
@@ -84,17 +76,13 @@ const ProductCard = ({ product }) => {
 
   const formatPrice = (price, currencyCode = 'ETB') => {
     if (!price || isNaN(price)) return `${currencyCode} 0.00`;
-    
-    // Define currency symbols and formatting options
     const currencyConfig = {
       'ETB': { symbol: 'ETB', locale: 'en-ET' },
       'USD': { symbol: '$', locale: 'en-US' },
       'EUR': { symbol: '€', locale: 'de-DE' },
       'GBP': { symbol: '£', locale: 'en-GB' }
     };
-    
     const config = currencyConfig[currencyCode] || currencyConfig['ETB'];
-    
     try {
       return new Intl.NumberFormat(config.locale, {
         style: 'currency',
@@ -102,16 +90,12 @@ const ProductCard = ({ product }) => {
         minimumFractionDigits: 2
       }).format(price);
     } catch {
-      // Fallback formatting
       return `${config.symbol}${price.toFixed(2)}`;
     }
   };
 
-  // Calculate display rating (ensure it's between 0 and 5)
   const displayRating = Math.max(0, Math.min(5, rating || 0));
   const displayReviewCount = Math.max(0, reviewCount || 0);
-
-  // Check if product is in cart (only if user is authenticated)
   const inCart = user ? isInCart(_id) : false;
   const cartQuantity = user ? getCartItemQuantity(_id) : 0;
 
@@ -133,10 +117,9 @@ const ProductCard = ({ product }) => {
         <motion.img
           src={images && images[0] ? images[0] : '/placeholder-image.jpg'}
           alt={name}
-          className="w-full h-64 object-cover transition-transform duration-500"
+          className="w-full h-60 object-cover transition-transform duration-500"
           animate={{ scale: isHovered ? 1.05 : 1 }}
         />
-        
         {/* Overlay on hover */}
         <motion.div
           className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
@@ -144,20 +127,18 @@ const ProductCard = ({ product }) => {
           animate={{ opacity: isHovered ? 1 : 0 }}
         >
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="bg-white/90 text-primary-text p-3 rounded-full shadow-lg"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            className="bg-white/90 text-primary-text p-2 rounded-full shadow-lg"
             onClick={handleCardClick}
           >
-            <FiEye className="w-5 h-5" />
+            <FiEye className="w-4 h-4" />
           </motion.button>
         </motion.div>
-
         {/* Wishlist Button */}
         <div className="absolute top-4 right-4">
           <WishlistButton productId={_id} />
         </div>
-
         {/* Cart Badge */}
         {user && inCart && (
           <motion.div 
@@ -169,11 +150,10 @@ const ProductCard = ({ product }) => {
             {cartQuantity} in cart
           </motion.div>
         )}
-
         {/* Discount Badge */}
         {discount && discount > 0 && (
           <motion.span 
-            className={`absolute ${user && inCart ? 'top-12' : 'top-4'} left-4 bg-primary-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg`}
+            className={`absolute ${user && inCart ? 'top-12' : 'top-4'} left-4 bg-primary-accent text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
@@ -181,107 +161,100 @@ const ProductCard = ({ product }) => {
             {Math.round(discount)}% {t('off')}
           </motion.span>
         )}
-
         {/* Stock Status */}
         {stock === 0 && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-coral-rose text-white px-4 py-2 rounded-full font-semibold">
+            <span className="bg-coral-rose text-white px-3 py-1 rounded-full font-semibold text-xs">
               {t('outOfStock')}
             </span>
           </div>
         )}
       </div>
-      
       {/* Content */}
-      <div className="p-6">
+      <div className="p-5">
         {/* Brand */}
         {brand && (
-          <p className="text-sm text-secondary-text mb-1 font-medium">{brand}</p>
+          <p className="text-xs text-secondary-text mb-1 font-medium">{brand}</p>
         )}
-        
         {/* Title */}
         <h3 
-          className="text-lg font-semibold text-primary-text mb-2 line-clamp-2 cursor-pointer hover:text-primary-accent transition-colors"
+          className="text-base font-semibold text-primary-text mb-2 line-clamp-2 cursor-pointer hover:text-primary-accent transition-colors"
           onClick={handleCardClick}
         >
           {name}
         </h3>
-
         {/* Rating */}
-        <div className="flex items-center mb-3">
+        <div className="flex items-center mb-2">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <FiStar 
                 key={i} 
-                className={`w-4 h-4 ${i < Math.floor(displayRating) ? 'text-yellow-400 fill-current' : 'text-cloud-gray'}`} 
+                className={`w-3.5 h-3.5 ${i < Math.floor(displayRating) ? 'text-yellow-400 fill-current' : 'text-cloud-gray'}`} 
               />
             ))}
           </div>
-          <span className="text-sm text-secondary-text ml-2">
+          <span className="text-xs text-secondary-text ml-2">
             ({displayReviewCount} {t('reviews')})
           </span>
         </div>
-
         {/* Price */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-primary-accent">
+            <span className="text-lg font-bold text-primary-accent">
               {formatPrice(price, currency)}
             </span>
             {originalPrice && originalPrice > price && (
-              <span className="text-secondary-text line-through text-sm">
+              <span className="text-secondary-text line-through text-xs">
                 {formatPrice(originalPrice, currency)}
               </span>
             )}
           </div>
-          
-          {/* Quantity Controls - Only show if user is authenticated */}
           {user && (
             <div className="flex items-center space-x-2">
               <motion.button
                 onClick={(e) => handleQuantityChange(-1, e)}
                 className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
                 disabled={quantity <= 1}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.09 }}
+                whileTap={{ scale: 0.93 }}
               >
                 <FiMinus className="w-4 h-4 text-secondary-text" />
               </motion.button>
-              <span className="px-3 py-1 border-2 border-primary-accent rounded-full text-primary-text font-semibold min-w-[40px] text-center">
+              <span className="px-2 py-1 border border-primary-accent rounded-full text-primary-text font-semibold min-w-[32px] text-center text-xs">
                 {quantity}
               </span>
               <motion.button
                 onClick={(e) => handleQuantityChange(1, e)}
                 className="p-1 rounded-full hover:bg-secondary-accent transition-colors"
                 disabled={quantity >= Math.min(10, stock)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.09 }}
+                whileTap={{ scale: 0.93 }}
               >
                 <FiPlus className="w-4 h-4 text-secondary-text" />
               </motion.button>
             </div>
           )}
         </div>
-        
-        {/* Add to Cart Button */}
+        {/* Add to Cart and Wishlist Buttons */}
         <div className="flex space-x-2">
           <motion.button
             onClick={handleAddToCart}
             disabled={isAdding || stock === 0}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-6 rounded-full transition-all duration-300 font-semibold text-lg shadow-lg ${
-              isAdding 
-                ? 'bg-green-600 text-white shadow-green-200' 
+            className={`flex items-center justify-center px-4 py-2 rounded-full transition-all duration-300 font-medium text-base shadow-md
+              ${isAdding 
+                ? 'bg-green-500 text-white shadow-green-100' 
                 : stock === 0
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                   : !user
-                    ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200'
-                    : 'bg-purple-600 text-white hover:bg-purple-700 hover:shadow-purple-200 transform hover:-translate-y-1'
+                    ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-blue-100'
+                    : 'bg-purple-500 text-white hover:bg-purple-600 hover:shadow-purple-100 hover:scale-105'
             }`}
-            whileHover={!isAdding && stock > 0 ? { scale: 1.02 } : {}}
-            whileTap={!isAdding && stock > 0 ? { scale: 0.98 } : {}}
+            whileHover={!isAdding && stock > 0 ? { scale: 1.05 } : {}}
+            whileTap={!isAdding && stock > 0 ? { scale: 0.97 } : {}}
+            style={{ minWidth: 0 }}
           >
-            <FiShoppingCart className="w-5 h-5" />
-            <span className="font-bold">
+            <FiShoppingCart className="w-4 h-4 mr-2" />
+            <span>
               {isAdding 
                 ? t('addedToCart') 
                 : stock === 0 
@@ -292,11 +265,9 @@ const ProductCard = ({ product }) => {
               }
             </span>
           </motion.button>
-          
-          {/* Wishlist Button - More Prominent */}
           <WishlistButton 
-            productId={_id} 
-            className="p-3 bg-white border-2 border-pink-300 hover:border-pink-400 hover:bg-pink-50 transition-colors duration-300 rounded-full shadow-lg"
+            productId={_id}
+            className="p-2 bg-white border border-pink-200 hover:border-pink-400 hover:bg-pink-100 transition-all rounded-full shadow"
           />
         </div>
       </div>

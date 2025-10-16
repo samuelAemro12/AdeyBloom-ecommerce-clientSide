@@ -13,7 +13,7 @@ const SignIn = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'customer' // Default to customer
+    role: 'customer'
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,14 +31,12 @@ const SignIn = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
     try {
       const result = await login(formData);
       if (!result.success) {
         setError(result.message || t('errorFailedToSignIn'));
       } else {
         const loggedInUser = result.user;
-        // Choose redirect target
         const storedReturn = (() => { try { return sessionStorage.getItem('RETURN_TO'); } catch { return null; } })();
         let redirectTo = '/';
         if (loggedInUser?.role === 'admin') {
@@ -46,14 +44,11 @@ const SignIn = () => {
         } else {
           redirectTo = location.state?.from || storedReturn || '/';
         }
-
-        // Cleanup any stored intents / return paths
         try {
           sessionStorage.removeItem('RETURN_TO');
           sessionStorage.removeItem('PENDING_INTENT');
           sessionStorage.removeItem('TEMP_AUTH_ROLE');
         } catch { /* noop */ }
-
         navigate(redirectTo, { replace: true });
       }
     } catch {
@@ -64,53 +59,62 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 relative">
       {/* Decorative Blobs */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-6rem] left-[-6rem] w-96 h-96 bg-primary-accent opacity-10 rounded-full blur-3xl" />
         <div className="absolute bottom-[-6rem] right-[-6rem] w-96 h-96 bg-secondary-accent opacity-10 rounded-full blur-3xl" />
       </div>
-
-      <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg z-10">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-2xl shadow-2xl z-10 relative border border-gray-100">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">{t('signInHeader')}</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="mt-3 text-3xl font-extrabold text-gray-900">{t('signInHeader')}</h2>
+          <p className="mt-2 text-base text-gray-600">
             {t('welcome')}
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off">
           {error && <Toast type="error" message={error} />}
-          <div className="rounded-md shadow-sm -space-y-px">
+          {/* Email Field */}
+          <div className="mb-3">
+            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-1">
+              {t('email')}
+            </label>
             <div className="relative">
-              <FiMail className="absolute top-3.5 left-3 text-gray-400" />
+              <FiMail className="absolute top-2.5 left-3 text-gray-400" />
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={t('email')}
+                className="block w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all sm:text-sm bg-gray-50"
+                placeholder={t('example@gmail.com')}
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
+          </div>
+          {/* Password Field */}
+          <div className="mb-3">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              {t('password')}
+            </label>
             <div className="relative">
-              <FiLock className="absolute top-3.5 left-3 text-gray-400" />
+              <FiLock className="absolute top-2.5 left-3 text-gray-400" />
               <input
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={t('password')}
+                className="block w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all sm:text-sm bg-gray-50"
+                placeholder={t('enter Your Password')}
                 value={formData.password}
                 onChange={handleChange}
               />
               <button
                 type="button"
-                className="absolute top-3.5 right-3 text-gray-400 focus:outline-none"
+                className="absolute top-2.5 right-3 text-gray-400 focus:outline-none"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? t('hidePassword') : t('showPassword')}
               >
@@ -118,38 +122,37 @@ const SignIn = () => {
               </button>
             </div>
           </div>
-
-          {/* Role Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          {/* Role Selector */}
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Sign in as
             </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 shadow-sm text-gray-900 sm:text-sm"
               required
             >
               <option value="customer">Customer</option>
               <option value="admin">Admin</option>
             </select>
           </div>
-
+          {/* Button */}
           <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:opacity-50`}
             >
               {isLoading ? t('signingIn') : t('signInHeader')}
             </button>
           </div>
         </form>
-        <div className="text-sm text-center">
+        <div className="text-sm text-center pt-3">
           <p className="text-gray-600">
             {t('dontHaveAccount')}{' '}
-            <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500 underline">
               {t('signUpHeader')}
             </Link>
           </p>
@@ -158,5 +161,4 @@ const SignIn = () => {
     </div>
   );
 };
-
 export default SignIn;
