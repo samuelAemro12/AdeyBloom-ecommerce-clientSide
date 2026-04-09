@@ -1,118 +1,158 @@
-import axios from 'axios';
-
 // Helper to normalize a base URL so it ends with /api exactly once
 const ensureApiBase = (raw) => {
     if (!raw) return undefined;
-    // Trim trailing slashes
     let trimmed = raw.trim();
     if (trimmed.endsWith('/')) trimmed = trimmed.slice(0, -1);
-    // If it already ends with /api (case sensitive) leave it; else append
     if (!/\/api$/i.test(trimmed)) {
         trimmed += '/api';
     }
     return trimmed;
 };
 
-// Primary (remote / production) and fallback (local) API base URLs
-const RAW_REMOTE_BASE = import.meta.env.VITE_API_BASE_URL; // e.g. https://adeybloom-ecommerce-backend-1.onrender.com
+const RAW_REMOTE_BASE = import.meta.env.VITE_API_BASE_URL;
 const RAW_LOCAL_BASE = import.meta.env.VITE_API_BASE_URL_LOCAL || 'http://localhost:5000';
 
 const REMOTE_BASE = ensureApiBase(RAW_REMOTE_BASE);
 const LOCAL_BASE = ensureApiBase(RAW_LOCAL_BASE);
 
-// In production, do not attempt to fallback to localhost
 const allowLocalFallback = import.meta.env.DEV === true;
-
-// Flag to optionally disable automatic redirect on 401 (helps avoid loops during provider mounting)
-let AUTO_REDIRECT_ON_401 = false; // disabled so public pages load even if /me returns 401
+let AUTO_REDIRECT_ON_401 = false;
 
 const initialBase = REMOTE_BASE || (allowLocalFallback ? LOCAL_BASE : undefined);
 if (!initialBase) {
-    console.warn('[API] No base URL configured; requests will fail unless provided later. Configure VITE_API_BASE_URL or VITE_API_BASE_URL_LOCAL.');
+    console.warn('[API] No base URL configured; requests will fail unless provided later.');
 }
 
-const api = axios.create({
-    baseURL: initialBase,
-    withCredentials: true,
-    headers: { 'Content-Type': 'application/json' },
-});
-console.info('[API] Initial base URL set to:', api.defaults.baseURL);
-
-// Track if we've already switched to local to avoid repeated retries
 let usingLocalFallback = false;
 
-// Request interceptor
-api.interceptors.request.use(
-    (config) => {
-        // Attach token from localStorage if present
+class AxiosMock {
+    constructor(config) {
+        this.defaults = {
+            baseURL: config.baseURL || '',
+            headers: config.headers || {},
+            withCredentials: config.withCredentials || true
+        };
+        
+        this.interceptors = {
+            request: { use: () => {} },
+            response: { use: () => {} }
+        };
+    }
+
+    async request(config) {
+        const baseURL = config.baseURL || this.defaults.baseURL;
+        let url = config.url || '';
+        
+        let targetUrl;
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            targetUrl = url;
+        } else {
+            targetUrl = baseURL + (url.startsWith('/') ? url : '/' + url);
+        }
+
+        if (config.params) {
+            const urlObj = new URL(targetUrl, 'http://localhost');
+            Object.entries(config.params).forEach(([k, v]) => {
+                if (v !== undefined) urlObj.searchParams.append(k, v);
+            });
+            targetUrl = targetUrl.startsWith('http') ? urlObj.toString() : urlObj.pathname + urlObj.search;
+        }
+
+        let defaultHeaders = { ...this.defaults.headers };
         const token = localStorage.getItem('token');
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            defaultHeaders['Authorization'] = `Bearer ${token}`;
         }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+        
+        const mergedHeaders = { ...defaultHeaders, ...(config.headers || {}) };
 
-// Response interceptor
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalConfig = error.config;
+        let body = config.data;
+        if (body instanceof FormData) {
+            delete mergedHeaders['Content-Type'];
+        } else if (body && typeof body === 'object') {
+            body = JSON.stringify(body);
+            if (!mergedHeaders['Content-Type']) mergedHeaders['Content-Type'] = 'application/json';
+        }
 
-        // If remote is set, not yet on local, and this looks like a network error or 5xx, try fallback
-        const isNetworkIssue = !error.response && !!error.request; // no response received
-        const status = error.response?.status;
-        const isServerError = status >= 500;
+        const fetchOptions = {
+            method: (config.method || 'GET').toUpperCase(),
+            headers: mergedHeaders,
+            body: ['GET', 'HEAD'].includes((config.method || 'GET').toUpperCase()) ? undefined : body,
+            credentials: (config.withCredentials || this.defaults.withCredentials) ? 'include' : 'same-origin'
+        };
 
-        const shouldAttemptFallback = allowLocalFallback && REMOTE_BASE && !usingLocalFallback && (isNetworkIssue || isServerError);
-
-        if (shouldAttemptFallback) {
-            console.warn('[API] Remote unreachable or failing. Falling back to local API:', LOCAL_BASE);
-            usingLocalFallback = true;
-            api.defaults.baseURL = LOCAL_BASE;
-            originalConfig.baseURL = LOCAL_BASE;
+        const doFetch = async (target, isFallback = false) => {
+            let response;
             try {
-                return await api.request(originalConfig);
-            } catch (fallbackErr) {
-                console.error('[API] Fallback request also failed:', fallbackErr);
-                throw fallbackErr;
+                response = await fetch(target, fetchOptions);
+            } catch (err) {
+                if (allowLocalFallback && REMOTE_BASE && !usingLocalFallback && !isFallback && target.startsWith(REMOTE_BASE)) {
+                    usingLocalFallback = true;
+                    this.defaults.baseURL = LOCAL_BASE;
+                    return doFetch(target.replace(REMOTE_BASE, LOCAL_BASE), true);
+                }
+                const error = new Error('Network Error');
+                error.request = fetchOptions;
+                error.config = config;
+                throw error;
             }
-        }
 
-        // Auth error handling (401) -> do not redirect globally
-        if (status === 401) {
-            // If we had a token, clear it so future requests don't keep failing
-            if (localStorage.getItem('token')) {
-                localStorage.removeItem('token');
+            const contentType = response.headers.get('content-type');
+            let data;
+            try {
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+            } catch(e) {
+                data = null;
             }
-        }
 
-        // Log errors for visibility
-        if (error.response) {
-            console.error('Response Error:', error.response.data);
-        } else if (error.request) {
-            console.error('Request Error (no response):', error.request);
-        } else {
-            console.error('Setup Error:', error.message);
-        }
-        return Promise.reject(error);
+            if (!response.ok) {
+                if (response.status >= 500 && allowLocalFallback && REMOTE_BASE && !usingLocalFallback && !isFallback && target.startsWith(REMOTE_BASE)) {
+                    usingLocalFallback = true;
+                    this.defaults.baseURL = LOCAL_BASE;
+                    return doFetch(target.replace(REMOTE_BASE, LOCAL_BASE), true);
+                }
+                if (response.status === 401 && localStorage.getItem('token')) {
+                    localStorage.removeItem('token');
+                }
+                const error = new Error('Request failed with status code ' + response.status);
+                error.response = { status: response.status, data, headers: response.headers };
+                error.config = config;
+                throw error;
+            }
+
+            return { data, status: response.status, statusText: response.statusText, headers: response.headers, config };
+        };
+
+        return doFetch(targetUrl);
     }
-);
+
+    get(url, config = {}) { return this.request({ ...config, method: 'GET', url }); }
+    post(url, data, config = {}) { return this.request({ ...config, method: 'POST', url, data }); }
+    put(url, data, config = {}) { return this.request({ ...config, method: 'PUT', url, data }); }
+    patch(url, data, config = {}) { return this.request({ ...config, method: 'PATCH', url, data }); }
+    delete(url, config = {}) { return this.request({ ...config, method: 'DELETE', url }); }
+    create(config) { return new AxiosMock(config); }
+}
+
+const api = new AxiosMock({
+    baseURL: initialBase,
+    withCredentials: true,
+    headers: { 'Content-Type': 'application/json' }
+});
 
 export const forceLocalApi = () => {
     usingLocalFallback = true;
     api.defaults.baseURL = LOCAL_BASE;
-    console.info('[API] Forced local API base URL:', LOCAL_BASE);
 };
 
 export const resetToRemoteApi = () => {
     if (REMOTE_BASE) {
         usingLocalFallback = false;
         api.defaults.baseURL = REMOTE_BASE;
-        console.info('[API] Reset to remote API base URL:', REMOTE_BASE);
-    } else {
-        console.warn('[API] No remote base URL configured; staying on local.');
     }
 };
 
@@ -120,7 +160,6 @@ export const getCurrentApiBase = () => api.defaults.baseURL;
 
 export const setRedirectOn401 = (value) => {
     AUTO_REDIRECT_ON_401 = !!value;
-    console.info('[API] AUTO_REDIRECT_ON_401 set to', AUTO_REDIRECT_ON_401);
 };
 
 export default api;

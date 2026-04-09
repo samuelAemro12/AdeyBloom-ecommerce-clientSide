@@ -1,108 +1,72 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiChevronDown, FiArrowRight } from 'react-icons/fi';
 import { useTranslation } from '../context/TranslationContext';
 
 const FAQ = () => {
   const { t } = useTranslation();
-  const [openItems, setOpenItems] = useState({});
+  const [openId, setOpenId] = useState(null);
 
-  const toggleItem = (id) => {
-    setOpenItems(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
+  const toggle = (id) => setOpenId((prev) => (prev === id ? null : id));
 
   const faqData = [
-    {
-      id: 'faq-1',
-      question: t('faqHowToPlaceOrder'),
-      answer: t('faqHowToPlaceOrderAnswer')
-    },
-    {
-      id: 'faq-2',
-      question: t('faqPaymentMethods'),
-      answer: t('faqPaymentMethodsAnswer')
-    },
-    {
-      id: 'faq-3',
-      question: t('faqAmharicSupport'),
-      answer: t('faqAmharicSupportAnswer')
-    },
-  // refund policy FAQ removed
-    {
-      id: 'faq-5',
-      question: t('faqNeedAccount'),
-      answer: t('faqNeedAccountAnswer')
-    },
-    {
-      id: 'faq-6',
-      question: t('faqWishlistFeature'),
-      answer: t('faqWishlistFeatureAnswer')
-    },
-    {
-      id: 'faq-7',
-      question: t('faqWhatMakesAdeyBloomDifferent'),
-      answer: t('faqWhatMakesAdeyBloomDifferentAnswer')
-    }
+    { id: 'faq-1', question: t('faqHowToPlaceOrder'), answer: t('faqHowToPlaceOrderAnswer') },
+    { id: 'faq-2', question: t('faqPaymentMethods'), answer: t('faqPaymentMethodsAnswer') },
+    { id: 'faq-3', question: t('faqAmharicSupport'), answer: t('faqAmharicSupportAnswer') },
+    { id: 'faq-5', question: t('faqNeedAccount'), answer: t('faqNeedAccountAnswer') },
+    { id: 'faq-6', question: t('faqWishlistFeature'), answer: t('faqWishlistFeatureAnswer') },
+    { id: 'faq-7', question: t('faqWhatMakesAdeyBloomDifferent'), answer: t('faqWhatMakesAdeyBloomDifferentAnswer') },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            🛍️ AdeyBloom – {t('frequentlyAskedQuestions')}
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('faqDescription')}
-          </p>
-        </motion.div>
+    <div className="bg-background min-h-screen">
+      {/* Hero */}
+      <section className="bg-primary-text relative overflow-hidden py-20">
+        <div className="absolute -top-16 -right-16 w-72 h-72 bg-primary-accent/20 rounded-full blur-3xl" />
+        <div className="relative max-w-3xl mx-auto px-4 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Help Center</p>
+            <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white mb-5">
+              {t('frequentlyAskedQuestions')}
+            </h1>
+            <p className="text-white/60 text-sm max-w-xl mx-auto">{t('faqDescription')}</p>
+          </motion.div>
+        </div>
+      </section>
 
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* FAQ Items */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {faqData.map((item, index) => (
             <motion.div
               key={item.id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ delay: index * 0.06 }}
+              className="bg-white rounded-2xl border border-cloud-gray/50 overflow-hidden"
             >
               <button
-                onClick={() => toggleItem(item.id)}
-                className="w-full px-6 py-4 text-left bg-white hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between"
+                onClick={() => toggle(item.id)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-background transition-colors duration-200"
               >
-                <span className="font-semibold text-gray-900 pr-4 text-lg">
-                  {item.question}
-                </span>
-                {openItems[item.id] ? (
-                  <FiChevronUp className="w-6 h-6 text-gray-500 flex-shrink-0" />
-                ) : (
-                  <FiChevronDown className="w-6 h-6 text-gray-500 flex-shrink-0" />
-                )}
+                <span className="font-semibold text-primary-text text-sm pr-6">{item.question}</span>
+                <FiChevronDown
+                  className={`w-5 h-5 text-secondary-text shrink-0 transition-transform duration-300 ${openId === item.id ? 'rotate-180 text-primary-accent' : ''}`}
+                />
               </button>
-              
-              <AnimatePresence>
-                {openItems[item.id] && (
+
+              <AnimatePresence initial={false}>
+                {openId === item.id && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                      <p className="text-gray-700 leading-relaxed text-lg">
-                        {item.answer}
-                      </p>
+                    <div className="px-6 pb-5 border-t border-cloud-gray/40">
+                      <p className="text-secondary-text text-sm leading-relaxed pt-4">{item.answer}</p>
                     </div>
                   </motion.div>
                 )}
@@ -111,31 +75,27 @@ const FAQ = () => {
           ))}
         </div>
 
-        {/* Contact Section */}
+        {/* Still have questions */}
         <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mt-14 text-center bg-white rounded-2xl border border-cloud-gray/50 p-10"
         >
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            {t('stillHaveQuestions')}
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {t('contactUsForHelp')}
-          </p>
-          <motion.button
-            className="bg-primary-accent text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/contact'}
+          <p className="text-2xl font-serif font-bold text-primary-text mb-3">{t('stillHaveQuestions')}</p>
+          <p className="text-sm text-secondary-text mb-6">{t('contactUsForHelp')}</p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 btn-primary"
           >
             {t('contactUs')}
-          </motion.button>
+            <FiArrowRight className="w-4 h-4" />
+          </Link>
         </motion.div>
       </div>
     </div>
   );
 };
 
-export default FAQ; 
+export default FAQ;

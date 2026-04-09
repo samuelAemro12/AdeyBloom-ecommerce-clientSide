@@ -1,29 +1,28 @@
 import { Outlet } from 'react-router-dom';
-import AuthProvider from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
 import { UserProvider } from '../context/UserContext';
-import { WishlistProvider } from '../context/WishlistContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+/**
+ * RootLayout — wraps all public-facing pages with Navbar + Footer.
+ * Auth, Toast and Wishlist providers are hoisted in AppProviders (parent).
+ * CartProvider is here since it depends on AuthContext from AppProviders.
+ */
 const RootLayout = () => {
   return (
-    <AuthProvider>
-      <UserProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <div className="min-h-screen bg-[#FFF9F6] flex flex-col">
-              <Navbar />
-              <main className="flex-grow pt-20">
-                <Outlet />
-              </main>
-              <Footer />
-            </div>
-          </WishlistProvider>
-        </CartProvider>
-      </UserProvider>
-    </AuthProvider>
+    <UserProvider>
+      <CartProvider>
+        <div className="min-h-screen bg-background flex flex-col">
+          <Navbar />
+          <main className="flex-grow pt-16">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+      </CartProvider>
+    </UserProvider>
   );
 };
 
-export default RootLayout; 
+export default RootLayout;

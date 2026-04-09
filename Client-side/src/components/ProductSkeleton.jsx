@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 const ProductSkeleton = () => {
   return (
     <motion.div 
-      className="bg-card-bg rounded-xl p-4 shadow-sm border border-cloud-gray/30"
-      initial={{ opacity: 0, y: 20 }}
+      className="bg-white rounded-2xl border border-cloud-gray/50 overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
     >
       <div className="animate-pulse">
         {/* Image skeleton */}
-        <div className="bg-cloud-gray/40 rounded-lg h-48 mb-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+        <div className="bg-card-bg w-full" style={{ paddingBottom: '100%', position: 'relative' }}>
+          <div className="absolute inset-0 bg-cloud-gray/30" />
         </div>
         
         {/* Content skeleton */}

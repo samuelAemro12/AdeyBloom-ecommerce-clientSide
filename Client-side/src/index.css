@@ -1,4 +1,171 @@
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config "../tailwind.config.js";
+
+@theme {
+  /* Brand Colors */
+  --color-primary-accent: #C585D7;
+  --color-secondary-accent: #FFDDE2;
+  --color-brand-highlight: #008080;
+  --color-background: #FFF9F6;
+  --color-card-bg: #FAF3EC;
+
+  /* Text Colors */
+  --color-primary-text: #2F2F2F;
+  --color-secondary-text: #6A6A6A;
+
+  /* UI Colors */
+  --color-cloud-gray: #D6D6D6;
+  --color-sage-green: #B9D9A2;
+  --color-coral-rose: #F47C7C;
+  --color-error: #F47C7C;
+  --color-error-light: #FEE2E2;
+  --color-error-dark: #B91C1C;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-bounce-gentle: bounceGentle 2s infinite;
+  --animate-shimmer: shimmer 1.5s infinite;
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-primary-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    line-height: 1.2;
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes bounceGentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.5rem;
+    background-color: var(--color-primary-accent);
+    color: white;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-brand-highlight);
+    box-shadow: 0 4px 14px 0 rgb(0 128 128 / 0.3);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.5rem;
+    border: 2px solid var(--color-primary-accent);
+    color: var(--color-primary-accent);
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-primary-accent);
+    color: white;
+  }
+
+  .card {
+    background-color: white;
+    border-radius: 1rem;
+    border: 1px solid var(--color-cloud-gray);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+    overflow: hidden;
+  }
+
+  .section-heading {
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-primary-text);
+    line-height: 1.2;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-cloud-gray);
+    border-radius: 0.625rem;
+    font-size: 0.9rem;
+    color: var(--color-primary-text);
+    background: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+  }
+
+  .input-field:focus {
+    border-color: var(--color-primary-accent);
+    box-shadow: 0 0 0 3px rgb(197 133 215 / 0.15);
+  }
+}
+
+@utility line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@utility line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

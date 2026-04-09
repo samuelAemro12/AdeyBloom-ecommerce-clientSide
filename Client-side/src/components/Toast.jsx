@@ -1,44 +1,42 @@
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiInfo, FiX } from 'react-icons/fi';
 
-const Toast = ({ message, type = 'info', onClose = () => {}, duration = 3000 }) => {
+const STYLES = {
+  success: { bg: 'bg-green-50 border-green-200', text: 'text-green-800', icon: FiCheckCircle, iconColor: 'text-green-500' },
+  error:   { bg: 'bg-red-50 border-red-200',     text: 'text-red-800',   icon: FiXCircle,     iconColor: 'text-coral-rose' },
+  warning: { bg: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-800', icon: FiAlertTriangle, iconColor: 'text-yellow-500' },
+  info:    { bg: 'bg-blue-50 border-blue-200',   text: 'text-blue-800',  icon: FiInfo,        iconColor: 'text-blue-500' },
+};
+
+const Toast = ({ message, type = 'info', onClose = () => {}, duration = 3500 }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-  try { onClose(); } catch { /* ignore callback errors */ }
-    }, duration);
-
+    const timer = setTimeout(() => { try { onClose(); } catch { /* noop */ } }, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const typeClasses = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    warning: 'bg-yellow-500',
-    info: 'bg-blue-500'
-  };
-
-  const iconClasses = {
-    success: '✓',
-    error: '✕',
-    warning: '⚠',
-    info: 'ℹ'
-  };
+  const style = STYLES[type] || STYLES.info;
+  const Icon = style.icon;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div
-        className={`${typeClasses[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 min-w-[200px]`}
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.97 }}
+      transition={{ duration: 0.2 }}
+      className={`flex items-start gap-3 px-4 py-3 rounded-xl border shadow-sm min-w-[260px] max-w-sm ${style.bg}`}
+    >
+      <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${style.iconColor}`} />
+      <p className={`text-sm flex-1 leading-snug ${style.text}`}>{message}</p>
+      <button
+        onClick={() => { try { onClose(); } catch { /* noop */ } }}
+        className={`shrink-0 ${style.text} opacity-60 hover:opacity-100 transition-opacity`}
+        aria-label="Close notification"
       >
-        <span className="font-bold">{iconClasses[type]}</span>
-        <p>{message}</p>
-        <button
-          onClick={() => { try { onClose(); } catch { /* ignore */ } }}
-          className="ml-auto text-white hover:text-gray-200 focus:outline-none"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
+        <FiX className="w-4 h-4" />
+      </button>
+    </motion.div>
   );
 };
 
-export default Toast; 
+export default Toast;

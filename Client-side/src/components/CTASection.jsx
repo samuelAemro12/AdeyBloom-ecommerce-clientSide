@@ -1,37 +1,55 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiShoppingBag } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import { useTranslation } from '../context/TranslationContext';
 
 const CTASection = () => {
   const { t } = useTranslation();
+
   return (
-    <section className="py-20 bg-[#C585D7]">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-          {t('discoverBeauty')}
-        </h2>
-        <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
-          {t('joinThousands')}
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link
-            to="/shop"
-            className="inline-flex items-center justify-center px-8 py-3 bg-white text-[#C585D7] hover:bg-[#008080] hover:text-white rounded-full transition-colors duration-300"
-          >
-            {t('shopNow')}
-            <FiArrowRight className="ml-2" />
-          </Link>
-          <Link
-            to="/about"
-            className="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white hover:bg-white hover:text-[#C585D7] rounded-full transition-colors duration-300"
-          >
-            {t('learnMore')}
-          </Link>
-        </div>
+    <section className="relative py-24 overflow-hidden bg-primary-text">
+      {/* Decorative gradient blobs */}
+      <div className="absolute top-0 left-0 w-80 h-80 bg-primary-accent/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-brand-highlight/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">
+            Start Your Journey
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-white mb-6 leading-tight">
+            {t('discoverBeauty')}
+          </h2>
+          <p className="text-white/70 text-base sm:text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+            {t('joinThousands')}
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-primary-accent hover:bg-brand-highlight text-white rounded-full font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:scale-105"
+            >
+              <FiShoppingBag className="w-4 h-4" />
+              {t('shopNow')}
+              <FiArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-2 px-8 py-4 border border-white/30 text-white rounded-full font-semibold text-sm hover:bg-white/10 transition-all duration-300"
+            >
+              {t('learnMore')}
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 };
 
-export default CTASection; 
+export default CTASection;

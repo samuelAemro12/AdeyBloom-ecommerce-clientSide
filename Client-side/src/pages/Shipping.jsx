@@ -1,109 +1,68 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../context/TranslationContext';
-import { FiTruck, FiClock, FiMapPin, FiPackage } from 'react-icons/fi';
+import { FiTruck, FiClock, FiMapPin, FiPackage, FiArrowRight } from 'react-icons/fi';
 
 const Shipping = () => {
   const { t } = useTranslation();
 
-  const shippingInfo = [
-    {
-      icon: <FiTruck className="w-8 h-8" />,
-      title: t('standardShipping'),
-      description: t('standardShippingDesc'),
-      time: t('standardShippingTime'),
-      cost: t('standardShippingCost')
-    },
-    {
-      icon: <FiClock className="w-8 h-8" />,
-      title: t('expressShipping'),
-      description: t('expressShippingDesc'),
-      time: t('expressShippingTime'),
-      cost: t('expressShippingCost')
-    },
-    {
-      icon: <FiMapPin className="w-8 h-8" />,
-      title: t('localPickup'),
-      description: t('localPickupDesc'),
-      time: t('localPickupTime'),
-      cost: t('localPickupCost')
-    }
+  const shippingOptions = [
+    { icon: FiTruck, key: 'standardShipping' },
+    { icon: FiClock, key: 'expressShipping' },
+    { icon: FiMapPin, key: 'localPickup' },
   ];
 
-  const shippingSteps = [
-    {
-      step: 1,
-      title: t('orderPlaced'),
-      description: t('orderPlacedDesc')
-    },
-    {
-      step: 2,
-      title: t('orderProcessed'),
-      description: t('orderProcessedDesc')
-    },
-    {
-      step: 3,
-      title: t('orderShipped'),
-      description: t('orderShippedDesc')
-    },
-    {
-      step: 4,
-      title: t('orderDelivered'),
-      description: t('orderDeliveredDesc')
-    }
+  const steps = [
+    { step: 1, key: 'orderPlaced', icon: FiPackage },
+    { step: 2, key: 'orderProcessed', icon: FiClock },
+    { step: 3, key: 'orderShipped', icon: FiTruck },
+    { step: 4, key: 'orderDelivered', icon: FiMapPin },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            {t('shippingInformation')}
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('shippingDescription')}
-          </p>
-        </motion.div>
+    <div className="bg-background min-h-screen">
+      {/* Hero */}
+      <section className="bg-primary-text relative overflow-hidden py-20">
+        <div className="absolute -top-16 -left-16 w-72 h-72 bg-brand-highlight/20 rounded-full blur-3xl" />
+        <div className="relative max-w-3xl mx-auto px-4 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Delivery</p>
+            <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white mb-5">{t('shippingInformation')}</h1>
+            <p className="text-white/60 text-sm max-w-xl mx-auto">{t('shippingDescription')}</p>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
 
         {/* Shipping Options */}
-        <section className="mb-16">
-          <motion.h2
-            className="text-3xl font-bold text-gray-900 mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {t('shippingOptions')}
-          </motion.h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {shippingInfo.map((option, index) => (
+        <section>
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">Options</p>
+            <h2 className="section-heading">{t('shippingOptions')}</h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {shippingOptions.map(({ icon: Icon, key }, i) => (
               <motion.div
-                key={index}
-                className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                key={key}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white rounded-2xl border border-cloud-gray/50 p-6 hover:border-primary-accent/40 hover:shadow-sm transition-all duration-300"
               >
-                <div className="text-primary-accent mb-4">{option.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {option.title}
-                </h3>
-                <p className="text-gray-600 mb-4 leading-relaxed">
-                  {option.description}
-                </p>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium">{t('deliveryTime')}:</span> {option.time}
+                <div className="w-12 h-12 rounded-xl bg-secondary-accent flex items-center justify-center mb-5">
+                  <Icon className="w-6 h-6 text-primary-accent" />
+                </div>
+                <h3 className="font-semibold text-primary-text mb-3">{t(key)}</h3>
+                <p className="text-secondary-text text-sm leading-relaxed mb-4">{t(`${key}Desc`)}</p>
+                <div className="pt-4 border-t border-cloud-gray/40 space-y-1">
+                  <p className="text-xs text-secondary-text">
+                    <span className="font-medium text-primary-text">{t('deliveryTime')}:</span> {t(`${key}Time`)}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium">{t('cost')}:</span> {option.cost}
+                  <p className="text-xs text-secondary-text">
+                    <span className="font-medium text-primary-text">{t('cost')}:</span> {t(`${key}Cost`)}
                   </p>
                 </div>
               </motion.div>
@@ -111,127 +70,69 @@ const Shipping = () => {
           </div>
         </section>
 
-        {/* Shipping Process */}
-        <section className="mb-16">
-          <motion.h2
-            className="text-3xl font-bold text-gray-900 mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            {t('shippingProcess')}
-          </motion.h2>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            {shippingSteps.map((step, index) => (
+        {/* Process Steps */}
+        <section>
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">How it works</p>
+            <h2 className="section-heading">{t('shippingProcess')}</h2>
+          </div>
+          <div className="grid sm:grid-cols-4 gap-6 relative">
+            {/* Connector line */}
+            <div className="hidden sm:block absolute top-6 left-[12.5%] right-[12.5%] h-0.5 bg-cloud-gray/50" />
+            {steps.map(({ step, key, icon: Icon }, i) => (
               <motion.div
-                key={index}
-                className="text-center"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+                key={key}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center relative"
               >
-                <div className="bg-primary-accent rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-xl font-bold">{step.step}</span>
+                <div className="w-12 h-12 rounded-full bg-primary-accent flex items-center justify-center mx-auto mb-4 relative z-10 shadow-sm">
+                  <span className="text-white font-bold text-sm">{step}</span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {step.description}
-                </p>
+                <h3 className="font-semibold text-primary-text text-sm mb-2">{t(key)}</h3>
+                <p className="text-secondary-text text-xs leading-relaxed">{t(`${key}Desc`)}</p>
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* Shipping Policies */}
-        <section className="bg-white rounded-2xl shadow-lg p-8">
-          <motion.h2
-            className="text-3xl font-bold text-gray-900 mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1 }}
-          >
-            {t('shippingPolicies')}
-          </motion.h2>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <motion.div
-              className="space-y-4"
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-            >
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('freeShipping')}
-                </h3>
-                <p className="text-gray-600">
-                  {t('freeShippingPolicy')}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('trackingOrders')}
-                </h3>
-                <p className="text-gray-600">
-                  {t('trackingOrdersDesc')}
-                </p>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              className="space-y-4"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.4 }}
-            >
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('deliveryAreas')}
-                </h3>
-                <p className="text-gray-600">
-                  {t('deliveryAreasDesc')}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('shippingRestrictions')}
-                </h3>
-                <p className="text-gray-600">
-                  {t('shippingRestrictionsDesc')}
-                </p>
-              </div>
-            </motion.div>
+        {/* Policies */}
+        <section>
+          <div className="bg-white rounded-2xl border border-cloud-gray/50 p-8 sm:p-10">
+            <div className="text-center mb-10">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">Policies</p>
+              <h2 className="section-heading">{t('shippingPolicies')}</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-x-12 gap-y-7">
+              {[
+                { titleKey: 'freeShipping', descKey: 'freeShippingPolicy' },
+                { titleKey: 'trackingOrders', descKey: 'trackingOrdersDesc' },
+                { titleKey: 'deliveryAreas', descKey: 'deliveryAreasDesc' },
+                { titleKey: 'shippingRestrictions', descKey: 'shippingRestrictionsDesc' },
+              ].map(({ titleKey, descKey }) => (
+                <div key={titleKey}>
+                  <h3 className="font-semibold text-primary-text mb-2 text-sm">{t(titleKey)}</h3>
+                  <p className="text-secondary-text text-xs leading-relaxed">{t(descKey)}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Contact Section */}
-        <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.6 }}
-        >
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            {t('needHelp')}
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {t('shippingHelpText')}
-          </p>
-          <motion.button
-            className="bg-primary-accent text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/contact'}
-          >
+        {/* Help CTA */}
+        <div className="text-center">
+          <p className="text-xl font-serif font-bold text-primary-text mb-2">{t('needHelp')}</p>
+          <p className="text-secondary-text text-sm mb-6">{t('shippingHelpText')}</p>
+          <Link to="/contact" className="inline-flex items-center gap-2 btn-primary">
             {t('contactUs')}
-          </motion.button>
-        </motion.div>
+            <FiArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Shipping; 
+export default Shipping;
