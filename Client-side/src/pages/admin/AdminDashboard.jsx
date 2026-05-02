@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { FiShoppingBag, FiUsers, FiDollarSign, FiPackage } from 'react-icons/fi';
-import { useToast } from '../../context/ToastContext';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiDollarSign, FiPackage, FiShoppingBag, FiUsers } from 'react-icons/fi';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { useTranslation } from '../../context/TranslationContext';
-import adminService from '../../services/admin.service';
 import SalesChart from '../../components/admin/SalesChart';
 import TopProducts from '../../components/admin/TopProducts';
+import { useToast } from '../../context/ToastContext';
+import { useTranslation } from '../../context/TranslationContext';
+import adminService from '../../services/admin.service';
 
-const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className="bg-white rounded-lg shadow p-4 sm:p-6 flex items-center justify-between space-x-4 hover:shadow-lg transition-shadow">
-    <div className="flex items-center space-x-4">
-      <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${color} shrink-0`} aria-hidden>
-        {Icon ? <Icon className="w-6 h-6 text-white" /> : null}
-      </div>
-      <div>
-        <p className="text-gray-500 text-xs sm:text-sm">{title}</p>
-        <p className="text-lg sm:text-2xl font-semibold mt-1 truncate">{value}</p>
+const formatCurrency = (value) => `$${Number(value || 0).toFixed(2)}`;
+
+const StatCard = ({ title, value, helper, icon, accent }) => {
+  const IconComponent = icon;
+
+  return (
+    <div className="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-sm shadow-rose-100/50 backdrop-blur">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
+          {helper ? <p className="mt-2 text-sm text-slate-500">{helper}</p> : null}
+        </div>
+        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${accent}`}>
+          <IconComponent className="h-5 w-5 text-white" />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -30,43 +37,34 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-  // Fetch dashboard stats and product list in parallel so we can compute low-stock items
-  const [dashboardResp, productsResp] = await Promise.all([
-    adminService.getDashboardStats(),
-    adminService.getProducts()
-  ]);
+        const response = await adminService.getDashboardStats();
+        const rawStats = response.stats || response;
 
-  // dashboardResp is expected to be { success: true, stats: { ... } }
-  const rawStats = dashboardResp.stats || dashboardResp;
+        const recentActivity = (rawStats.recentOrders || []).map((order) => ({
+          id: order._id,
+          description: `${order.user?.name || 'Customer'} placed order #${String(order._id).slice(-6)}`,
+          meta: `${order.status} / ${new Date(order.createdAt).toLocaleString()}`,
+          tone:
+            order.status === 'delivered'
+              ? 'bg-emerald-500'
+              : order.status === 'cancelled'
+                ? 'bg-rose-500'
+                : 'bg-amber-500'
+        }));
 
-  // Normalize recentOrders -> recentActivity for the UI
-  const recentActivity = (rawStats.recentOrders || []).map((order) => ({
-    description: `${order.user?.name || 'User'} placed order #${order._id} — ${order.status}`,
-    time: order.createdAt ? new Date(order.createdAt).toLocaleString() : '',
-    color: order.status === 'delivered' ? 'bg-green-400' : order.status === 'pending' ? 'bg-yellow-400' : 'bg-gray-400'
-  }));
-
-  // Compute low stock items from products list (threshold can be adjusted)
-  const products = productsResp.products || productsResp;
-  const lowStockThreshold = 5;
-  const lowStockItems = (products || [])
-    .filter(p => typeof p.stock === 'number' ? p.stock <= lowStockThreshold : false)
-    .map(p => ({ name: p.name, stock: p.stock }));
-
-  const normalized = {
-    totalOrders: rawStats.totalOrders || 0,
-    totalRevenue: rawStats.totalRevenue || 0,
-  itemsSold: rawStats.itemsSold || 0,
-    totalUsers: rawStats.totalUsers || 0,
-    totalProducts: rawStats.totalProducts || (products || []).length || 0,
-    salesData: rawStats.salesData || [],
-    topSellingProducts: rawStats.topSellingProducts || [],
-    recentActivity,
-    lowStockItems
-  };
-
-  setStats(normalized);
-      } catch {
+        setStats({
+          totalOrders: rawStats.totalOrders || 0,
+          totalRevenue: rawStats.totalRevenue || 0,
+          itemsSold: rawStats.itemsSold || 0,
+          totalUsers: rawStats.totalUsers || 0,
+          totalProducts: rawStats.totalProducts || 0,
+          salesData: rawStats.salesData || [],
+          topSellingProducts: rawStats.topSellingProducts || [],
+          recentActivity,
+          lowStockItems: rawStats.lowStockProducts || []
+        });
+      } catch (error) {
+        console.error('fetchStats error:', error);
         showError(t('fetchDashboardStatsFailed'));
       } finally {
         setIsLoading(false);
@@ -82,89 +80,119 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">{t('dashboardOverview')}</h1>
+      <section className="overflow-hidden rounded-[32px] bg-gradient-to-br from-rose-100 via-white to-amber-100 p-6 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-[0.24em] text-rose-500">{t('adminPanel')}</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{t('dashboardOverview')}</h1>
+            <p className="mt-3 max-w-2xl text-sm text-slate-600">
+              Live operational summary for orders, customers, inventory, and revenue.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm text-slate-600 shadow-sm">
+            {stats?.recentActivity?.length || 0} recent order events tracked
+          </div>
+        </div>
+      </section>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard
           title={t('totalOrders')}
           value={stats?.totalOrders || 0}
+          helper="All orders in the system"
           icon={FiShoppingBag}
-          color="bg-blue-500"
+          accent="bg-sky-500"
         />
         <StatCard
           title={t('totalRevenue')}
-          value={`$${stats?.totalRevenue?.toFixed(2) || 0}`}
+          value={formatCurrency(stats?.totalRevenue)}
+          helper="Delivered revenue recognized"
           icon={FiDollarSign}
-          color="bg-green-500"
+          accent="bg-emerald-500"
         />
         <StatCard
           title={t('itemsSold')}
           value={stats?.itemsSold || 0}
+          helper="Units sold across all orders"
           icon={FiPackage}
-          color="bg-indigo-500"
+          accent="bg-violet-500"
         />
         <StatCard
           title={t('totalUsers')}
           value={stats?.totalUsers || 0}
+          helper="Customer accounts"
           icon={FiUsers}
-          color="bg-purple-500"
+          accent="bg-rose-500"
         />
         <StatCard
           title={t('totalProducts')}
           value={stats?.totalProducts || 0}
-          icon={FiPackage}
-          color="bg-orange-500"
+          helper={`${stats?.lowStockItems?.length || 0} low stock alerts`}
+          icon={FiAlertCircle}
+          accent="bg-amber-500"
         />
-      </div>
+      </section>
 
-      {/* Charts & Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+        <div className="rounded-[28px] border border-white/70 bg-white/90 p-4 shadow-sm">
           <SalesChart data={stats?.salesData || []} />
         </div>
-        <div>
+        <div className="rounded-[28px] border border-white/70 bg-white/90 p-4 shadow-sm">
           <TopProducts items={stats?.topSellingProducts || []} />
         </div>
-      </div>
+      </section>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('recentActivity')}</h2>
-        <div className="space-y-4">
-          {stats?.recentActivity?.length ? stats.recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <div className={`w-3 h-3 rounded-full ${activity.color}`} />
-              <div>
-                <p className="text-sm text-gray-600">{activity.description}</p>
-                <p className="text-xs text-gray-400">{activity.time}</p>
-              </div>
-            </div>
-          )) : (
-            <p className="text-sm text-gray-500">{t('noRecentActivity')}</p>
-          )}
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">{t('recentActivity')}</h2>
+            <span className="text-sm text-slate-500">{stats?.recentActivity?.length || 0} items</span>
+          </div>
+          <div className="space-y-4">
+            {stats?.recentActivity?.length ? (
+              stats.recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-start gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+                  <div className={`mt-1 h-3 w-3 rounded-full ${activity.tone}`} />
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">{activity.description}</p>
+                    <p className="mt-1 text-xs text-slate-500">{activity.meta}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">{t('noRecentActivity')}</p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Low Stock Alert */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('lowStockAlert')}</h2>
-        <div className="space-y-3">
-          {stats?.lowStockItems?.length ? stats.lowStockItems.map((item, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-800 truncate" title={item.name}>{item.name}</p>
-                <p className="text-xs text-gray-500">{t('currentStock')}: {item.stock}</p>
-              </div>
-              <span className="text-red-500 text-sm">{t('lowStock')}</span>
-            </div>
-          )) : (
-            <p className="text-sm text-gray-500">{t('noLowStockItems')}</p>
-          )}
+        <div className="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">{t('lowStockAlert')}</h2>
+            <span className="text-sm text-slate-500">{stats?.lowStockItems?.length || 0} flagged</span>
+          </div>
+          <div className="space-y-4">
+            {stats?.lowStockItems?.length ? (
+              stats.lowStockItems.map((item) => (
+                <div key={item._id} className="flex items-center justify-between rounded-2xl bg-amber-50 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">{item.name}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {t('currentStock')}: {item.stock} / threshold {item.lowStockThreshold}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+                    {t('lowStock')}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">{t('noLowStockItems')}</p>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;

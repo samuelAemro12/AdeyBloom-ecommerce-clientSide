@@ -1,34 +1,32 @@
 import api from '../config/axios';
 
+const unwrap = (response) => response?.data ?? response;
+
 export const adminService = {
-  // Dashboard
-  getDashboardStats: () => api.get('/admin/dashboard/stats').then(res => res.data),
+  getDashboardStats: () => api.get('/admin/dashboard/stats').then(unwrap),
 
-  // Products
-  getProducts: () => api.get('/products').then(res => res.data),
-  createProduct: (data) => api.post('/products', data).then(res => res.data),
-  updateProduct: (id, data) => api.put(`/products/${id}`, data).then(res => res.data),
-  deleteProduct: (id) => api.delete(`/products/${id}`).then(res => res.data),
+  getProducts: (params = {}) => api.get('/admin/products', { params }).then(unwrap),
+  createProduct: (data) => api.post('/products', data).then(unwrap),
+  updateProduct: (id, data) => api.put(`/products/${id}`, data).then(unwrap),
+  deleteProduct: (id) => api.delete(`/products/${id}`).then(unwrap),
 
-  // Orders
-  getOrders: () => api.get('/admin/orders').then(res => res.data),
-  updateOrderStatus: (id, status) => api.put(`/admin/orders/${id}/status`, { status }).then(res => res.data),
+  getOrders: () => api.get('/admin/orders').then(unwrap),
+  updateOrderStatus: (id, status) => api.put(`/admin/orders/${id}/status`, { status }).then(unwrap),
 
-  // Users
-  getUsers: () => api.get('/admin/users').then(res => res.data),
-  deleteUser: (id) => api.delete(`/admin/users/${id}`).then(res => res.data),
-  updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }).then(res => res.data),
-  toggleUserActive: (id, isActive) => api.put(`/admin/users/${id}/active`, { isActive }).then(res => res.data),
+  getUsers: () => api.get('/admin/users').then(unwrap),
+  createUser: (data) => api.post('/admin/users', data).then(unwrap),
+  updateUser: (id, data) => api.put(`/admin/users/${id}`, data).then(unwrap),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`).then(unwrap),
+  updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }).then(unwrap),
+  toggleUserActive: (id, isActive) => api.put(`/admin/users/${id}/active`, { isActive }).then(unwrap),
 
-  // Settings
-  getSettings: () => api.get('/admin/settings').then(res => res.data),
-  updateSettings: (data) => api.put('/admin/settings', data).then(res => res.data),
+  getSettings: () => api.get('/admin/settings').then(unwrap),
+  updateSettings: (data) => api.put('/admin/settings', data).then(unwrap),
 
-  // Admin registration
   registerAdmin: async (adminData) => {
     try {
       const response = await api.post('/auth/register-admin', adminData);
-      return response.data;
+      return unwrap(response);
     } catch (error) {
       throw error.response?.data || { message: 'Admin registration failed' };
     }

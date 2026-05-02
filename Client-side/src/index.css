@@ -77,6 +77,70 @@
 }
 
 @layer components {
+  .landing-shell {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at top left, rgb(255 221 226 / 0.6), transparent 26rem),
+      radial-gradient(circle at 85% 22%, rgb(197 133 215 / 0.18), transparent 24rem),
+      linear-gradient(180deg, #fff9f6 0%, #fff7fb 36%, #fffdf9 100%);
+  }
+
+  .landing-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.35) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, transparent 0%, black 12%, black 82%, transparent 100%);
+    opacity: 0.35;
+    z-index: -1;
+  }
+
+  .section-frame {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(214 214 214 / 0.35);
+    border-radius: 2rem;
+    background: rgb(255 255 255 / 0.62);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 28px 70px -38px rgb(47 47 47 / 0.32);
+  }
+
+  .section-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.58), transparent 42%, rgb(197 133 215 / 0.06) 100%);
+  }
+
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(197 133 215 / 0.22);
+    background: rgb(255 255 255 / 0.7);
+    color: var(--color-primary-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 28px -22px rgb(197 133 215 / 0.85);
+  }
+
+  .section-copy {
+    font-size: 0.98rem;
+    line-height: 1.8;
+    color: rgb(106 106 106 / 0.95);
+  }
+
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -128,6 +192,18 @@
     font-weight: 700;
     color: var(--color-primary-text);
     line-height: 1.2;
+  }
+
+  .glass-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(214 214 214 / 0.45);
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px -24px rgb(47 47 47 / 0.65);
   }
 
   .input-field {

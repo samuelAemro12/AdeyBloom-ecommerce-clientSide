@@ -6,10 +6,9 @@ import CTASection from '../components/CTASection';
 
 const HomePage = () => {
   return (
-    <div>
+    <div className="landing-shell">
       <HeroSection />
       <FeaturedProducts />
-      {/* this is the importing of the testimonial carousal */}
       <Testimonials />
       <CTASection />
     </div>
