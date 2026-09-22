@@ -27,11 +27,5 @@ export const orderService = {
         } catch (error) {
             throw error;
         }
-    },
-
-    // Admin: Update order status
-    updateOrderStatus: async (orderId, status, trackingNumber) => {
-        const response = await api.patch(`/api/orders/${orderId}/status`, { status, trackingNumber });
-        return response.data;
     }
 }; 

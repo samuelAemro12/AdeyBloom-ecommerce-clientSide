@@ -17,15 +17,6 @@ import FAQ from '../pages/FAQ';
 import Shipping from '../pages/Shipping';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
-// Admin imports
-import ProtectedAdminRoute from '../components/ProtectedAdminRoute';
-import AdminLayout from '../pages/admin/AdminLayout';
-import AdminDashboard from '../pages/admin/AdminDashboard';
-import ProductsPanel from '../pages/admin/ProductsPanel';
-import OrdersPanel from '../pages/admin/OrdersPanel';
-import UsersPanel from '../pages/admin/UsersPanel';
-import ContactManagement from '../pages/admin/ContactManagement';
-import Settings from '../pages/admin/Settings';
 import AppProviders from '../components/AppProviders';
 import SuccessPage from '../payment/SuccessPage';
 import CallbackPage from '../payment/CallbackPage'
@@ -128,47 +119,7 @@ const router = createBrowserRouter([
         }
         ]
       },
-      // Admin Routes - separate from main layout
-      {
-        path: 'admin',
-        element: <ProtectedAdminRoute />,
-        children: [
-          {
-            path: '',
-            element: <AdminLayout />,
-            children: [
-              {
-                index: true,
-                element: <AdminDashboard />
-              },
-              {
-                path: 'dashboard',
-                element: <AdminDashboard />
-              },
-              {
-                path: 'products',
-                element: <ProductsPanel />
-              },
-              {
-                path: 'orders',
-                element: <OrdersPanel />
-              },
-              {
-                path: 'users',
-                element: <UsersPanel />
-              },
-              {
-                path: 'contacts',
-                element: <ContactManagement />
-              },
-              {
-                path: 'settings',
-                element: <Settings />
-              }
-            ]
-          }
-        ]
-      },
+      // Admin routes removed - now hosted in the standalone Admin-side app.
       // Catch-all route for 404
       {
         path: '*',

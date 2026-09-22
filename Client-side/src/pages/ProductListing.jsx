@@ -158,7 +158,7 @@ const ProductListing = () => {
 
         {/* Page Header */}
         <div className="text-center mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-2">Shop</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-2">{t('shop')}</p>
           <h1 className="section-heading mb-3">{t('exploreOurProducts')}</h1>
           <p className="text-sm text-secondary-text max-w-xl mx-auto">{t('discoverYourBeauty')}</p>
           {totalProducts > 0 && !loading && (

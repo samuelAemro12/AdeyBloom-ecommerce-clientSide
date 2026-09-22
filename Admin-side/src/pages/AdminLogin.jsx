@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiShield } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
-const SignIn = () => {
-  const { login } = useAuth();
+const AdminLogin = () => {
+  const { login, user, loading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
 
-  const [formData, setFormData] = useState({ email: '', password: '', role: 'customer' });
+  const [formData, setFormData] = useState({ email: '', password: '', role: 'admin' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  if (!loading && user && user.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -25,17 +28,11 @@ const SignIn = () => {
     setIsLoading(true);
     setError('');
     try {
-      const result = await login(formData);
+      const result = await login({ ...formData, role: 'admin' });
       if (!result.success) {
         setError(result.message || t('errorFailedToSignIn'));
       } else {
-        const storedReturn = (() => { try { return sessionStorage.getItem('RETURN_TO'); } catch { return null; } })();
-        const redirectTo = location.state?.from || storedReturn || '/';
-        try {
-          sessionStorage.removeItem('RETURN_TO');
-          sessionStorage.removeItem('PENDING_INTENT');
-        } catch { /* noop */ }
-        navigate(redirectTo, { replace: true });
+        navigate('/admin/dashboard', { replace: true });
       }
     } catch {
       setError(t('errorFailedToSignIn'));
@@ -47,24 +44,24 @@ const SignIn = () => {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Left – Brand Panel */}
-      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 relative overflow-hidden bg-primary-text">
-        {/* Decorative blobs */}
+      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 relative overflow-hidden bg-slate-950">
         <div className="absolute -top-20 -left-20 w-80 h-80 bg-primary-accent/30 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-64 h-64 bg-brand-highlight/20 rounded-full blur-3xl" />
 
         <div className="relative z-10 flex flex-col justify-center items-start p-16 text-white">
-          <Link to="/" className="text-3xl font-serif font-bold text-primary-accent mb-12">
-            AdeyBloom
-          </Link>
+          <div className="flex items-center gap-3 text-3xl font-serif font-bold text-primary-accent mb-12">
+            <FiShield className="w-8 h-8" />
+            AdeyBloom Admin
+          </div>
           <h2 className="text-3xl font-serif font-bold mb-5 leading-tight">
-            Welcome back to<br />your beauty world
+            Operations hub
           </h2>
           <p className="text-white/60 text-sm leading-relaxed max-w-xs">
-            Sign in to continue shopping premium Ethiopian beauty products crafted for you.
+            Sign in to manage products, orders, customers, and store settings.
           </p>
 
           <div className="mt-12 space-y-4">
-            {['Premium quality products', 'Bilingual support (EN / አማ)', 'Secure Ethiopian payment'].map((feat) => (
+            {['Product catalog control', 'Order fulfillment', 'User & role management'].map((feat) => (
               <div key={feat} className="flex items-center gap-3 text-sm text-white/70">
                 <span className="w-5 h-5 rounded-full bg-primary-accent/30 border border-primary-accent/50 flex items-center justify-center text-primary-accent text-xs">✓</span>
                 {feat}
@@ -82,17 +79,13 @@ const SignIn = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          {/* Mobile logo */}
-          <Link to="/" className="lg:hidden block text-2xl font-serif font-bold text-primary-accent mb-8 text-center">
-            AdeyBloom
-          </Link>
+          <div className="lg:hidden block text-2xl font-serif font-bold text-primary-accent mb-8 text-center">
+            AdeyBloom Admin
+          </div>
 
-          <h1 className="text-2xl font-serif font-bold text-primary-text mb-1">{t('signInHeader')}</h1>
+          <h1 className="text-2xl font-serif font-bold text-primary-text mb-1">Admin Sign In</h1>
           <p className="text-sm text-secondary-text mb-8">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary-accent font-medium hover:underline">
-              {t('signUpHeader')}
-            </Link>
+            Authorized personnel only.
           </p>
 
           {error && (
@@ -102,7 +95,6 @@ const SignIn = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
-            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-primary-text mb-1.5">
                 {t('email')}
@@ -116,14 +108,13 @@ const SignIn = () => {
                   autoComplete="email"
                   required
                   className="input-field pl-10"
-                  placeholder="you@example.com"
+                  placeholder="admin@adeybloom.com"
                   value={formData.email}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-primary-text mb-1.5">
                 {t('password')}
@@ -137,7 +128,7 @@ const SignIn = () => {
                   autoComplete="current-password"
                   required
                   className="input-field pl-10 pr-10"
-                  placeholder={t('staticCopy.enterPassword')}
+                  placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -152,13 +143,12 @@ const SignIn = () => {
               </div>
             </div>
 
-            {/* Submit */}
             <motion.button
               type="submit"
               disabled={isLoading}
               whileHover={!isLoading ? { scale: 1.02 } : {}}
               whileTap={!isLoading ? { scale: 0.98 } : {}}
-              className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-primary-accent hover:bg-brand-highlight text-white rounded-xl font-semibold text-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-slate-900 hover:bg-primary-accent text-white rounded-xl font-semibold text-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -170,7 +160,7 @@ const SignIn = () => {
                 </>
               ) : (
                 <>
-                  {t('signInHeader')}
+                  Sign In to Admin
                   <FiArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -182,4 +172,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default AdminLogin;

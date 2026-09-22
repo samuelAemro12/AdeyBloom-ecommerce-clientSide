@@ -58,7 +58,7 @@ const FeaturedProducts = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <p className="section-kicker mb-4">Handpicked For You</p>
+            <p className="section-kicker mb-4">{t('staticCopy.handpickedForYou')}</p>
             <h2 className="section-heading mb-4">{t('featuredProducts')}</h2>
             <p className="section-copy max-w-2xl mx-auto">
               {t('featuredProductsDesc')}

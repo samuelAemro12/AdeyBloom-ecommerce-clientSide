@@ -138,7 +138,7 @@ const UserProfile = () => {
     >
       <h2 className="text-2xl font-semibold text-[#2F2F2F]">{t('orderHistory')}</h2>
       {ordersLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8">{t('loading')}</div>
       ) : ordersError ? (
         <div className="text-center py-8 text-red-500">{ordersError}</div>
       ) : orders.length === 0 ? (

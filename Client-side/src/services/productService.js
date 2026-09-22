@@ -26,51 +26,10 @@ import api from '../config/axios';
         }
     },
 
-    // Get all products (alias for getAllProducts - used by admin panel)
-    getProducts: async (params = {}) => {
-        try {
-            const response = await api.get('/products', { params });
-            // The API returns { products: [...], totalPages, currentPage, totalProducts }
-            return response.data.products || response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
     // Get single product
     getProduct: async (id) => {
         try {
             const response = await api.get(`/products/${id}`);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    // Create product (admin only)
-    createProduct: async (productData) => {
-        try {
-            const response = await api.post('/products', productData);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    // Update product (admin only)
-    updateProduct: async (id, productData) => {
-        try {
-            const response = await api.put(`/products/${id}`, productData);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    // Delete product (admin only)
-    deleteProduct: async (id) => {
-        try {
-            const response = await api.delete(`/products/${id}`);
             return response.data;
         } catch (error) {
             throw error;

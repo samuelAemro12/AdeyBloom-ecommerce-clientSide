@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useTranslation } from '../../context/TranslationContext';
 import { contactService } from '../../services/contactService';
 import { FiMail, FiPhone, FiMapPin, FiClock, FiEye, FiTrash2, FiCheck } from 'react-icons/fi';
 import Toast from '../../components/Toast';
 
 const ContactManagement = () => {
-  const { t } = useTranslation();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedContact, setSelectedContact] = useState(null);

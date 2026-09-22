@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { FiHome, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUsers } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUsers, FiGlobe } from 'react-icons/fi';
 import { useToast } from '../../context/ToastContext';
 import { useTranslation } from '../../context/TranslationContext';
 import { useAuth } from '../../context/useAuth';
@@ -9,7 +9,7 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { logout, user } = useAuth();
   const { showSuccess } = useToast();
-  const { t } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -81,9 +81,20 @@ const AdminLayout = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-right shadow-sm">
-                <p className="text-sm font-medium text-slate-900">{user?.name || 'Admin'}</p>
-                <p className="text-xs uppercase tracking-wide text-slate-400">{user?.role || 'admin'}</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+                  className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-200 hover:border-[#C585D7] hover:text-[#C585D7] hover:shadow-md active:scale-95"
+                  title={language === 'en' ? 'Switch to Amharic' : 'Switch to English'}
+                >
+                  <FiGlobe className="h-4 w-4" />
+                  <span className="tracking-wide">{language === 'en' ? 'EN' : 'አማ'}</span>
+                </button>
+
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-right shadow-sm">
+                  <p className="text-sm font-medium text-slate-900">{user?.name || 'Admin'}</p>
+                  <p className="text-xs uppercase tracking-wide text-slate-400">{user?.role || 'admin'}</p>
+                </div>
               </div>
             </div>
           </header>

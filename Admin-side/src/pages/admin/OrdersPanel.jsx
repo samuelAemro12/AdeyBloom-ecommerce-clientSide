@@ -92,7 +92,7 @@ const OrdersPanel = () => {
       <section className="rounded-[28px] bg-gradient-to-br from-sky-100 via-white to-indigo-100 p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-sky-600">Fulfillment</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-sky-600">{t('staticCopy.fulfillment')}</p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">{t('ordersManagement')}</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-600">
               Track incoming orders, update fulfillment status, and inspect line items without leaving the admin page.
@@ -168,7 +168,7 @@ const OrdersPanel = () => {
                         <button
                           onClick={() => setSelectedOrder(order)}
                           className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50"
-                          title="View details"
+                          title={t('staticCopy.viewDetails')}
                         >
                           <FiEye className="h-4 w-4" />
                         </button>
@@ -213,7 +213,7 @@ const OrdersPanel = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Shipping</h3>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('staticCopy.shipping')}</h3>
                 <p className="mt-3 text-sm text-slate-700">
                   {selectedOrder.shippingAddress?.street}
                   <br />
@@ -223,7 +223,7 @@ const OrdersPanel = () => {
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h3>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('staticCopy.summary')}</h3>
                 <p className="mt-3 text-sm text-slate-700">Placed: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                 <p className="mt-2 text-sm text-slate-700">Total: ${Number(selectedOrder.totalAmount || 0).toFixed(2)}</p>
                 <p className="mt-2 text-sm text-slate-700">Items: {selectedOrder.orderItems?.length || 0}</p>
@@ -231,7 +231,7 @@ const OrdersPanel = () => {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Line items</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('staticCopy.lineItems')}</h3>
               <div className="mt-3 space-y-3">
                 {(selectedOrder.orderItems || []).map((item) => (
                   <div key={item._id} className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3">

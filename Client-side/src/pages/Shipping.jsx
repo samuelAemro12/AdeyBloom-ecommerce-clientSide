@@ -27,7 +27,7 @@ const Shipping = () => {
         <div className="absolute -top-16 -left-16 w-72 h-72 bg-brand-highlight/20 rounded-full blur-3xl" />
         <div className="relative max-w-3xl mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Delivery</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">{t('staticCopy.delivery')}</p>
             <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white mb-5">{t('shippingInformation')}</h1>
             <p className="text-white/60 text-sm max-w-xl mx-auto">{t('shippingDescription')}</p>
           </motion.div>
@@ -39,7 +39,7 @@ const Shipping = () => {
         {/* Shipping Options */}
         <section>
           <div className="text-center mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">Options</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">{t('staticCopy.options')}</p>
             <h2 className="section-heading">{t('shippingOptions')}</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -73,7 +73,7 @@ const Shipping = () => {
         {/* Process Steps */}
         <section>
           <div className="text-center mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">How it works</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">{t('staticCopy.howItWorks')}</p>
             <h2 className="section-heading">{t('shippingProcess')}</h2>
           </div>
           <div className="grid sm:grid-cols-4 gap-6 relative">
@@ -102,7 +102,7 @@ const Shipping = () => {
         <section>
           <div className="bg-white rounded-2xl border border-cloud-gray/50 p-8 sm:p-10">
             <div className="text-center mb-10">
-              <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">Policies</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">{t('shippingPolicies')}</p>
               <h2 className="section-heading">{t('shippingPolicies')}</h2>
             </div>
             <div className="grid sm:grid-cols-2 gap-x-12 gap-y-7">

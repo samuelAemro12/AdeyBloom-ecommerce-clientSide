@@ -111,14 +111,14 @@ const ProductCard = ({ product }) => {
             whileTap={{ scale: 0.9 }}
             className="bg-white/95 text-primary-text p-2.5 rounded-full shadow-md"
             onClick={handleCardClick}
-            aria-label="Quick view"
+            aria-label={t('staticCopy.quickView')}
           >
             <FiEye className="w-4 h-4" />
           </motion.button>
         </motion.div>
 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          {inCart && user && (
+          {inCart && user && cartQuantity > 0 && (
             <span className="glass-pill !bg-brand-highlight !text-white !border-brand-highlight/40 text-[10px] font-semibold px-2 py-0.5">
               {cartQuantity} in cart
             </span>

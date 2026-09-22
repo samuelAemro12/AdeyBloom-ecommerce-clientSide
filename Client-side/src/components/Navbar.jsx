@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus, FiSettings, FiChevronDown } from 'react-icons/fi';
-import { IoLanguageOutline } from 'react-icons/io5';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiHeart, FiUserPlus, FiChevronDown, FiGlobe } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/useAuth';
@@ -24,7 +23,7 @@ const Navbar = () => {
   const menuItems = [
     { name: t('home'), path: '/' },
     { name: t('products'), path: '/products' },
-    { name: 'About', path: '/about' },
+    { name: t('aboutUs'), path: '/about' },
   ];
 
   useEffect(() => {
@@ -101,20 +100,17 @@ const Navbar = () => {
           {/* Right Actions – Desktop */}
           <div className="hidden md:flex items-center gap-5">
             {/* Language Switcher */}
-            <div className="flex items-center gap-1 text-sm text-secondary-text">
-              <IoLanguageOutline className="w-4 h-4" />
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-transparent text-sm font-medium text-primary-text focus:outline-none cursor-pointer"
-              >
-                <option value="en">Eng</option>
-                <option value="am">አማ</option>
-              </select>
-            </div>
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+              className="flex items-center gap-1.5 rounded-full border border-cloud-gray/50 px-3 py-1.5 text-sm font-medium text-secondary-text transition-all duration-200 hover:border-primary-accent hover:text-primary-accent hover:shadow-sm active:scale-95"
+              title={language === 'en' ? 'Switch to Amharic' : 'Switch to English'}
+            >
+              <FiGlobe className="w-4 h-4" />
+              <span>{language === 'en' ? 'EN' : 'አማ'}</span>
+            </button>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="relative text-primary-text hover:text-primary-accent transition-colors duration-200" aria-label="Wishlist">
+            <Link to="/wishlist" className="relative text-primary-text hover:text-primary-accent transition-colors duration-200" aria-label={t('wishlist')}>
               <FiHeart className="w-5 h-5" />
               {wishlistCount > 0 && (
                 <motion.span
@@ -128,7 +124,7 @@ const Navbar = () => {
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" className="relative text-primary-text hover:text-primary-accent transition-colors duration-200" aria-label="Cart">
+            <Link to="/cart" className="relative text-primary-text hover:text-primary-accent transition-colors duration-200" aria-label={t('cart')}>
               <FiShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
                 <motion.span
@@ -180,17 +176,8 @@ const Navbar = () => {
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-primary-text hover:bg-background transition-colors"
                         >
                           <FiShoppingCart className="w-4 h-4 text-secondary-text" />
-                          My Orders
+                          {t('orders')}
                         </Link>
-                        {user.role === 'admin' && (
-                          <Link
-                            to="/admin/dashboard"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-primary-text hover:bg-background transition-colors"
-                          >
-                            <FiSettings className="w-4 h-4 text-secondary-text" />
-                            Admin Panel
-                          </Link>
-                        )}
                         <hr className="my-1 border-cloud-gray/50" />
                         <button
                           onClick={handleLogout}
@@ -217,7 +204,7 @@ const Navbar = () => {
 
           {/* Mobile – Cart + Menu toggle */}
           <div className="md:hidden flex items-center gap-3">
-            <Link to="/cart" className="relative text-primary-text" aria-label="Cart">
+            <Link to="/cart" className="relative text-primary-text" aria-label={t('cart')}>
               <FiShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-coral-rose text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
@@ -228,7 +215,7 @@ const Navbar = () => {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-1.5 text-primary-text hover:text-primary-accent transition-colors"
-              aria-label="Toggle menu"
+              aria-label={t('staticCopy.toggleMenu')}
             >
               {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>
@@ -279,18 +266,14 @@ const Navbar = () => {
                     )}
                   </Link>
 
-                  <div className="flex items-center gap-1 text-sm text-secondary-text ml-auto">
-                    <IoLanguageOutline className="w-4 h-4" />
-                    <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="bg-transparent text-sm font-medium text-primary-text focus:outline-none cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <option value="en">English</option>
-                      <option value="am">አማርኛ</option>
-                    </select>
-                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLanguage(language === 'en' ? 'am' : 'en'); }}
+                    className="flex items-center gap-1.5 ml-auto rounded-full border border-cloud-gray/50 px-3 py-1.5 text-sm font-medium text-secondary-text transition-all duration-200 hover:border-primary-accent hover:text-primary-accent active:scale-95"
+                    title={language === 'en' ? 'Switch to Amharic' : 'Switch to English'}
+                  >
+                    <FiGlobe className="w-4 h-4" />
+                    <span>{language === 'en' ? 'EN' : 'አማ'}</span>
+                  </button>
                 </div>
 
                 {/* Auth */}
@@ -302,14 +285,8 @@ const Navbar = () => {
                     </Link>
                     <Link to="/orders" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-primary-text hover:bg-background rounded-lg transition-colors">
                       <FiShoppingCart className="w-4 h-4" />
-                      My Orders
+                      {t('orders')}
                     </Link>
-                    {user.role === 'admin' && (
-                      <Link to="/admin/dashboard" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-primary-text hover:bg-background rounded-lg transition-colors">
-                        <FiSettings className="w-4 h-4" />
-                        Admin Panel
-                      </Link>
-                    )}
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2.5 w-full text-left px-4 py-2.5 text-sm text-coral-rose hover:bg-red-50 rounded-lg transition-colors mt-1"

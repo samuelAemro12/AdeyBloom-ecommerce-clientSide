@@ -26,7 +26,7 @@ const AboutUs = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Our Story</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">{t('staticCopy.ourStory')}</p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-white mb-6 leading-tight">
               {t('aboutUs')}
             </h1>
@@ -47,7 +47,7 @@ const AboutUs = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
             >
-              <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">What drives us</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">{t('staticCopy.whatDrivesUs')}</p>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-primary-text mb-6 leading-tight">
                 {t('ourMission')}
               </h2>
@@ -64,7 +64,7 @@ const AboutUs = () => {
             >
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary-accent/20 rounded-full blur-2xl" />
               <div className="relative">
-                <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Vision</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">{t('staticCopy.vision')}</p>
                 <h3 className="text-2xl font-serif font-bold mb-4 leading-snug">{t('ourVision')}</h3>
                 <p className="text-white/65 text-sm leading-relaxed">{t('visionDescription')}</p>
               </div>
@@ -83,7 +83,7 @@ const AboutUs = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">Principles</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-3">{t('staticCopy.principles')}</p>
             <h2 className="section-heading mb-4">{t('ourValues')}</h2>
             <p className="text-secondary-text text-sm max-w-xl mx-auto">{t('valuesDescription')}</p>
           </motion.div>

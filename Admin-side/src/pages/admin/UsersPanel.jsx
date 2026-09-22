@@ -106,19 +106,6 @@ const UsersPanel = () => {
     }
   };
 
-  const handleUpdateUserRole = async (userId, newRole) => {
-    try {
-      await adminService.updateUserRole(userId, newRole);
-      setUsers((current) =>
-        current.map((user) => (user._id === userId ? { ...user, role: newRole } : user))
-      );
-      setToast({ show: true, message: t('admin.usersPanel.roleUpdateSuccess'), type: 'success' });
-    } catch (error) {
-      console.error('updateUserRole error:', error);
-      setToast({ show: true, message: t('admin.usersPanel.roleUpdateError'), type: 'error' });
-    }
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSavingUser(true);
@@ -169,8 +156,8 @@ const UsersPanel = () => {
       <section className="rounded-[28px] bg-gradient-to-br from-slate-900 via-slate-800 to-rose-700 p-6 text-white shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-rose-200">Access control</p>
-            <h1 className="mt-2 text-3xl font-semibold">Users</h1>
+            <p className="text-sm uppercase tracking-[0.24em] text-rose-200">{t('staticCopy.accessControl')}</p>
+            <h1 className="mt-2 text-3xl font-semibold">{t('users')}</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-200">
               Manage customer and admin accounts, roles, and activation state from one place.
             </p>
@@ -193,13 +180,13 @@ const UsersPanel = () => {
               onChange={(event) => setSelectedRole(event.target.value)}
               className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
             >
-              <option value="all">All roles</option>
-              <option value="customer">Customer</option>
-              <option value="admin">Admin</option>
+              <option value="all">{t('staticCopy.allRoles')}</option>
+              <option value="customer">{t('staticCopy.customer')}</option>
+              <option value="admin">{t('staticCopy.admin')}</option>
             </select>
             <input
               type="text"
-              placeholder="Search by name or email"
+              placeholder={t('staticCopy.searchByNameOrEmail')}
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
@@ -212,11 +199,11 @@ const UsersPanel = () => {
           <table className="min-w-full divide-y divide-slate-200">
             <thead>
               <tr className="text-left text-xs uppercase tracking-[0.18em] text-slate-500">
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Joined</th>
-                <th className="px-4 py-3">Actions</th>
+                <th className="px-4 py-3">{t('staticCopy.user')}</th>
+                <th className="px-4 py-3">{t('staticCopy.role')}</th>
+                <th className="px-4 py-3">{t('status')}</th>
+                <th className="px-4 py-3">{t('staticCopy.joined')}</th>
+                <th className="px-4 py-3">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -237,14 +224,15 @@ const UsersPanel = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <select
-                        value={user.role}
-                        onChange={(event) => handleUpdateUserRole(user._id, event.target.value)}
-                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                          user.role === 'admin'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}
                       >
-                        <option value="customer">Customer</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                        {user.role === 'admin' ? 'Admin' : 'Customer'}
+                      </span>
                     </td>
                     <td className="px-4 py-4">
                       <span
@@ -261,7 +249,7 @@ const UsersPanel = () => {
                         <button
                           onClick={() => openEditModal(user)}
                           className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
-                          title="Edit user"
+                          title={t('staticCopy.editUser')}
                         >
                           <FiEdit2 className="h-4 w-4" />
                         </button>
@@ -279,7 +267,7 @@ const UsersPanel = () => {
                         <button
                           onClick={() => handleDeleteUser(user._id)}
                           className="rounded-xl border border-rose-200 p-2 text-rose-600 transition hover:bg-rose-50"
-                          title="Delete user"
+                          title={t('staticCopy.deleteUser')}
                         >
                           <FiTrash2 className="h-4 w-4" />
                         </button>
@@ -312,7 +300,7 @@ const UsersPanel = () => {
                 type="text"
                 value={form.name}
                 onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                placeholder="Full name"
+                placeholder={t('staticCopy.fullName')}
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                 required
               />
@@ -320,7 +308,7 @@ const UsersPanel = () => {
                 type="email"
                 value={form.email}
                 onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                placeholder="Email address"
+                placeholder={t('staticCopy.emailAddress')}
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                 required
               />
@@ -338,8 +326,8 @@ const UsersPanel = () => {
                   onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))}
                   className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                 >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
+                  <option value="customer">{t('staticCopy.customer')}</option>
+                  <option value="admin">{t('staticCopy.admin')}</option>
                 </select>
                 <label className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700">
                   Active account

@@ -26,7 +26,7 @@ const FAQ = () => {
         <div className="absolute -top-16 -right-16 w-72 h-72 bg-primary-accent/20 rounded-full blur-3xl" />
         <div className="relative max-w-3xl mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">Help Center</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-accent mb-4">{t('staticCopy.helpCenter')}</p>
             <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white mb-5">
               {t('frequentlyAskedQuestions')}
             </h1>

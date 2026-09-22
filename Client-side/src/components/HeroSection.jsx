@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiShoppingBag } from 'react-icons/fi';
-import { HiSparkles } from 'react-icons/hi2';
 import HeroSection1 from '../assets/hero section 1.png';
 import HeroSection2 from '../assets/hero section.png';
 import HeroSection3 from '../assets/hero section (3).png';
@@ -53,23 +52,6 @@ const HeroSection = () => {
           {/* ── LEFT: Text ─────────────────────────────────────────── */}
           <div className="order-2 lg:order-1 flex flex-col">
 
-            {/* Collection badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 self-start mb-6 px-4 py-1.5 rounded-full border"
-              style={{
-                background: 'rgba(197,133,215,0.10)',
-                borderColor: 'rgba(197,133,215,0.25)',
-              }}
-            >
-              <HiSparkles className="w-3.5 h-3.5 text-primary-accent" />
-              <span className="text-xs font-semibold tracking-widest uppercase text-primary-accent">
-                New 2025 Collection
-              </span>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -78,9 +60,9 @@ const HeroSection = () => {
               className="font-serif font-bold text-primary-text leading-[1.06] mb-6"
               style={{ fontSize: 'clamp(2.8rem, 5vw, 4.25rem)' }}
             >
-              Bloom Into{' '}
+              {t('heroBloomInto')}{' '}
               <span className="relative inline-block text-primary-accent">
-                Your Best
+                {t('heroYourBest')}
                 {/* Decorative wavy underline */}
                 <svg
                   aria-hidden="true"
@@ -97,7 +79,7 @@ const HeroSection = () => {
                   />
                 </svg>
               </span>{' '}
-              Self
+              {t('heroSelf')}
             </motion.h1>
 
             {/* Subtitle */}
@@ -107,8 +89,7 @@ const HeroSection = () => {
               transition={{ delay: 0.3, duration: 0.65 }}
               className="text-secondary-text text-lg leading-relaxed mb-8 max-w-md"
             >
-              Premium natural beauty crafted for Ethiopian women. Skincare that
-              celebrates your radiance — ethically sourced, naturally inspired.
+              {t('heroSubtitle')}
             </motion.p>
 
             {/* Feature chips */}

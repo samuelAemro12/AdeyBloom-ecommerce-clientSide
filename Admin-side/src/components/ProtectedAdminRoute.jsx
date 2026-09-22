@@ -4,7 +4,6 @@ import { useAuth } from '../context/useAuth';
 
 const ProtectedAdminRoute = () => {
   const { user, loading } = useAuth();
-  console.log('user', user);
 
   if (loading) {
     return (
@@ -29,7 +28,7 @@ const ProtectedAdminRoute = () => {
       console.debug('ProtectedAdminRoute session check failed', e);
     }
 
-    return <Navigate to="/signin" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

@@ -91,7 +91,7 @@ const Testimonials = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <p className="section-kicker mb-4">Real Stories</p>
+            <p className="section-kicker mb-4">{t('staticCopy.realStories')}</p>
             <h2 className="section-heading mb-4">{t('testimonialsHeader')}</h2>
             <p className="section-copy max-w-2xl mx-auto">
               Rituals people come back to, textures they remember, and results that make the routine feel special.
@@ -146,14 +146,14 @@ const Testimonials = () => {
             {total > 1 && (
               <>
                 <button
-                  aria-label="Previous testimonial"
+                  aria-label={t('staticCopy.previousTestimonial')}
                   onClick={prev}
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 border border-white shadow-sm flex items-center justify-center hover:border-primary-accent hover:text-primary-accent transition-colors duration-200 md:-left-5"
                 >
                   <FiChevronLeft className="w-5 h-5" />
                 </button>
                 <button
-                  aria-label="Next testimonial"
+                  aria-label={t('staticCopy.nextTestimonial')}
                   onClick={next}
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 border border-white shadow-sm flex items-center justify-center hover:border-primary-accent hover:text-primary-accent transition-colors duration-200 md:-right-5"
                 >

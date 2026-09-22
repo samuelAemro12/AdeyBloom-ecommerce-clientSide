@@ -39,30 +39,9 @@ A modern, responsive React-based frontend for a beauty products e-commerce platf
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **Framer Motion** - Smooth animations and transitions
 - **React Icons** - Comprehensive icon library
-   Create a `.env` file in `Client-side/` (root of the frontend project). The API base value SHOULD NOT include `/api` if you want the automatic normalizer to append it once. (If you include it, the normalizer prevents duplication.)
-   ```env
-   # Primary remote (e.g. Render deployment root WITHOUT trailing /api preferred)
-   VITE_API_BASE_URL=https://adeybloom-ecommerce-backend-1.onrender.com
-
-   # Local fallback (used automatically if remote unreachable / 5xx)
-   VITE_API_BASE_URL_LOCAL=http://localhost:5000
-
-   # Payment / Other keys
-   VITE_CHAPA_PUBLIC_KEY=your_chapa_public_key
-   ```
-   When the app boots it logs: `[API] Initial base URL set to: <resolved>/api`.
 - **Context API** - Global state management for auth, cart, wishlist
 - **Axios** - HTTP client for API communication
-### Axios Remote-First Strategy
-The shared `src/config/axios.js` client:
-1. Normalizes base so it ends with `/api` exactly once.
-2. Starts with `VITE_API_BASE_URL` (remote) when defined.
-3. On network failure or server 5xx (first request only), it falls back to `VITE_API_BASE_URL_LOCAL`.
-4. Provides helpers:
-   - `forceLocalApi()` – manually switch to local.
-   - `resetToRemoteApi()` – switch back to remote.
-   - `getCurrentApiBase()` – inspect current active base.
-5. Optional redirect on 401 (enabled by default). Can be toggled via `setRedirectOn401(false)` (if added) to avoid loops during custom flows.
+- **Axios Remote-First Strategy** - Auto-fallback from production API to local dev API on network/5xx failure
 
 ### Authentication
 - HTTP-only cookie based (no manual token injection required in requests)
@@ -71,85 +50,128 @@ The shared `src/config/axios.js` client:
 ### Error Handling
 - 404 on remote before fallback triggers a console hint to check that the environment base is missing `/api`.
 - Product fetch gracefully substitutes demo products if initial load fails, keeping the homepage populated.
-- **TypeScript Support** - Type definitions for better development
 
 ## 📁 Project Structure
 
 ```
-Client-side/
-├── public/                    # Static assets
-├── src/
-│   ├── components/           # Reusable UI components
-│   │   ├── Navbar.jsx       # Navigation bar with language switcher
-│   │   ├── Footer.jsx       # Site footer
-│   │   ├── ProductCard.jsx  # Product display card
-│   │   ├── SearchBar.jsx    # Product search functionality
-│   │   └── LoadingSpinner.jsx
-
-**Local Override Flow**
-In dev tools console you can run:
-```js
-import { forceLocalApi, resetToRemoteApi, getCurrentApiBase } from '/src/config/axios.js';
-forceLocalApi();
-getCurrentApiBase(); // -> http://localhost:5000/api
-resetToRemoteApi();
-```
-
-**Troubleshooting 404 /products**
-If you see `Cannot GET /products` from the remote host:
-1. Ensure backend actually mounts routes at `/api/products`.
-2. Ensure `VITE_API_BASE_URL` does NOT already include `/api` twice.
-3. Confirm console log normalized: `.../api`.
-
-**Dynamic Testimonials**
-`Testimonials.jsx` fetches `/reviews/recent`. If empty or error, fallback static testimonials render (ensures consistent UX during early staging).
-
-**Ratings & Discounts**
-`product.controller.js` enriches products with rating, reviewCount, discount, and computed final price; product cards reflect these.
-│   ├── pages/               # Page components
-│   │   ├── HomePage.jsx     # Landing page with hero section
-│   │   ├── ProductDetails.jsx # Individual product view
-│   │   ├── ProductListing.jsx # Product catalog with filters
-│   │   ├── Cart.jsx         # Shopping cart
-│   │   ├── Checkout.jsx     # Checkout with Chapa payment
-│   │   ├── UserProfile.jsx  # User account management
-│   │   ├── OrderHistory.jsx # Order tracking
-│   │   ├── WishlistPage.jsx # Saved products
-│   │   ├── AboutUs.jsx      # Company information
-│   │   ├── ContactUs.jsx    # Contact form
-│   │   ├── FAQ.jsx          # Frequently asked questions
-│   │   └── admin/           # Admin panel pages
-│   │       ├── AdminDashboard.jsx
-│   │       ├── ProductsPanel.jsx
-│   │       ├── OrdersPanel.jsx
-│   │       ├── UsersPanel.jsx
-│   │       ├── ContactManagement.jsx
-│   │       └── Settings.jsx
-│   ├── context/             # React Context providers
-│   │   ├── AuthContext.jsx  # Authentication state
-│   │   ├── CartContext.jsx  # Shopping cart state
-│   │   ├── WishlistContext.jsx # Wishlist management
-│   │   ├── ToastContext.jsx # Notification system
-│   │   └── TranslationContext.jsx # i18n management
-│   ├── services/            # API service functions
-│   │   ├── authService.js   # Authentication APIs
-│   │   ├── productService.js # Product management
-│   │   ├── orderService.js  # Order processing
-│   │   ├── cartService.js   # Cart operations
-│   │   └── contactService.js # Contact form
-│   ├── i18n/                # Internationalization
-│   │   └── translation.js   # English/Amharic translations
-│   ├── routes/              # Routing configuration
-│   │   ├── index.jsx        # Main router setup
-│   │   └── ProtectedRoute.jsx # Route protection
-│   ├── config/              # Configuration files
-│   │   └── axios.js         # Axios configuration
-│   ├── payment/             # Payment integration
-│   │   ├── CallbackPage.jsx # Payment callback handler
-│   │   └── SuccessPage.jsx  # Payment success page
-│   └── layouts/             # Layout components
-│       └── RootLayout.jsx   # Main app layout
-├── package.json
+AdeyBloom-ecommerce-clientSide/
+├── Admin-side/                          # Admin dashboard (React + Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── admin/
+│   │   │   │   ├── SalesChart.jsx       # Dashboard sales chart
+│   │   │   │   └── TopProducts.jsx      # Dashboard top products
+│   │   │   ├── AppProviders.jsx         # Auth + Toast provider wrapper
+│   │   │   ├── LoadingSpinner.jsx       # Global loading spinner
+│   │   │   ├── ProtectedAdminRoute.jsx  # Admin route guard
+│   │   │   └── Toast.jsx               # Toast notification component
+│   │   ├── config/
+│   │   │   └── axios.js                # Axios instance with remote-first fallback
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx          # Authentication state
+│   │   │   ├── ToastContext.jsx         # Toast notification state
+│   │   │   ├── TranslationContext.jsx   # i18n state (EN/AM)
+│   │   │   └── useAuth.js              # Auth hook
+│   │   ├── i18n/
+│   │   │   └── translation.js          # English/Amharic translations
+│   │   ├── pages/
+│   │   │   ├── AdminLogin.jsx           # Admin login page
+│   │   │   └── admin/
+│   │   │       ├── AdminDashboard.jsx   # Dashboard overview
+│   │   │       ├── AdminLayout.jsx      # Sidebar + header layout wrapper
+│   │   │       ├── ContactManagement.jsx# Customer inquiries
+│   │   │       ├── OrdersPanel.jsx      # Order management
+│   │   │       ├── ProductsPanel.jsx    # Product CRUD
+│   │   │       ├── Settings.jsx         # Store settings
+│   │   │       └── UsersPanel.jsx       # User management
+│   │   ├── routes/
+│   │   │   └── index.jsx               # Admin router
+│   │   ├── services/
+│   │   │   ├── admin.service.js         # Admin API calls
+│   │   │   ├── auth.service.js          # Auth API calls
+│   │   │   └── contactService.js        # Contact API calls
+│   │   ├── index.css
+│   │   └── main.jsx                     # Entry point
+│   └── .env                             # VITE_API_BASE_URL, keys
+│
+├── Client-side/                         # Customer-facing storefront (React + Vite)
+│   ├── src/
+│   │   ├── assets/                      # Images, product photos
+│   │   ├── components/
+│   │   │   ├── AddressManagement.jsx    # Address form/management
+│   │   │   ├── AppProviders.jsx         # Context provider wrapper
+│   │   │   ├── CartItem.jsx             # Single cart item row
+│   │   │   ├── CartSummary.jsx          # Cart totals sidebar
+│   │   │   ├── CheckoutForm.jsx         # Checkout form
+│   │   │   ├── CTASection.jsx           # Call-to-action section
+│   │   │   ├── FeaturedProducts.jsx     # Homepage featured grid
+│   │   │   ├── Footer.jsx              # Site footer
+│   │   │   ├── HeroSection.jsx          # Homepage hero carousel
+│   │   │   ├── ImageUpload.jsx          # Image upload component
+│   │   │   ├── LoadingSpinner.jsx       # Global loading spinner
+│   │   │   ├── Navbar.jsx              # Top navigation bar
+│   │   │   ├── OrderDetails.jsx         # Single order detail view
+│   │   │   ├── OrderList.jsx            # Order history list
+│   │   │   ├── ProductCard.jsx          # Product display card
+│   │   │   ├── ProductSkeleton.jsx      # Loading placeholder
+│   │   │   ├── SearchBar.jsx            # Product search
+│   │   │   ├── Testimonials.jsx         # Customer reviews carousel
+│   │   │   ├── Toast.jsx               # Toast notification
+│   │   │   └── WishlistButton.jsx       # Add-to-wishlist button
+│   │   ├── config/
+│   │   │   └── axios.js                # Axios with remote-first fallback
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx          # Authentication state
+│   │   │   ├── CartContext.jsx          # Shopping cart state
+│   │   │   ├── ToastContext.jsx         # Toast notification state
+│   │   │   ├── TranslationContext.jsx   # i18n state (EN/AM)
+│   │   │   ├── useAuth.js              # Auth hook
+│   │   │   ├── UserContext.jsx          # User profile state
+│   │   │   ├── useRequireAuth.js       # Protected route hook
+│   │   │   └── WishlistContext.jsx      # Wishlist state
+│   │   ├── i18n/
+│   │   │   └── translation.js          # English/Amharic translations
+│   │   ├── layouts/
+│   │   │   └── RootLayout.jsx          # Main app layout
+│   │   ├── pages/
+│   │   │   ├── AboutUs.jsx              # About page
+│   │   │   ├── Cart.jsx                 # Shopping cart
+│   │   │   ├── Checkout.jsx             # Checkout flow
+│   │   │   ├── ContactUs.jsx            # Contact form
+│   │   │   ├── FAQ.jsx                  # FAQ page
+│   │   │   ├── HomePage.jsx             # Landing page
+│   │   │   ├── NotFound.jsx             # 404 page
+│   │   │   ├── OrderConfirmation.jsx    # Order success
+│   │   │   ├── OrderHistory.jsx         # Past orders
+│   │   │   ├── ProductDetails.jsx       # Single product view
+│   │   │   ├── ProductListing.jsx       # Product catalog
+│   │   │   ├── Shipping.jsx             # Shipping info
+│   │   │   ├── SignIn.jsx               # Sign in page
+│   │   │   ├── SignUp.jsx               # Sign up page
+│   │   │   ├── UserProfile.jsx          # User profile
+│   │   │   ├── Wishlist.jsx             # Wishlist page
+│   │   │   └── WishlistPage.jsx         # Wishlist alt route
+│   │   ├── payment/
+│   │   │   ├── CallbackPage.jsx         # Chapa payment callback
+│   │   │   └── SuccessPage.jsx          # Payment success
+│   │   ├── routes/
+│   │   │   ├── index.jsx               # Main router
+│   │   │   └── ProtectedRoute.jsx       # Auth route guard
+│   │   ├── services/
+│   │   │   ├── auth.service.js          # Auth API calls
+│   │   │   ├── cartService.js           # Cart API calls
+│   │   │   ├── categoryService.js       # Category API calls
+│   │   │   ├── contactService.js        # Contact form API
+│   │   │   ├── orderService.js          # Order API calls
+│   │   │   ├── productService.js        # Product API calls
+│   │   │   ├── profileService.js        # Profile API calls
+│   │   │   ├── reviewService.js         # Review API calls
+│   │   │   └── wishlistService.js       # Wishlist API calls
+│   │   ├── index.css
+│   │   └── main.jsx                     # Entry point
+│   └── .env                             # VITE_API_BASE_URL, keys
+│
+├── LICENSE
 └── README.md
 ```
 
@@ -165,39 +187,58 @@ If you see `Cannot GET /products` from the remote host:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd beauty-products-ecommerce-clientSide/Client-side
+   cd AdeyBloom-ecommerce-clientSide
    ```
 
-2. **Install dependencies**
+2. **Install dependencies for Client-side**
    ```bash
+   cd Client-side
    npm install
-   # or
-   yarn install
    ```
 
-3. **Environment Setup**
-   Create a `.env` file in the root directory:
+3. **Install dependencies for Admin-side**
+   ```bash
+   cd ../Admin-side
+   npm install
+   ```
+
+4. **Environment Setup**
+
+   Create a `.env` file in each app's root directory:
+
+   **Client-side** (`Client-side/.env`):
    ```env
-   VITE_API_BASE_URL=http://localhost:5000/api
+   VITE_API_BASE_URL=https://adeybloom-ecommerce-backend-1.onrender.com
+   VITE_API_BASE_URL_LOCAL=http://localhost:5000
    VITE_CHAPA_PUBLIC_KEY=your_chapa_public_key
    ```
 
-4. **Start development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
+   **Admin-side** (`Admin-side/.env`):
+   ```env
+   VITE_API_BASE_URL=https://adeybloom-ecommerce-backend-1.onrender.com
+   VITE_API_BASE_URL_LOCAL=http://localhost:5000
+   VITE_CHAPA_PUBLIC_KEY=your_chapa_public_key
    ```
 
-5. **Open your browser**
-   Navigate to `http://localhost:5173`
+   > The API base URL should NOT include `/api` — the axios config appends it automatically.
+
+5. **Start development servers**
+   ```bash
+   # Client-side (port 5173)
+   cd Client-side && npm run dev
+
+   # Admin-side (port 5174)
+   cd Admin-side && npm run dev
+   ```
 
 ### Build for Production
 
 ```bash
-npm run build
-# or
-yarn build
+# Client-side
+cd Client-side && npm run build
+
+# Admin-side
+cd Admin-side && npm run build
 ```
 
 ## 🌐 API Integration

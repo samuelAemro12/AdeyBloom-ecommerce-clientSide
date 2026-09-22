@@ -1,22 +1,23 @@
 import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram, FiArrowRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-
-const footerLinks = {
-  quick: [
-    { label: 'Shop All', path: '/products' },
-    { label: 'About Us', path: '/about' },
-    { label: 'Contact', path: '/contact' },
-  ],
-  support: [
-    { label: 'Shipping Info', path: '/shipping' },
-    { label: 'FAQ', path: '/faq' },
-    { label: 'My Orders', path: '/orders' },
-    { label: 'My Wishlist', path: '/wishlist' },
-  ],
-};
+import { useTranslation } from '../context/TranslationContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
+
+  const quickLinks = [
+    { label: t('shop'), path: '/products' },
+    { label: t('aboutUs'), path: '/about' },
+    { label: t('contact'), path: '/contact' },
+  ];
+
+  const supportLinks = [
+    { label: t('shippingInfo'), path: '/shipping' },
+    { label: t('faq'), path: '/faq' },
+    { label: t('orders'), path: '/orders' },
+    { label: t('wishlist'), path: '/wishlist' },
+  ];
 
   return (
     <footer className="relative mt-auto overflow-hidden bg-[#17151c] text-gray-300">
@@ -27,18 +28,18 @@ const Footer = () => {
           <div className="space-y-6 rounded-[1.75rem] border border-white/8 bg-white/5 p-7 backdrop-blur-sm">
             <div>
               <div className="section-kicker !bg-white/6 !border-white/10 !text-secondary-accent mb-4">
-                Ethiopian Beauty Rituals
+                {t('ethiopianBeautyRituals')}
               </div>
               <span className="text-3xl font-serif font-bold text-white">AdeyBloom</span>
               <p className="mt-4 max-w-md text-sm text-gray-300/78 leading-relaxed">
-                Empowering Ethiopian beauty through premium, curated products designed to feel elevated from first glance to final glow.
+                {t('footerBrandDescription')}
               </p>
             </div>
 
             <div className="grid gap-3 text-sm text-gray-300/82">
               <div className="flex items-center gap-3">
                 <FiMapPin className="text-primary-accent shrink-0" />
-                <span>Addis Ababa, Ethiopia</span>
+                <span>{t('addisAbabaEthiopia')}</span>
               </div>
               <div className="flex items-center gap-3">
                 <FiPhone className="text-primary-accent shrink-0" />
@@ -52,9 +53,9 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">Quick Links</h4>
+            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">{t('quickLinks')}</h4>
             <ul className="space-y-3.5">
-              {footerLinks.quick.map(({ label, path }) => (
+              {quickLinks.map(({ label, path }) => (
                 <li key={path}>
                   <Link
                     to={path}
@@ -69,9 +70,9 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">Support</h4>
+            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">{t('customerService')}</h4>
             <ul className="space-y-3.5">
-              {footerLinks.support.map(({ label, path }) => (
+              {supportLinks.map(({ label, path }) => (
                 <li key={path}>
                   <Link
                     to={path}
@@ -86,9 +87,9 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">Follow Us</h4>
+            <h4 className="text-white text-sm font-semibold uppercase tracking-[0.22em] mb-5">{t('followUs')}</h4>
             <p className="text-sm text-gray-300/74 mb-5 leading-relaxed">
-              Stay connected with the latest beauty trends, launch drops, and thoughtful offers.
+              {t('followUsDescription')}
             </p>
             <div className="flex gap-3 mb-6">
               {[
@@ -108,9 +109,9 @@ const Footer = () => {
             </div>
 
             <div className="rounded-[1.25rem] border border-white/8 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-secondary-accent mb-2">Why People Return</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-secondary-accent mb-2">{t('whyPeopleReturn')}</p>
               <p className="text-sm text-gray-300/78 leading-relaxed">
-                Elegant textures, considered formulas, and a storefront that feels as premium as the products.
+                {t('whyPeopleReturnDescription')}
               </p>
             </div>
           </div>
@@ -120,10 +121,10 @@ const Footer = () => {
       <div className="border-t border-white/8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-gray-400/70">
-            &copy; {currentYear} AdeyBloom. All rights reserved.
+            &copy; {currentYear} AdeyBloom. {t('allRightsReserved')}
           </p>
           <p className="text-xs text-gray-400/70">
-            Made with care for Ethiopian beauty
+            {t('madeWithCare')}
           </p>
         </div>
       </div>

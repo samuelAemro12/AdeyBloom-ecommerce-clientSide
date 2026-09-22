@@ -100,80 +100,103 @@ const ProductDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Product Image */}
-        <div className="rounded-lg overflow-hidden">
+        <div className="relative rounded-[2rem] overflow-hidden shadow-[0_20px_60px_-20px_rgba(197,133,215,0.25)] border border-white/60 bg-white">
           <img
             src={product.images && product.images[0] ? product.images[0] : '/placeholder-image.jpg'}
             alt={product.name}
-            className="w-full h-auto object-cover"
+            className="w-full h-auto max-h-[520px] object-cover"
           />
+          {product.discount > 0 && (
+            <span className="absolute top-4 left-4 bg-[#C585D7] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+              {Math.round(product.discount)}% OFF
+            </span>
+          )}
         </div>
 
         {/* Product Info */}
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            <WishlistButton productId={product._id} className="mt-1" />
-          </div>
-          <p className="text-2xl font-semibold text-pink-600">{formatPrice(product.price, product.currency)}</p>
-          <div className="prose max-w-none">
-            <p className="text-gray-600">{product.description}</p>
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+            <WishlistButton productId={product._id} className="mt-1 shrink-0" />
           </div>
 
-          {/* Brand */}
-          {product.brand && (
-            <p className="text-gray-500"><strong>Brand:</strong> {product.brand}</p>
-          )}
+          <p className="text-2xl font-semibold text-[#C585D7]">{formatPrice(product.price, product.currency)}</p>
 
-          {/* Category */}
-          {product.category && (
-            <p className="text-gray-500">
-              <strong>Category:</strong> {typeof product.category === 'object' ? product.category.name : product.category}
-            </p>
-          )}
+          <p className="text-gray-600 leading-relaxed">{product.description}</p>
+
+          {/* Brand + Category row */}
+          <div className="flex flex-wrap gap-3">
+            {product.brand && (
+              <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {product.brand}
+              </span>
+            )}
+            {product.category && (
+              <span className="inline-flex items-center rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                {typeof product.category === 'object' ? product.category.name : product.category}
+              </span>
+            )}
+          </div>
 
           {/* Stock Status */}
-          <p className="text-gray-500">
-            <strong>Stock:</strong> {product.stock > 0 ? `${product.stock} available` : 'Out of stock'}
+          <p className={`text-sm font-medium ${product.stock > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            {product.stock > 0 ? `${product.stock} ${t('inStock')}` : t('outOfStock')}
           </p>
 
-          {/* Quantity Selector */}
-          <div className="flex items-center space-x-4">
-            <label htmlFor="quantity" className="text-gray-700">{t('quantity')}:</label>
-            <select
-              id="quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="border border-gray-300 rounded-md p-2"
-              disabled={product.stock === 0}
-            >
-              {Array.from({ length: Math.min(10, product.stock) }, (_, i) => i + 1).map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
+          {/* Quantity Input */}
+          <div className="flex items-center gap-3">
+            <label htmlFor="quantity" className="text-sm font-medium text-gray-700">{t('quantity')}:</label>
+            <div className="flex items-center rounded-xl border border-gray-200 overflow-hidden">
+              <button
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1 || product.stock === 0}
+                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                id="quantity"
+                value={quantity}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (!isNaN(v) && v >= 1 && v <= Math.min(10, product.stock)) setQuantity(v);
+                }}
+                min={1}
+                max={Math.min(10, product.stock)}
+                disabled={product.stock === 0}
+                className="w-14 h-10 text-center text-sm font-semibold border-x border-gray-200 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:bg-gray-50"
+              />
+              <button
+                onClick={() => setQuantity((q) => Math.min(Math.min(10, product.stock), q + 1))}
+                disabled={quantity >= Math.min(10, product.stock) || product.stock === 0}
+                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`w-full py-3 px-6 rounded-md transition-colors ${
-              product.stock === 0 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-pink-600 hover:bg-pink-700'
-            } text-white`}
+            className={`w-full py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all ${
+              product.stock === 0
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-[#C585D7] hover:bg-[#B574C6] text-white shadow-[0_12px_28px_-10px_rgba(197,133,215,0.7)] hover:shadow-[0_16px_32px_-10px_rgba(197,133,215,0.85)]'
+            }`}
           >
             {product.stock === 0 ? t('outOfStock') : t('addToCart')}
           </button>
 
-          {/* Additional Product Details */}
+          {/* Ingredients */}
           {product.ingredients && (
-            <div className="border-t pt-6 mt-6">
-              <h2 className="text-xl font-semibold mb-4">{t('ingredients')}</h2>
-              <p className="text-gray-600">{product.ingredients}</p>
+            <div className="border-t border-gray-100 pt-5 mt-2">
+              <h2 className="text-base font-semibold mb-2 text-gray-800">{t('ingredients')}</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">{product.ingredients}</p>
             </div>
           )}
         </div>
